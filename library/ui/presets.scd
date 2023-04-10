@@ -8,7 +8,7 @@ func: {|node|
         var color_active = Color.white.alpha_(0.9);
         var color_saved = Color.green.alpha_(0.9);
         var color_empty = Color.clear.alpha_(0.9);
-        var issaved = P.getPreset(node, i).notNil;
+        var issaved = DMPreset.getPreset(node, i).notNil;
         var color_init = if (issaved) {color_saved}{color_empty};
 
         //[node, i, issaved].postln;
@@ -25,13 +25,13 @@ func: {|node|
             });
 
             if (ctrl.value == 1) {
-                var preset = P.getPreset(node, i);
+                var preset = DMPreset.getPreset(node, i);
                 if (preset.isNil) {
                     //log.("% preset %".format(\save, i));
-                    P.addCurrent(node, i);
+                    DMPreset.addCurrent(node, i);
                 } {
                     //log.("% preset %".format(\morph, i));
-                    P.morph(node, i, beats:morphbeats);
+                    DMPreset.morph(node, i, beats:morphbeats);
                 };
             }{
                 // button stays on
@@ -44,12 +44,12 @@ func: {|node|
             // 524288 option
             if (mod == 262144) {
                 //log.("% preset %".format(\remove, i));
-                P.remove(node, i);
+                DMPreset.remove(node, i);
                 ctrl.states = [ [nil, nil, color_empty ], [nil, nil, color_active ] ];
             };
             if (mod == 131072) {
                 //log.("% preset %".format(\overwrite, i));
-                P.addCurrent(node, i);
+                DMPreset.addCurrent(node, i);
             };
         })
         .states_([ [nil, nil, color_init ], [nil, nil, color_active ] ])
@@ -89,7 +89,7 @@ func: {|node|
             .action_({|ctrl|
                 var from = frompresetview.value.asInteger;
                 var to = topresetview.value.asInteger;
-                P.blend(node, from, to, ctrl.value);
+                DMPreset.blend(node, from, to, ctrl.value);
             }),
             topresetview = NumberBox()
             .value_(0)

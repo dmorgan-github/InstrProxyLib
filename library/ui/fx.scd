@@ -82,7 +82,7 @@ func: {|node|
                             if (obj.type == 'vst') {
                                 switch (mod,
                                     262144, { // ctrl key
-                                        UiModule('sgui').gui(fxnode, index)
+                                        UiModule('instr').gui(fxnode, index)
                                     },
                                     524288, { // alt key
                                         obj['ctrl'].gui
@@ -101,11 +101,11 @@ func: {|node|
                                         fxview.front;
                                     } {
                                         "custom view does not exists: %".format(key).warn;
-                                        UiModule('sgui').gui(fxnode, index)
+                                        UiModule('instr').gui(fxnode, index)
                                     }
                                 }{
                                     var left, top;
-                                    var fxview = UiModule('sgui').view(fxnode, index);
+                                    var fxview = UiModule('instr').view(fxnode, index);
                                     var parents = view.getParents();
                                     if (parents.notNil) {
                                         var width;
