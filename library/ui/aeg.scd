@@ -131,7 +131,7 @@ func: {|node, prefix|
     .strokeColor_(node.color)
     .gridColor_(Color.gray)
     .background_(Color.clear)
-    .thumbSize_(20)
+    .thumbSize_(10)
     .grid_(Point(0.25, 0.25))
     .gridOn_(true)
     .step_(0.0001)

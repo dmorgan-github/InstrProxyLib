@@ -4,7 +4,7 @@ func: {|node|
     var paths;
     var path = DMModule.libraryDir ++ "fx/";
     var fxmenu, browse;
-    var vstlist = Halo.at(\vstlist);
+    var vstlist = Library.at(\vstlist);
 
     var vsts = {
         if (vstlist.isNil) {
@@ -41,7 +41,7 @@ func: {|node|
             .asArray
             .sort;
 
-            Halo.put(\vstlist, vstlist)
+            Library.put(\vstlist, vstlist)
         };
 
         vstlist
