@@ -16,7 +16,9 @@ synth: {|freq, gate, aeg|
     var slice = ~slice ?? [0, 1];
 
     var note = A2K.kr(freq).cpsmidi;
-    
+    var sig;
+   
+    /*
     var sig = MiPlaits.ar(note,
         engine:engine,
         harm:harm,
@@ -30,6 +32,21 @@ synth: {|freq, gate, aeg|
         decay: decay,
         lpg_colour: lpg
     ); 
+    */
+
+    sig = MiPlaits.ar(note,
+        engine: engine,
+        harm: harm,
+        timbre: timbre,
+        morph: morph,
+        trigger: gate,
+        level: level.squared,
+        fm_mod: fmmod,
+        timb_mod: timbremod,
+        morph_mod: morphmod,
+        decay: decay,
+        lpg_colour: lpg
+    );
     sig = sig.slice(slice.debug("slice"));
     sig
 },

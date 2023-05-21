@@ -269,47 +269,6 @@ func: {|node, index, cmds|
                                 layout = parse.(cmd.asString);
                                 target.layout.add( layout );
                             }
-
-                            /*
-                            {cmd.beginsWith("split")}, {
-
-                                var parts = cmd.split(Char.space);
-                                var lhs = parts[0];
-                                var rhs = parts[1..].join("");
-                                var vals = rhs.interpret;
-
-                                if (lhs == "split-h") {
-
-                                    target.children.do({|child|
-                                        child.remove
-                                    });
-                                    vals.do({|val|
-                                        var view = getView.(val);
-                                        target.layout.add(view);
-                                    });
-                                    target.layout.add(nil);
-                                } {
-                                    if (lhs == "split-v") {
-
-                                    }
-                                }
-
-                            }, {
-                                var myviews;
-                                var args;
-                                var mycmd;
-                                target.children.do({|child|
-                                    child.remove
-                                });
-                                mycmd = cmd.asString.split($/);
-                                currentcmd = mycmd[0].asSymbol;
-                                if (mycmd.size > 1) {
-                                    args = mycmd[1];
-                                };
-                                //[cmd, mycmd, args].postln;
-                                target.layout.add( getView.(currentcmd, args) );
-                            }
-                            */
                         );
                     }
                 );
@@ -318,6 +277,13 @@ func: {|node, index, cmds|
     ).margins_(0).spacing_(0)
     )
     .background_(Color.black);
+
+    //if (cmds.notNil) {
+    //    target.children.do({|child|
+    //        child.remove
+    //    });
+    //    target.layout.add( parse.(cmds.asString) );
+    //};
 
     view;
 }

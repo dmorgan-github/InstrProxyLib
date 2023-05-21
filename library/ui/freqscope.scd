@@ -102,7 +102,7 @@ func: {|node|
     scope.active = true;
     scope.fill = false;
     scope.waveColors_([color]);
-    view.onClose_({
+    view.onClose_({ 
         node.removeDependant(monitorwatcher);
         scope.kill
     }); // YOU MUST HAVE THIS

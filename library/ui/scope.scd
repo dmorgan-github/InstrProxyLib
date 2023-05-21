@@ -79,7 +79,12 @@ func: {|node|
         ).margins_(0).spacing_(0),
                //.palette_(sliderpalette)
     ).margins_(0).spacing_(0));
-    scopeview.onClose = { scope.free };
+    scopeview.onClose = {   
+        scope.free 
+    };
+    view.onClose = { 
+        //scope.free.debug("scope free");
+    };
     view
 }
 )

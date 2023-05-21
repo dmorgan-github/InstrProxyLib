@@ -21,7 +21,7 @@
 
         var atk = \fatk.kr(0, spec: DMControlSpec(0, 1, \lin, 0, 0.01, units:"filter", sort:1));
         //var dec = \fdec.kr(0.2, spec: DMControlSpec(0, 1, \lin, 0, 0.2, units:"filter", sort:2));
-        var suslevel = \fsuslevel.kr(0.5, spec: DMControlSpec(0, 1, \lin, 0, 0.5, units:"filter", sort:3));
+        var suslevel = \fsuslevel.kr(1, spec: DMControlSpec(0, 1, \lin, 0, 1, units:"filter", sort:3));
         var rel = \frel.kr(0.2, spec: DMControlSpec(0, 8, \lin, 0, 0.29, units:"filter", sort:4));
         //var curve = [fatkcurve, fdeccurve, frelcurve];
         var curve = [fatkcurve, frelcurve];

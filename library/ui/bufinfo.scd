@@ -1,4 +1,3 @@
-Require(App.librarydir ++ "ui/common.scd");
 (
 func: {arg buf;
 
