@@ -8,11 +8,10 @@ func: {|node|
 
     var vsts = {
         if (vstlist.isNil) {
-            // get the unique list of plugins
-            // prefering vst3 if vst2 version also exists
-            var plugins = ();
-            var list = V
-            .ls
+            
+            var plugins = List.new;
+            // TODO: remove dependency on V class
+            var list = V.ls
             .reject({arg val;
                 var plugin = VSTPlugin.plugins[val.asSymbol];
                 plugin.isNil
@@ -23,24 +22,8 @@ func: {|node|
                     VSTPlugin.plugins[val.asSymbol].category.contains("Synth")
                 }
             });
-
-            list.do({|name|
-                var noext;
-                name = name.asString;
-                noext = name.split($.)[0].asSymbol;
-                if (plugins[noext].isNil) {
-                    plugins.put(noext, 0);
-                };
-                if (name.endsWith("vst3")) {
-                    plugins[noext] = 1
-                };
-            });
-
-            vstlist = plugins.keys
-            .collect({|item| if (plugins[item] == 1) { "%.vst3".format(item).asSymbol }{item} })
-            .asArray
-            .sort;
-
+ 
+            vstlist = list.asArray.sort;
             Library.put(\vstlist, vstlist)
         };
 
@@ -58,7 +41,6 @@ func: {|node|
         };
         files;
     };
-
 
     paths = browse.(path);
 

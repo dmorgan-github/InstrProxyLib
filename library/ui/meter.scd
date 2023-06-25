@@ -40,7 +40,8 @@ func: {|node|
         .numSteps_(30)
         .meterColor_(metercolor);
         li.minWidth = 175;
-        li.fixedHeight = 8
+        li
+        //li.fixedHeight = 8
     });
 
     synth = SynthDef(levelkey ++ "OutputLevels", {
@@ -80,6 +81,7 @@ func: {|node|
     );
     view
     .minWidth_(75)
+    .minHeight_(50)
     .onClose_({
         //"free".debug("meter");
         node.removeDependant(monitorwatcher);

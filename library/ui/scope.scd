@@ -6,12 +6,12 @@ func: {|node|
     var zoomy = 10, zoomx = 5;
     var mousedown = false;
     var view, scope, scopeview;
-    var numchannels, sliderpalette, xslider, yslider;
+    var numchannels, palette, xslider, yslider;
     node = if (node.respondsTo(\node)) {node.node}{node};
 
-    sliderpalette = QPalette();
-    sliderpalette.setColor(Color.clear, \window, \active);
-    sliderpalette.setColor(Color.clear, \highlight, \active);
+    palette = QPalette();
+    palette.setColor(Color.clear, \window, \active);
+    palette.setColor(Color.clear, \highlight, \active);
 
     numchannels = node.numChannels;
     scopeview = View().layout_(VLayout().margins_(0).spacing_(0));
@@ -50,12 +50,13 @@ func: {|node|
                     var zoom = ctrl.value.clip(1, 10);
                     scope.xZoom = zoom;
                 })
-                .background_(Color.clear)
                 .minDecimals_(2)
                 .clipHi_(10)
                 .clipLo_(1)
                 .maxWidth_(45)
                 .value_(5.0)
+                .palette_(palette)
+                .background_(Color.clear)
                 ,
 
                 StaticText().string_("y"),
@@ -64,6 +65,7 @@ func: {|node|
                     var zoom = ctrl.value.clip(1, 10);
                     scope.yZoom = zoom;
                 })
+                .palette_(palette)
                 .background_(Color.clear)
                 .minDecimals_(2)
                 .clipHi_(10)

@@ -1,5 +1,8 @@
 
 /*
+
+https://scsynth.org/t/magnituderesponseview-filterkernels/5907
+
 k = SOSKernel.new;
 j = FOSKernel.new;
 j.setFrequency(1000);

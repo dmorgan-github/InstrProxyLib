@@ -11,17 +11,19 @@ func: {|node, index, cmds|
     }{
         node.key
     };
-    var view, target, props, scope, meter;
+    var view, target, props, scope;
     var getView, presets, freq, fx, views=[];
     var parse;
 
-    meter = UiModule('meter').view(node);
     props = UiModule('props').view(node, index);
     fx = UiModule('fx').view(node);
     presets = UiModule('presets').view(node);
     freq = UiModule('freqscope').view(node).maxHeight_(80);
+
     if (index.isNil) {
-        views = [presets, freq, fx];
+        views = [presets, freq, fx]
+    } {
+        views = [props]
     };
 
     target = View().layout_(VLayout(*views).margins_(0).spacing_(0));
@@ -108,7 +110,7 @@ func: {|node, index, cmds|
                     // grouping delimiters
                     '[', {
                         var result;
-                        result = exec.(HLayout());
+                        result = exec.(HLayout().margins_(3).spacing_(3));
                         list.add(result);
                     },
                     ']', {
@@ -154,59 +156,58 @@ func: {|node, index, cmds|
         );
     };
 
-    if (index.isNil) {
-        views = [
-            meter.fixedWidth_(175),
-            props.fixedWidth_(175).background_(Color.black)  ]
-    }{
-        views = [props.minWidth_(175).background_(Color.black)]
-    };
-
     view = View(bounds:75@150)
     .name_(windowname)
     .layout_(VLayout(
         HLayout(
-            VLayout(*views),
             target
         ).margins_(5).spacing_(5),
 
-        TextField()
-        .keyDownAction_({|ctrl, char, mod, unicode, keycode, key|
+        HLayout(
+            DragSource()
+            .object_(node)
+            .maxWidth_(17)
+            .string_(">")
+            .dragLabel_(node.key)
+            ,
 
-            // 16777235 up
-            // 16777237
+            TextField()
+            .keyDownAction_({|ctrl, char, mod, unicode, keycode, key|
 
-            if (keycode == 126) {
-                var cmd = cmdhistory.wrapAt(currentindex);
-                ctrl.value = cmd;
-                currentindex = (currentindex - 1).clip(0, cmdhistory.size);
-            };
+                // 16777235 up
+                // 16777237
 
-            if (keycode == 125) {
-                var cmd = cmdhistory.wrapAt(currentindex);
-                ctrl.value = cmd;
-                currentindex = (currentindex + 1).clip(0, cmdhistory.size);
-            };
+                if (keycode == 126) {
+                    var cmd = cmdhistory.wrapAt(currentindex);
+                    ctrl.value = cmd;
+                    currentindex = (currentindex - 1).clip(0, cmdhistory.size);
+                };
 
-            if (keycode == 36) {
-                //[ctrl, char, mod, unicode, keycode, key].postln;
-                //var args = "[" ++ ctrl.value ++ "]";
-                // it seems we need asCompileString to handle symbols
-                // and then we need to do interpret twice since
-                // the first call returns a string when needs
-                // to be interpreted as an array.
-                //args = args.asCompileString.interpret.interpret;
-                //args.postln;
-                //node.set(*args)
-                var parts, lhs, rhs;
-                var val = ctrl.value.asSymbol;
-                var view;
-                currentcmd = val;
+                if (keycode == 125) {
+                    var cmd = cmdhistory.wrapAt(currentindex);
+                    ctrl.value = cmd;
+                    currentindex = (currentindex + 1).clip(0, cmdhistory.size);
+                };
 
-                cmdhistory.add(currentcmd);
-                currentindex = cmdhistory.size -1;
+                if (keycode == 36) {
+                    //[ctrl, char, mod, unicode, keycode, key].postln;
+                    //var args = "[" ++ ctrl.value ++ "]";
+                    // it seems we need asCompileString to handle symbols
+                    // and then we need to do interpret twice since
+                    // the first call returns a string when needs
+                    // to be interpreted as an array.
+                    //args = args.asCompileString.interpret.interpret;
+                    //args.postln;
+                    //node.set(*args)
+                    var parts, lhs, rhs;
+                    var val = ctrl.value.asSymbol;
+                    var view;
+                    currentcmd = val;
 
-                switch (currentcmd,
+                    cmdhistory.add(currentcmd);
+                    currentindex = cmdhistory.size -1;
+
+                    switch (currentcmd,
                     \play, {
                         node.play
                     },
@@ -237,7 +238,6 @@ func: {|node, index, cmds|
                                     node.set(prop.asSymbol, rhs.interpret);
                                 }
                             },
-
                             {cmd.beginsWith("mute")}, {
                                 var fadetime = 1;
                                 var cmd = val.asString;
@@ -249,7 +249,6 @@ func: {|node, index, cmds|
                                 };
                                 fxnode.stop(fadeTime:fadetime.debug("fadetime"))
                             },
-
                             {cmd.beginsWith("unmute")}, {
                                 var fadetime = 1;
                                 var cmd = val.asString;
@@ -260,6 +259,20 @@ func: {|node, index, cmds|
                                     fadetime = rhs.asFloat;
                                 };
                                 fxnode.play(fadeTime:fadetime.debug("fadetime"))
+                            },
+                            {cmd.beginsWith("out")}, {
+                                var cmd = val.asString;
+                                parts = cmd.split(Char.space);
+                                lhs = parts[0];
+                                rhs = parts[1].stripWhiteSpace.asFloat;
+                                fxnode.out = rhs;
+                            },
+                            {cmd.beginsWith("vol")}, {
+                                var cmd = val.asString;
+                                parts = cmd.split(Char.space);
+                                lhs = parts[0];
+                                rhs = parts[1].stripWhiteSpace.asFloat;
+                                fxnode.vol = rhs;
                             },
                             {
                                 var layout;
@@ -274,6 +287,7 @@ func: {|node, index, cmds|
                 );
             }
         }).background_(Color.clear)
+        )
     ).margins_(0).spacing_(0)
     )
     .background_(Color.black);
@@ -285,6 +299,21 @@ func: {|node, index, cmds|
     //    target.layout.add( parse.(cmds.asString) );
     //};
 
-    view;
+    view
+    .canReceiveDragHandler_({|view|
+        //TODO: validate
+        var val = View.currentDrag.value;
+        true;
+    })
+    .receiveDragHandler_({|view, x, y|
+        var val = View.currentDrag.value;
+        val.debug("rec")
+        //B.read(val, cb:{|buf|
+        //    node.set(\buf, buf)
+        //})
+    })
+    .keyDownAction_({|ctrl, a, b, c|
+        [ctrl, a, b, c].postln;
+    });
 }
 )

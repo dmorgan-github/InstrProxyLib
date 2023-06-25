@@ -1,7 +1,7 @@
 (
 synth: {|in, gate, freq, aeg|
 
-    var feg = Require(DMModule.libraryDir ++ "filter/feg.scd");
+    var feg = DMModule('filter/feg').envir_(currentEnvironment);
     var cutoff, res, type, overdrive;
     #cutoff, res = feg.(freq, gate, aeg);
     type = \ftype.kr(0, spec: DMControlSpec(0, 5, \lin, 1, 0, units:"filter", sort:0));

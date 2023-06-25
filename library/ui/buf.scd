@@ -46,6 +46,7 @@ func: {arg node;
     var view;
     var sfv;
     var buf;
+    var dragSink;
 
     buf = {
         var buf = node.get(\buf);
@@ -61,8 +62,8 @@ func: {arg node;
     id = UniqueID.next;
     oscdef = "bufpos_%".format(id).asSymbol;
     osckey = 'bufpos';
-    numframes = buf.numFrames;
-    bufname = if (buf.path.notNil) {
+    numframes = if(buf.isNil) {0} { buf.numFrames };
+    bufname = if (buf.notNil and: {buf.path.notNil}) {
         PathName(buf.path).fileName
     }{
         "buffer %".format(buf.bufnum)
@@ -114,6 +115,17 @@ func: {arg node;
         node.set('endPos', endPos, 'startPos', startPos);
     });
 
+    sfv.canReceiveDragHandler = {|view|
+        //TODO: validate
+        true;
+    };
+    sfv.receiveDragHandler = {|view, x, y|
+        var val = View.currentDrag.value; 
+        B.read(val, cb:{|buf|
+            node.set(\buf, buf)
+        })
+    };
+
     watcher = {|obj, what, vals|
         if (what == \set) {
             vals.pairsDo({|k, v|
@@ -148,8 +160,6 @@ func: {arg node;
     };
 
     sfv.setSelectionColor(0, Color.white.alpha_(0.2));
-    //sfv.setSelectionStart(0, selstart);
-    //sfv.setSelectionSize(0, selend - selstart);
     buf.loadToFloatArray(action:{|a|
         {
             var startPos = node.get(\startPos);
@@ -166,50 +176,7 @@ func: {arg node;
         }.defer
     });
 
-    /*
-    bufspec = node.getSpec['buf'] ?? { [buf.bufnum, buf.bufnum].asSpec };
-    view.layout.add(VLayout(
-        LevelSlider("buf", bufspec, node.color)
-        .value_(buf.bufnum)
-        .mouseUpAction_({|ctrl|
-            var val = ctrl.value;
-            node.set(\buf, val);
-        })
-    ));
-    */
-
-    /*
-    view.layout.add(HLayout(
-
-        LevelSlider("startPos", [0, 1].asSpec, node.color)
-        .action_({|ctrl|
-            //selstart = (ctrl.value * numframes).max(0);
-            //selend = (selstart + selsize).min(numframes);
-            //selsize = selend - selstart;
-            //nb.value = selsize/buf.sampleRate;
-            //sfv.setSelectionStart(0, selstart);
-            //sfv.setSelectionSize(0, selsize);
-        })
-        .mouseUpAction_({|ctrl|
-            //node.set(\startPos, selstart/numframes, \endPos, selend/numframes);
-        })
-        .value_(startPos)
-        ,
-
-        nb.maxWidth_(60)
-        .action_({|ctrl|
-            //var val = buf.sampleRate * ctrl.value.max(0.001);
-            //selend = (selstart + val).min(numframes);
-            //selsize = selend - selstart;
-            //sfv.setSelectionSize(0, selsize);
-            //end.value = selend.linlin(0, numframes, 0, 1);
-            //node.set(\endPos, selend/numframes)
-        })
-        .clipLo_(0.001)
-        .value_(selsize/buf.sampleRate)
-    ));
-    */
-
+    //view.layout.add(dragSink);
     view.layout.add(sfv);
     view.layout.add(
         HLayout(nil,
