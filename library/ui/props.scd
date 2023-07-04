@@ -131,6 +131,7 @@ func: {|node, index|
 
             var group = assoc.key;
             var mykeys = assoc.value;
+            var rec = false;
 
             view.layout.add(
                 StaticText()
@@ -141,6 +142,7 @@ func: {|node, index|
 
             mysliders = mykeys.collect({|key, i|
                 var spec = getSpec.(key);
+                var buf = List();
                 var val = node.get(key);
                 if (val.isNil) {
                     val = spec.default;
@@ -151,7 +153,48 @@ func: {|node, index|
                         var val = node.get(key);
                         if (val != ctrl.value) {
                             node.set(key, ctrl.value);
-                        }
+                        };
+                    })
+                    .keyDownAction_({|ctrl, char, mod|
+                        //[char, mod, unicode, keycode, key].postln
+
+                        var tdef = "%_lfo".format(key).asSymbol;
+
+                        if (char == $d) { // stop and clear
+                            Tdef(tdef).stop.clear
+                        };
+
+                        if (mod == 131072) { // shift
+                            var reso = 1/8;
+                            var maxbeats = 64;
+                            var iter = maxbeats * reso.reciprocal;
+                            rec = rec.not;
+                            if (rec) {
+                                Tdef(tdef).stop.clear;
+                                buf = List();
+                                ctrl.background_(Color.red.alpha_(0.1));
+                                Tdef(tdef, {
+                                    iter.do({
+                                        var val = node.get(key);
+                                        buf.add(val);
+                                        reso.wait;
+                                    });
+                                }).play
+                            } {
+                                Tdef(tdef).stop.clear;
+                                ctrl.background_(Color.clear);
+                                Tdef(tdef, {
+                                    // TODO: make sure pseq extension not used in library
+                                    var seq = Pseq(buf.asArray, inf).asStream;
+                                    inf.do({
+                                        var next = seq.next;
+                                        node.set(key, next);
+                                        reso.wait;
+                                    })
+                                }).play
+                            };
+                            //rec.debug("lfo rec".format(key));
+                        };
                     })
                     .value_(val)
                 ]
@@ -191,7 +234,8 @@ func: {|node, index|
     node.addDependant(nodewatcher);
     scroll
     .background_(Color.black)
-    .minHeight_(50)
+    .minHeight_(150)
+    .resize_(1)
     .onClose_({
         node.removeDependant(nodewatcher);
     })

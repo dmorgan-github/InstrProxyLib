@@ -27,8 +27,7 @@ var show = {arg path;
     .background_(Color.black)
     .hasBorder_(false)
     .autohidesScrollers_(true)
-    //.resize_(1)
-    //.minHeight_(height)
+    .minHeight_(height/2)
     ;
 	scroll.decorator_(FlowLayout(scroll.bounds));
 
@@ -36,11 +35,6 @@ var show = {arg path;
     .name_("media")
     .background_(Color.black);
 	
-    //browser = View(bounds:Rect(0, 0, 400, 400))
-    //.layout_(VLayout())
-    //.resize_(1)
-    //.background_(Color.black);
-
     detailsView = View().layout_(VLayout().margins_(0).spacing_(0)).background_(Color(0.2, 0.2, 0.2)); 
 
     view.layout.add(scroll);
@@ -60,7 +54,9 @@ var show = {arg path;
         .background_(Color.black)
         .waveColors_([Color.white, Color.white])
         .gridResolution_(0.0) 
-        .timeCursorOn_(true);
+        .timeCursorOn_(false)
+        //.maxHeight_(50)
+        ;
 
         currentFile = SoundFile();
         currentFile.openRead(path);
@@ -82,56 +78,57 @@ var show = {arg path;
 
                 sfv,
 
-                GridLayout.rows(
-                    [
+                View().layout_(VLayout(
+                    GridLayout.rows(
                         [
-                            HLayout(
-                                Button().states_([ [">"] ]).action_({
-                                    currentFile.cue(playNow:true, closeWhenDone: true)
-                                })
-                                .maxSize_(30),
-
-                                Button().states_([ ["^"] ]).action_({
-                                    // TODO: mac only
-                                    "open -R \"%\"".format(path).unixCmdGetStdOut.postln
-                                })
-                                .maxSize_(30),
-
-                                Button().states_([ ["i"] ]).action_({
-                                    var chans = if ( currentFile.numChannels > 1 ) { [0, 1] } { [0] };
-
-                                    var instr = InstrProxy()
-                                    .synth(0, \sig, \sampler, cb:{|m| m.numchannels = currentFile.numChannels })
-                                    .synth(2, \env, \asr)
-                                    .set(\amp, 1, \bufpath, path);
-
-                                    {
-                                        instr.gui;
-                                    }.defer(1);
-
-                                    // TODO: need a way to expose these so they can opened later
-                                    // if the windows are closed
-                                    if (~instrs.isNil) {
-                                        ~instrs = List();
-                                    };
-                                    ~instrs.add(instr);
-
-                                    B.read(path, chans, cb: {|buf|
-                                        instr.set(\buf, buf);
+                            [
+                                HLayout(
+                                    Button().states_([ [">"] ]).action_({
+                                        currentFile.cue(playNow:true, closeWhenDone: true)
                                     })
-                                })
-                                .maxSize_(30)
-                            ),
-                            columns: 2
-                        ]
-                    ],
-                    [ StaticText().string_("sf"), StaticText().string_(currentFile.sampleFormat)],
-                    [ StaticText().string_("hf"), StaticText().string_(currentFile.headerFormat)],
-                    [ StaticText().string_("fr"), StaticText().string_(currentFile.numFrames)],
-                    [ StaticText().string_("ch"), StaticText().string_(currentFile.numChannels)],
-                    [ StaticText().string_("sr"), StaticText().string_(currentFile.sampleRate)],
-                    [ StaticText().string_("dur"), StaticText().string_(( currentFile.numFrames/currentFile.sampleRate ).trunc(1/32))]
-                )
+                                    .maxSize_(30),
+
+                                    Button().states_([ ["^"] ]).action_({
+                                        // TODO: mac only
+                                        "open -R \"%\"".format(path).unixCmdGetStdOut.postln
+                                    })
+                                    .maxSize_(30),
+
+                                    Button().states_([ ["i"] ]).action_({
+                                        var chans = if ( currentFile.numChannels > 1 ) { [0, 1] } { [0] };
+
+                                        var instr = InstrProxy()
+                                        .synth(0, \sig, \sampler, cb:{|m| m.numchannels = currentFile.numChannels })
+                                        .synth(2, \env, \asr)
+                                        .set(\amp, 1, \bufpath, path);
+
+                                        { instr.gui }.defer(1);
+
+                                        // TODO: need a way to expose these so they can opened later
+                                        // if the windows are closed
+                                        if (~instrs.isNil) {
+                                            ~instrs = List();
+                                        };
+                                        ~instrs.add(instr);
+
+                                        B.read(path, chans, cb: {|buf|
+                                            instr.set(\buf, buf);
+                                        })
+                                    })
+                                    .maxSize_(30)
+                                ),
+                                columns: 2
+                            ]
+                        ],
+                        [ StaticText().string_("sf"), StaticText().string_(currentFile.sampleFormat)],
+                        //[ StaticText().string_("hf"), StaticText().string_(currentFile.headerFormat)],
+                        [ StaticText().string_("fr"), StaticText().string_(currentFile.numFrames)],
+                        //[ StaticText().string_("ch"), StaticText().string_(currentFile.numChannels)],
+                        [ StaticText().string_("sr"), StaticText().string_(currentFile.sampleRate)],
+                        [ StaticText().string_("dur"), StaticText().string_(( currentFile.numFrames/currentFile.sampleRate ).trunc(1/32))]
+                    ),
+                    nil
+                ).margins_(1).spacing_(1)).background_(Color(0.3, 0.3, 0.3))
             ).margins_(2).spacing_(5)
         ).margins_(1).spacing_(1));
 
@@ -148,7 +145,7 @@ var show = {arg path;
         // TODO: not sure how to actually calculate this
         // is this derived from font-size?
         var height = 12;
-        var textwidth = path.size * 8;
+        var textwidth = path.size * 10;
 
 		view.removeAll;
 		view.decorator.reset;
@@ -167,9 +164,7 @@ var show = {arg path;
 		view.decorator.nextLine;
 
 		folders.do({arg path;
-            //var width = path.folderName.size * 8;
-            //(path.folderName.size * 8).postln;
-			StaticText.new(view, width@height)
+			StaticText.new(view, textwidth@height)
 			.string_("> " ++ path.folderName)
 			.stringColor_(Color.white)
 			.mouseDownAction_({
@@ -179,11 +174,18 @@ var show = {arg path;
 		});
 
 		files.do({arg path;
-            //var width = path.size * 8;
-			StaticText(view, width@height)
+			StaticText(view, textwidth@height)
 			.string_("+ " ++ path.fileName)
 			.stringColor_(Color.white)
-			.mouseDownAction_({
+            .canFocus_(true)
+			.mouseDownAction_({|ctrl|
+                if (previous.notNil) {
+                    if (previous.isClosed.not) {
+                        previous.background = Color.clear;
+                    }
+                };
+                ctrl.background = QtGUI.palette.highlight;
+                previous = ctrl;
                 loadSfv.(path.fullPath);
 			});
 			view.decorator.nextLine;
@@ -192,89 +194,6 @@ var show = {arg path;
         view.decorator.nextLine;
         StaticText(view, width@height).string_(" ");
 	};
-
-    /*
-	draw = {arg path;
-
-		var pathName = PathName.new(path);
-		var info = browse.(path);
-		var folders = info[0];
-		var files = info[1];
-		var textWidth = width * 0.9;
-		
-        browser.children.do({|child|
-            child.remove
-        });
-
-        browser.layout.add(
-            StaticText()
-            .align_(\topLeft)
-            .resize_(1)
-            .string_(path)
-            .stringColor_(Color.white)
-        );
-
-        browser.layout.add(
-            StaticText()
-            .align_(\topLeft)
-            .resize_(1)
-            .string_("^")
-            .stringColor_(Color.white)
-            .mouseDownAction_({
-                draw.(pathName.parentPath);
-            })
-        );
-
-		folders.do({arg path;
-
-            browser.layout.add(
-                StaticText()
-                .align_(\topLeft)
-                .resize_(1)
-                .string_("> " ++ path.folderName)
-                .stringColor_(Color.white)
-                .mouseDownAction_({
-                    draw.(path.fullPath);
-                })
-            );
-		});
-
-		files.do({arg path;
-
-            browser.layout.add(
-                HLayout(
-                    StaticText()
-                    .align_(\left)
-                    .resize_(1)
-                    .string_("+ " ++ path.fileName)
-                    .stringColor_(Color.white)
-                    .minWidth_(450)
-                    .mouseDownAction_({|ctrl|
-                        if (previous.notNil) {
-                            if (previous.isClosed.not) {
-                                previous.background = Color.clear;
-                            }
-                        };
-                        ctrl.background = Color.blue;
-                        previous = ctrl;
-                        loadSfv.(path.fullPath);
-                    })
-                    .beginDragAction_({ \here.postln; })
-                    ,
-                    nil
-                )
-            );
-		});
-
-        browser.layout.add(nil);
-        // i can't figure out how to keep things top aligned
-        // when the amount of content changes in the view
-        // it seems QT tries to distribute everything evenly
-        100.do({
-            browser.layout.add(StaticText().string_(" "))
-        })
-	};
-    */
 
 	draw.(path, scroll);
 
@@ -285,7 +204,6 @@ var show = {arg path;
         }
     });
 };
-
 
 // expose the module
 (

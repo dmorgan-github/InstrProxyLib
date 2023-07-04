@@ -139,6 +139,7 @@ func: {|node|
                     )
                 );
             });
+            fxbuttonsview.layout.add(nil)
         };
     };
 
@@ -157,13 +158,16 @@ func: {|node|
     };
 
     fxnode.addDependant(fxwatcher);
-    view.layout.add( fxmenu.view(fxnode) );
-    view.layout.add( fxbuttonsview);
+    view.layout.add( fxmenu.view(fxnode).resize_(1) );
+    view.layout.add( fxbuttonsview.resize_(1));
     //view.layout.add( presetview.view(fxnode) );
-    view.layout.add( nil);
+    //view.layout.add( nil);
     view
+    .background_(Color.clear)
+    .resize_(1)
     .onClose_({
         fxnode.removeDependant(fxwatcher);
     });
 }
 )
+

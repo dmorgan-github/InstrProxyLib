@@ -4,7 +4,10 @@ func: {|node|
     var background, view, scope, stack, scopeview;
     var monitorwatcher, color;
     view = View(bounds:Rect(0, 0, 511/2, 300/2)).layout_(VLayout().margins_(0).spacing_(0));
-    scopeview = View(bounds:Rect(0, 0, 511/2, 300/2)).layout_(VLayout().margins_(0).spacing_(0));
+    scopeview = View(bounds:Rect(0, 0, 511/2, 300/2))
+    .layout_(VLayout().margins_(0).spacing_(0))
+    //.resize_(1)
+    ;
     scope = FreqScopeView(scopeview, scopeview.bounds);
     node = if (node.respondsTo(\node)) {node.node}{node};
     color = if (node.isMonitoring) { node.color } { Color.grey};
@@ -102,11 +105,14 @@ func: {|node|
     scope.active = true;
     scope.fill = false;
     scope.waveColors_([color]);
-    view.onClose_({ 
+
+    view
+    .resize_(1)
+    .background_(Color.red)
+    .onClose_({ 
         node.removeDependant(monitorwatcher);
         scope.kill
     }); // YOU MUST HAVE THIS
-    view
 }
 )
 

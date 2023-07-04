@@ -5,14 +5,22 @@ func: {|node|
 	var baseview;
     var keys = Order.new;
 
-    var scale = Scale.ritusen;
+    var defaultScale = \majorPentatonic;
+    var scale = Scale.at(defaultScale);
     var map, rows, cols, buttons, hilight;
     var keyboard, grid, func, scales;
     var keyboardview, update;
-    var mode = \push;
+    var mode = node.get(\kb_mode) ?? \push;
+    var order;
 
-    var octave = (node.get(\octave) ?? 3).debug("octave");
+    //var octave = (node.get(\octave) ?? 3).debug("octave");
     var root = ~root ?? 0;
+
+    order = node.get(\kb_toggle);
+    if (order.isNil) {
+        order = Order();
+        node.set(\kb_toggle, order);    
+    };
 
 	map = [
 		'z', 'x', 'c', 'v', 'b',
@@ -49,10 +57,10 @@ func: {|node|
                 color = node.color.alpha_(0.5);
             };
             Button()
-            .states_([[label, nil, color], [label, nil, Color.white]])
+            .states_([[label, nil, color], [label, nil, Color.white.alpha_(0.9)]])
             .fixedWidth_(40)
             .mouseDownAction_({arg ctrl;
-
+                var octave = (node.get(\octave) ?? 3);
                 if (mode == \push) {
                     var note = 12 * octave + num + root;
                     var vel = num.linlin(0, 24, 127, 100);
@@ -61,21 +69,26 @@ func: {|node|
                 };
             })
             .mouseUpAction_({arg ctrl;
-                var note = 12 * octave + num + root;
+                //var note = 12 * octave + num + root;
                 if (mode == \push) {
                     ctrl.value = 1;
                 }
             })
             .action_({|ctrl|
+                var octave = (node.get(\octave) ?? 3);
                 var note = 12 * octave + num + root;
                 if (ctrl.value == 1) {
                     // toggle mode
                     var vel = num.linlin(0, 24, 127, 100);
+                    order.put(i, 1);
                     node.on(note, vel);
                 } {
+                    //[i, \toggle_off].postln;
+                    order.removeAt(i);
                     node.off(note);
                 }
-            });
+            })
+            .value_(order[i]);
         });
 
         grid = rows.collect({arg i;
@@ -91,14 +104,15 @@ func: {|node|
 
         keyboardview.layout = VLayout(
             GridLayout.rows(*grid).margins_(0).spacing_(0),
-            nil
         ).margins_(0).spacing_(0);
 
     };
 
     scales = {
+
         var names = Scale.names.select({|scale| Scale.at(scale).pitchesPerOctave == 12 });
-        var default = names.indexOf(scale.name.toLower.asSymbol);
+        var default = names.detectIndex({|n| n == defaultScale});
+
         PopUpMenu().items_([""] ++ names).action_({|ctrl|
             if (ctrl.item != "") {
                 scale = Scale.at(ctrl.item.asSymbol);
@@ -106,7 +120,7 @@ func: {|node|
             }
         })
         .background_(Color.clear)
-        .value_(default+1);
+        .value_(default.debug("default")+1);
     };
 
     update.();
@@ -123,8 +137,10 @@ func: {|node|
                     mode = \toggle
                 }{
                     mode = \push
-                }
+                };
+                node.set(\kb_mode, mode);
             })
+            .value_( if (mode == \push) {0}{1} )
         ),
         keyboardview
     ).spacing_(2).margins_(2))
@@ -134,6 +150,7 @@ func: {|node|
 		if (val.isNil.not) {
             var vel = val.linlin(0, 24, 127, 100);
 			var num = val;
+            var octave = (node.get(\octave) ?? 3);
 			var note = 12 * octave + val + root;
             if (keys[note].isNil) {
                 keys[note] = 1;
@@ -159,6 +176,7 @@ func: {|node|
         if (mode == \push) {
             if (val.isNil.not) {
                 var num = val;
+                var octave = (node.get(\octave) ?? 3);
                 var note = 12 * octave + val + root;
                 keys.removeAt(note);
                 node.off(note);
@@ -168,6 +186,7 @@ func: {|node|
             }
         }
 	})
+    .resize_(1)
 	.onClose_({arg ctrl;
         //
 	});

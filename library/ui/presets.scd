@@ -102,5 +102,6 @@ func: {|node|
         ).margins_(2).spacing_(2),
 
     )
+    .resize_(1)
 };
 )

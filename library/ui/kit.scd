@@ -120,15 +120,19 @@ var func = {|node|
             {
                 var index = evt['index'];
                 if (index.notNil and: {index.isRest.not}) {
-                    var sfv = sfvs[index];
-                    if (sfv.isNil.not and: {sfv.isClosed.not}) {
-                        //sfv.background = Color.white;
-                        sfv.waveColors = [Color.white, Color.white];
-                        {
-                            //sfv.background = Color.black
-                            sfv.waveColors = [node.color, node.color];
-                        }.defer(0.1);
-                    }
+                    index.asArray.do({|val|
+                        if (val.notNil and: {val.isRest.not}) {
+                            var sfv = sfvs[val];
+                            if (sfv.isNil.not and: {sfv.isClosed.not}) {
+                                //sfv.background = Color.white;
+                                sfv.waveColors = [Color.white, Color.white];
+                                {
+                                    //sfv.background = Color.black
+                                    sfv.waveColors = [node.color, node.color];
+                                }.defer(0.1);
+                            }
+                        }
+                    })
                 };
                 1
             }.defer(s.latency)

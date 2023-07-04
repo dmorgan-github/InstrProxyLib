@@ -81,7 +81,8 @@ func: {|node|
     );
     view
     .minWidth_(75)
-    .minHeight_(50)
+    //.minHeight_(50)
+    .fixedHeight_(22)
     .onClose_({
         //"free".debug("meter");
         node.removeDependant(monitorwatcher);

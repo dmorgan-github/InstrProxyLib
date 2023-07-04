@@ -11,11 +11,10 @@ func: {|node, index, cmds|
     }{
         node.key
     };
-    var view, target, props, scope;
+    var view, target, scope;
     var getView, presets, freq, fx, views=[];
-    var parse;
+    var parse, loadViews;
 
-    props = UiModule('props').view(node, index);
     fx = UiModule('fx').view(node);
     presets = UiModule('presets').view(node);
     freq = UiModule('freqscope').view(node).maxHeight_(80);
@@ -23,6 +22,7 @@ func: {|node, index, cmds|
     if (index.isNil) {
         views = [presets, freq, fx]
     } {
+        var props = UiModule('props').view(node, index).minWidth_(200);
         views = [props]
     };
 
@@ -145,7 +145,7 @@ func: {|node, index, cmds|
             },
             \home, {
                 var freq, fx, presets;
-                freq = UiModule('freqscope').view(node).maxHeight_(80);
+                freq = UiModule('freqscope').view(node);//.maxHeight_(80);
                 fx = UiModule('fx').view(node);
                 presets = UiModule('presets').view(node);
                 VLayout(presets, freq, fx)
@@ -154,6 +154,15 @@ func: {|node, index, cmds|
                 UiModule(currentcmd).view(node, args)
             }
         );
+    };
+
+    loadViews = {|cmd|
+        var layout;
+        target.children.do({|child|
+            child.remove
+        });
+        layout = parse.(cmd.asString);
+        target.layout.add( layout );
     };
 
     view = View(bounds:75@150)
@@ -208,98 +217,107 @@ func: {|node, index, cmds|
                     currentindex = cmdhistory.size -1;
 
                     switch (currentcmd,
-                    \play, {
-                        node.play
-                    },
-                    \stop, {
-                        node.stop
-                    },
-                    \close, {
-                        target.children.do({|child|
-                            child.remove
-                        });
-                    },
-                    {
-                        var cmd = val.asString;
-                        cmd.debug("cmd");
+                        \play, {
+                            node.play
+                        },
+                        \stop, {
+                            node.stop
+                        },
+                        \close, {
+                            target.children.do({|child|
+                                child.remove
+                            });
+                        },
+                        {
+                            var cmd = val.asString;
+                            cmd.debug("cmd");
 
-                        case(
+                            case(
 
-                            {cmd.beginsWith("@")}, {
-                                var parts = cmd.split(Char.space);
-                                var lhs = parts[0];
-                                var rhs = parts[1..].join("");
-                                var lhsparts = lhs.split($.);
-                                var prop = lhsparts[1];
-                                if (rhs.isNil or: {rhs == ""}) {
-                                    var val = node.get(prop.asSymbol);
-                                    ctrl.value = "@.% %".format(prop, val);
-                                } {
-                                    node.set(prop.asSymbol, rhs.interpret);
+                                {cmd.beginsWith("@")}, {
+                                    var parts = cmd.split(Char.space);
+                                    var lhs = parts[0];
+                                    var rhs = parts[1..].join("");
+                                    var lhsparts = lhs.split($.);
+                                    var prop = lhsparts[1];
+                                    if (rhs.isNil or: {rhs == ""}) {
+                                        var val = node.get(prop.asSymbol);
+                                        ctrl.value = "@.% %".format(prop, val);
+                                    } {
+                                        node.set(prop.asSymbol, rhs.interpret);
+                                    }
+                                },
+                                {cmd.beginsWith("mute")}, {
+                                    var fadetime = 1;
+                                    var cmd = val.asString;
+                                    parts = cmd.split(Char.space);
+                                    lhs = parts[0];
+                                    rhs = parts[1..].join("");
+                                    if (rhs.notNil) {
+                                        fadetime = rhs.asFloat;
+                                    };
+                                    fxnode.stop(fadeTime:fadetime.debug("fadetime"))
+                                },
+                                {cmd.beginsWith("unmute")}, {
+                                    var fadetime = 1;
+                                    var cmd = val.asString;
+                                    parts = cmd.split(Char.space);
+                                    lhs = parts[0];
+                                    rhs = parts[1..].join("");
+                                    if (rhs.notNil) {
+                                        fadetime = rhs.asFloat;
+                                    };
+                                    fxnode.play(fadeTime:fadetime.debug("fadetime"))
+                                },
+                                {cmd.beginsWith("out")}, {
+                                    var cmd = val.asString;
+                                    parts = cmd.split(Char.space);
+                                    lhs = parts[0];
+                                    rhs = parts[1].stripWhiteSpace.asFloat;
+                                    fxnode.out = rhs;
+                                },
+                                {cmd.beginsWith("vol")}, {
+                                    var cmd = val.asString;
+                                    parts = cmd.split(Char.space);
+                                    lhs = parts[0];
+                                    rhs = parts[1].stripWhiteSpace.asFloat;
+                                    fxnode.vol = rhs;
+                                },
+                                {
+                                    loadViews.(cmd.asString);
                                 }
-                            },
-                            {cmd.beginsWith("mute")}, {
-                                var fadetime = 1;
-                                var cmd = val.asString;
-                                parts = cmd.split(Char.space);
-                                lhs = parts[0];
-                                rhs = parts[1..].join("");
-                                if (rhs.notNil) {
-                                    fadetime = rhs.asFloat;
-                                };
-                                fxnode.stop(fadeTime:fadetime.debug("fadetime"))
-                            },
-                            {cmd.beginsWith("unmute")}, {
-                                var fadetime = 1;
-                                var cmd = val.asString;
-                                parts = cmd.split(Char.space);
-                                lhs = parts[0];
-                                rhs = parts[1..].join("");
-                                if (rhs.notNil) {
-                                    fadetime = rhs.asFloat;
-                                };
-                                fxnode.play(fadeTime:fadetime.debug("fadetime"))
-                            },
-                            {cmd.beginsWith("out")}, {
-                                var cmd = val.asString;
-                                parts = cmd.split(Char.space);
-                                lhs = parts[0];
-                                rhs = parts[1].stripWhiteSpace.asFloat;
-                                fxnode.out = rhs;
-                            },
-                            {cmd.beginsWith("vol")}, {
-                                var cmd = val.asString;
-                                parts = cmd.split(Char.space);
-                                lhs = parts[0];
-                                rhs = parts[1].stripWhiteSpace.asFloat;
-                                fxnode.vol = rhs;
-                            },
-                            {
-                                var layout;
-                                target.children.do({|child|
-                                    child.remove
-                                });
-                                layout = parse.(cmd.asString);
-                                target.layout.add( layout );
-                            }
-                        );
-                    }
-                );
-            }
-        }).background_(Color.clear)
+                            );
+                        }
+                    );
+                }
+            }).background_(Color.clear),
+
+            /*
+            Button()
+            .maxWidth_(17)
+            .states_([ [">"], ["[]"] ])
+            .action_({|ctrl|
+                if (ctrl.value == 1) {
+                    node.play
+                }{
+                    node.stop
+                }
+            })
+            .value_( node.isPlaying.if(1, 0) ),
+            */
+
+            //Button()
+            //.maxWidth_(17)
         )
     ).margins_(0).spacing_(0)
-    )
-    .background_(Color.black);
+    ).background_(Color.black);
 
-    //if (cmds.notNil) {
-    //    target.children.do({|child|
-    //        child.remove
-    //    });
-    //    target.layout.add( parse.(cmds.asString) );
-    //};
+    if (cmds.notNil) {
+        loadViews.(cmds.asString);
+    };
 
     view
+    .resize_(1)
     .canReceiveDragHandler_({|view|
         //TODO: validate
         var val = View.currentDrag.value;
@@ -308,12 +326,29 @@ func: {|node, index, cmds|
     .receiveDragHandler_({|view, x, y|
         var val = View.currentDrag.value;
         val.debug("rec")
-        //B.read(val, cb:{|buf|
-        //    node.set(\buf, buf)
-        //})
     })
-    .keyDownAction_({|ctrl, a, b, c|
-        [ctrl, a, b, c].postln;
+    .keyDownAction_({|ctrl, char, mod|
+        //[ctrl, a, b, c].debug("instr keydown");
+        switch(char,
+            $1, {
+                loadViews.("props")
+            },
+            $2, {
+                loadViews.("fx")
+            },
+            $3, {
+                loadViews.("freq")
+            },
+            $4, {
+                loadViews.("scope")
+            },
+            $5, {
+                loadViews.("kb")
+            },
+            $6, {
+                loadViews.("meter")
+            }
+        )
     });
 }
 )

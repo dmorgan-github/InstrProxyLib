@@ -25,66 +25,63 @@ func: {arg node;
     var refresh, skipjack;
     var bufspec, dorefresh;
     var bufnumView, srView, numframesView, durView;
-    var startPos;
-    var endPos;
     var id;
     var oscdef;
     var osckey;
-    var numframes;
-    var bufname;
-    var selstart;
-    var selend;
-    var selsize;
-    var wavecolors;
-    var gridcolor;
-    var backgroundcolor;
     var cursorcolor;
-    var selectioncolor;
-    var watcher;
-    var nb;
-    var end;
+    var watcher; 
     var view;
     var sfv;
     var buf;
     var dragSink;
-
-    buf = {
-        var buf = node.get(\buf);
-        if (buf.isNumber) {
-            buf = Buffer.cachedBufferAt(Server.default, buf.asInteger)
-        };
-        buf;
-    }.();
-
-    startPos = node.get(\startPos) ?? {0};
-    endPos = node.get(\endPos) ?? {1};
+    var loadBuf;
 
     id = UniqueID.next;
     oscdef = "bufpos_%".format(id).asSymbol;
     osckey = 'bufpos';
-    numframes = if(buf.isNil) {0} { buf.numFrames };
-    bufname = if (buf.notNil and: {buf.path.notNil}) {
-        PathName(buf.path).fileName
-    }{
-        "buffer %".format(buf.bufnum)
-    };
-    selstart = startPos * numframes;
-    selend = endPos * numframes;
-    selsize = selend - selstart;
-
-    wavecolors =  [
-        Color(0.59429912567139, 0.71457996368408, 0.45395700931549),
-        Color(0.85957117080688, 0.86903350353241, 0.57564690113068)
-    ];
-    gridcolor = Color(0.59298334121704, 0.61996343135834, 0.82784349918365);
-    backgroundcolor = Color(0.32606270313263, 0.39292259216309, 0.8526659488678);// Color.rand.debug(\background);
     cursorcolor = Color(0.84076716899872, 0.8562139749527, 0.69819803237915);
-    selectioncolor = Color(0.38695478439331, 0.68618059158325, 0.31084091663361, 0.3);
 
-    nb = NumberBox();
-    end = Slider();
+    bufnumView = StaticText();
+    srView = StaticText();
+    numframesView = StaticText();
+    durView = StaticText();
+
+    loadBuf = {
+        buf = node.get(\buf);
+        if (buf.notNil) {
+
+            if (buf.isNumber) {
+                buf = Buffer.cachedBufferAt(Server.default, buf.asInteger)
+            };
+
+            buf.loadToFloatArray(action:{|a|
+                {
+                    var startPos = node.get(\startPos) ?? {0};
+                    var endPos = node.get(\endPos) ?? {1};
+                    var numframes, selstart, selend, selsize;
+                    numframes = buf.numFrames;
+                    selstart = startPos * numframes;
+                    selend = endPos * numframes;
+                    selsize = selend - selstart;
+
+                    sfv.setData(a, channels: buf.numChannels);
+                    sfv.setSelection(0, [selstart, selsize]);
+
+                }.defer
+            });
+
+            {
+                bufnumView.string = buf.bufnum;
+                srView.string = buf.sampleRate;
+                numframesView.string = buf.numFrames;
+                durView.string = buf.duration;
+            }.defer
+        };    
+    };
+
     view = View().layout_(VLayout().margins_(0).spacing_(0));//.minSize_(Size(300, 150));
     sfv = SoundFileView()
+    .resize_(1)
     .gridOn_(false)
     .drawsRMS_(false)
     .drawsCenterLine_(true)
@@ -93,7 +90,6 @@ func: {arg node;
     .background_(Color.black)
     .waveColors_([node.color, node.color])
     .gridResolution_(0.0)
-    .toolTip_(bufname)
     .timeCursorOn_(true)
     .timeCursorColor_(cursorcolor)
     .mouseUpAction_({|ctrl, x, y|
@@ -114,79 +110,43 @@ func: {arg node;
         };
         node.set('endPos', endPos, 'startPos', startPos);
     });
-
+    sfv.setSelectionColor(0, Color.white.alpha_(0.2));
     sfv.canReceiveDragHandler = {|view|
         //TODO: validate
         true;
     };
     sfv.receiveDragHandler = {|view, x, y|
-        var val = View.currentDrag.value; 
-        B.read(val, cb:{|buf|
-            node.set(\buf, buf)
-        })
+        var val = View.currentDrag.value;
+        if (val.isString) {
+            B.read(val, cb:{|buf|
+                node.set(\buf, buf)
+            })
+        };
+        if (val.isKindOf(Buffer)) {
+            node.set(\buf, val)
+        }
     };
 
     watcher = {|obj, what, vals|
         if (what == \set) {
             vals.pairsDo({|k, v|
                 if (k == \buf) {
-                    buf = v;
-                    if (buf.isNumber) {
-                        buf = Buffer.cachedBufferAt(Server.default, buf.asInteger)
-                    };
-                    buf.loadToFloatArray(action:{|a|
-                        {
-                            var startPos = node.get(\startPos);
-                            var endPos = node.get(\endPos);
-                            var numframes, selstart, selend, selsize;
-                            numframes = buf.numFrames;
-                            selstart = startPos * numframes;
-                            selend = endPos * numframes;
-                            selsize = selend - selstart;
-
-                            sfv.setData(a, channels: buf.numChannels);
-                            sfv.setSelection(0, [selstart, selsize]);
-
-                            bufnumView.string = buf.bufnum;
-                            srView.string = buf.sampleRate;
-                            numframesView.string = buf.numFrames;
-                            durView.string = buf.duration;
-
-                        }.defer
-                    });
+                    loadBuf.();
                 }
             })
         };
     };
 
-    sfv.setSelectionColor(0, Color.white.alpha_(0.2));
-    buf.loadToFloatArray(action:{|a|
-        {
-            var startPos = node.get(\startPos);
-            var endPos = node.get(\endPos);
-            var numframes, selstart, selend, selsize;
-            numframes = buf.numFrames;
-            selstart = startPos * numframes;
-            selend = endPos * numframes;
-            selsize = selend - selstart;
-
-            sfv.setData(a, channels: buf.numChannels);
-            sfv.setSelection(0, [selstart, selsize]);
-
-        }.defer
-    });
-
-    //view.layout.add(dragSink);
     view.layout.add(sfv);
     view.layout.add(
         HLayout(nil,
-            bufnumView = StaticText().string_(buf.bufnum),
+            bufnumView,
             StaticText().string_(" | "),
-            srView = StaticText().string_(buf.sampleRate),
+            srView,
             StaticText().string_(" | "),
-            numframesView = StaticText().string_(buf.numFrames),
+            numframesView,
             StaticText().string_(" | "),
-            durView = StaticText().string_(buf.duration)
+            durView
         ).spacing_(2).margins_(2)
     );
 
@@ -221,15 +181,18 @@ func: {arg node;
     }, osckey);
 
     node.addDependant(watcher);
-    view.name = bufname;
-    view.onClose_({
+    loadBuf.();
+
+    view
+    .resize_(1)
+    .onClose_({
         "close".debug(\buf);
         node.removeDependant(watcher);
         if (skipjack.notNil) {
             skipjack.stop;
         };
         OSCdef(oscdef).free;
-    });//.front;
+    });
 }
 )
 

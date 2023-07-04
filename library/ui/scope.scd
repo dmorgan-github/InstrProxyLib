@@ -1,21 +1,24 @@
 (
 func: {|node|
 
-    var cnt = 0;
+    var cnt;
     var lastx, lasty;
     var zoomy = 10, zoomx = 5;
     var mousedown = false;
     var view, scope, scopeview;
     var numchannels, palette, xslider, yslider;
     node = if (node.respondsTo(\node)) {node.node}{node};
+    cnt = node.get(\scope_style) ?? {0};
 
     palette = QPalette();
     palette.setColor(Color.clear, \window, \active);
     palette.setColor(Color.clear, \highlight, \active);
 
     numchannels = node.numChannels;
-    scopeview = View().layout_(VLayout().margins_(0).spacing_(0));
-    scope = Stethoscope.new(s, view:scopeview).style_(1)
+    scopeview = View().layout_(VLayout().margins_(0).spacing_(0))
+    //.maxHeight_(150)
+    ;
+    scope = Stethoscope.new(s, view:scopeview).style_(cnt)
     .index_(node.bus.index)
     .numChannels_(numchannels)
     .yZoom_(10)
@@ -33,12 +36,16 @@ func: {|node|
         lasty = y;
 
         if (count == 2) {
-            scope.style = cnt.mod(3);
             cnt = cnt + 1;
+            cnt = cnt.mod(3);
+            scope.style = cnt;
+            node.set(\scope_style, cnt)
         };
     });
     
-    view = View().layout_(HLayout(
+    view = View()
+    .maxHeight_(200)
+    .layout_(HLayout(
         VLayout(
             scopeview, 
             HLayout(
