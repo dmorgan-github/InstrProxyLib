@@ -1,20 +1,62 @@
 (
-var node = ~cxe;
-var func = {
+var func = {|node|
 
-    var img = Image("/Users/david/Documents/supercollider/media/images/460px-Fotothek_df_tg_0003629_Geometrie_5E_Architektur_5E_Perspektive_5E_Polyeder.jpeg");
-    var win = Window(bounds:Rect(0, 0, 200, 200));
-    var but = Knob(win, Rect(84, 95, 50, 50)).background_(Color.black.alpha_(0.3));
+    var width = 300, height = 100, xspeed = 3, yspeed = 2, x = width*0.15, y = height*0.5;
+    var size = 8.0;
+    var degrees = [-7, 5, 7, 10, 14];
+    var points;
+    var tops = 5.collect({ rrand(size, 64.0) });
+    var yspeeds = 5.collect({ rrand(0.25, 1.0) });
+    //w = Window("ball", Rect(width:width, height:height));
+    w = View().layout_(VLayout().margins_(0).spacing_(0));
+    u = UserView().background_(Color.black);
+    u.animate = true;
 
-    //var mod = UiModule('props').view(node).alpha_(0.2);
-    //View(win, Rect(10, 10, 200, 200)).layout_(VLayout(mod));
-    //mod.parent = win;
+    127.do({|i| node.off(i) });
 
-    win.asView.backgroundImage_(img);
+    u.drawFunc = {
+
+        var pan;
+        var rate;
+
+        //if(x<0 or:{x>width}, { xspeed = 0-xspeed});
+        //if(y<0 or:{y>height}, { yspeed = 0-yspeed});
+        //x = x+xspeed;
+        //y = y+yspeed;
+
+        //pan = x.linlin(0, 300, -1, 1);
+        //rate = y.linlin(0, 100, 0.5, 2.0);
+        //node.set(\pan, pan, \width, 0, \center, pan, \rate, rate);
+
+        //y = y+yspeed;
+
+        5.do({|i| 
+            if (tops[i] < size or: {tops[i] > (height-size)}, {
+                if (tops[i] > (height-size)) {
+                    node.on(48 + degrees[i]);
+                }{
+                    node.off(48 + degrees[i])
+                };
+                yspeeds[i] = 0-yspeeds[i] 
+            });
+            tops[i] = tops[i] + yspeeds[i];
+            Pen.fillColor = Color.white;
+            Pen.fillOval(Rect.aboutPoint(Point(x+(i * 48), tops[i]), 8, 8));
+        });
+    };
+    w.layout.add(u);
+    w.onResize_({|ctrl|
+        width = ctrl.bounds.width;//.postln;
+        height = ctrl.bounds.height;
+    })
+    .minSize_(Size(width, height));
 };
 
 (
 func: func
-);
+)
 
 )
+
+//
+

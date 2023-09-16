@@ -17,22 +17,6 @@ synth: {|freq, gate, aeg|
 
     var note = A2K.kr(freq).cpsmidi;
     var sig;
-   
-    /*
-    var sig = MiPlaits.ar(note,
-        engine:engine,
-        harm:harm,
-        timbre: timbre,
-        morph:morph,
-        trigger:gate,
-        level: level.squared, //not sure how to make this work
-        fm_mod: fmmod,
-        timb_mod: timbremod,
-        morph_mod: morphmod,
-        decay: decay,
-        lpg_colour: lpg
-    ); 
-    */
 
     sig = MiPlaits.ar(note,
         engine: engine,
@@ -48,43 +32,8 @@ synth: {|freq, gate, aeg|
         lpg_colour: lpg
     );
     sig = sig.slice(slice.debug("slice"));
-    sig
+    sig.asArray.flatten;//.asArray.flatten.sum
 },
-presets: [
-    bd: [
-        'fm_mod': 0.23232323232323,
-        'harm': 0.5,
-        'morph': 0.5,
-        'lpg': 0.68350168350168,
-        'engine': 13.0,
-        'timb_mod': 0.0,
-        'decay': 0.28619528619529,
-        'timbre': 0.62289562289562,
-        'morph_mod': 0.0
-    ],
-    sn: [
-        'fm_mod': 0.43852459016393,
-        'harm': 0.57581967213115,
-        'morph': 0.13729508196721,
-        'lpg': 0.25204918032787,
-        'engine': 14.0,
-        'timb_mod': -0.20081967213115,
-        'decay': 0.45286885245902,
-        'timbre': 0.17827868852459,
-        'morph_mod': -0.89344262295082
-    ],
-    hh: [
-        'fm_mod': 0.25659472422062,
-        'harm': 0.82254196642686,
-        'morph': 0.079136690647482,
-        'lpg': 0.8705035971223,
-        'engine': 15.0,
-        'timb_mod': 0.0,
-        'decay': 0.033573141486811,
-        'timbre': 0.96402877697842,
-        'morph_mod': 0.0
-    ]
-],
 doc:"
 0:virtual_analog_engine
 1:waveshaping_engine

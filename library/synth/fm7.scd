@@ -16,7 +16,7 @@ synth: {|freq, gate|
 
     var ops = 6.collect({|i|
 
-        var num = i + 1;
+        var num = i;
         var units = "op" ++ num;
         var ratio = ('op' ++ num ++ 'ratio').asSymbol.kr(1, spec: DMControlSpec(1/8, 31, \lin, 0.0, 1, units: units, sort:1) );
         var atk = ('op' ++ num ++ 'atk').asSymbol.kr(1, spec: DMControlSpec(0, 2, \lin, 0, 0.01, units: units, sort:2) );

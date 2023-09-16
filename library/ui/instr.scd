@@ -1,4 +1,23 @@
 
+/*
+(
+w = Window("test", Rect(800, 200, 500, 400)).front;
+w.layout = VLayout(
+	nil,
+	StaticText().align_(\center).string_("hello"),
+	nil
+);
+
+w.view  // a TopView btw
+.onResize_({ |view|
+	view.findWindow.bounds.debug("resized")
+})
+.onMove_({ |view|
+	view.findWindow.bounds.debug("moved")
+});
+)
+*/
+
 (
 func: {|node, index, cmds|
 
@@ -12,21 +31,28 @@ func: {|node, index, cmds|
         node.key
     };
     var view, target, scope;
-    var getView, presets, freq, fx, views=[];
+    var getView, views=[];
     var parse, loadViews;
-
-    fx = UiModule('fx').view(node);
-    presets = UiModule('presets').view(node);
-    freq = UiModule('freqscope').view(node).maxHeight_(80);
+    var shortcuts = (
+        $1: "props",
+        $2: "fx",
+        $3: "freq",
+        $4: "scope",
+        $5: "kb",
+        $6: "meter"
+    );
 
     if (index.isNil) {
+        var fx = UiModule('fx').view(node);
+        var presets = UiModule('presets').view(node);
+        var freq = UiModule('freq').view(node).maxHeight_(80);
         views = [presets, freq, fx]
     } {
         var props = UiModule('props').view(node, index).minWidth_(200);
         views = [props]
     };
 
-    target = View().layout_(VLayout(*views).margins_(0).spacing_(0));
+    target = View().layout_(VLayout(*views).margins_(0).spacing_(0));//.resize_(1);
 
     parse = {|str|
 
@@ -135,25 +161,7 @@ func: {|node, index, cmds|
     };
 
     getView = {|currentcmd, args|
-        //currentcmd.debug("getView");
-        switch (currentcmd.asSymbol,
-            \freq, {
-                UiModule(\freqscope).view(node)
-            },
-            \grain, {
-                UiModule(\grainsliders).view(node)
-            },
-            \home, {
-                var freq, fx, presets;
-                freq = UiModule('freqscope').view(node);//.maxHeight_(80);
-                fx = UiModule('fx').view(node);
-                presets = UiModule('presets').view(node);
-                VLayout(presets, freq, fx)
-            },
-            {
-                UiModule(currentcmd).view(node, args)
-            }
-        );
+        UiModule(currentcmd).view(node, args)         
     };
 
     loadViews = {|cmd|
@@ -284,30 +292,32 @@ func: {|node, index, cmds|
                                     fxnode.vol = rhs;
                                 },
                                 {
-                                    loadViews.(cmd.asString);
+                                    var parts;
+                                    cmd = cmd.asString.stripWhiteSpace;
+                                    if (cmd[0].isDecDigit) {
+                                        var char = cmd[0];
+                                        if (cmd.size == 1) {
+                                            cmd = shortcuts[char];
+                                            if (cmd.notNil) {
+                                                loadViews.(cmd)
+                                            }
+                                        }{
+                                            if ( cmd.contains(" ") ) {
+                                                cmd = cmd[2..];
+                                                shortcuts[char] = cmd;
+                                            } {
+                                                loadViews.(cmd);
+                                            }
+                                        }
+                                    } {
+                                        loadViews.(cmd);
+                                    }
                                 }
                             );
                         }
                     );
                 }
             }).background_(Color.clear),
-
-            /*
-            Button()
-            .maxWidth_(17)
-            .states_([ [">"], ["[]"] ])
-            .action_({|ctrl|
-                if (ctrl.value == 1) {
-                    node.play
-                }{
-                    node.stop
-                }
-            })
-            .value_( node.isPlaying.if(1, 0) ),
-            */
-
-            //Button()
-            //.maxWidth_(17)
         )
     ).margins_(0).spacing_(0)
     ).background_(Color.black);
@@ -329,26 +339,10 @@ func: {|node, index, cmds|
     })
     .keyDownAction_({|ctrl, char, mod|
         //[ctrl, a, b, c].debug("instr keydown");
-        switch(char,
-            $1, {
-                loadViews.("props")
-            },
-            $2, {
-                loadViews.("fx")
-            },
-            $3, {
-                loadViews.("freq")
-            },
-            $4, {
-                loadViews.("scope")
-            },
-            $5, {
-                loadViews.("kb")
-            },
-            $6, {
-                loadViews.("meter")
-            }
-        )
+        var cmd = shortcuts[char];
+        if (cmd.notNil) {
+            loadViews.(cmd);
+        } 
     });
 }
 )

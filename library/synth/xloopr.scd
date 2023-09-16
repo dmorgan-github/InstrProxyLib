@@ -1,6 +1,6 @@
 (
 synth: {
-    var numChannels = ~numchannels ?? 1;
+    var numChannels = ~numchannels ?? 2;
     var updateFreq = 15;
     var replyid = \bufposreplyid.kr(-1);
     var buf = \buf.kr(0);
@@ -17,6 +17,7 @@ synth: {
     var dir = ~dir ?? 0;
     var func = ~func;
 
+
     func = switch(dir.debug("dir"),
         1, {
             {|dur, rate|
@@ -26,8 +27,8 @@ synth: {
         {func}
     );
 
-    if (func.isNil) {
-        #sig, phase = LoopBufCF.ar(numChannels:1,
+    if (true) {
+        #sig, phase = LoopBufCF.ar(numChannels:numChannels,
             bufnum:buf,
             rate:rate * rev,
             trigger:trig,

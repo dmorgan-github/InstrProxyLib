@@ -8,6 +8,7 @@ func: {|node, prefix|
     var getval, getspec, getcurves, getlevels, gettimes, setval;
     var curvesupdater, timesupdater, levelsupdater;
     var prevy;
+    var color = node.color;
 
     model = (
         atk: 0.01,
@@ -128,7 +129,7 @@ func: {|node, prefix|
     .keepHorizontalOrder_(true)
     .elasticSelection_(true)
     .editable_(true)
-    .strokeColor_(node.color)
+    .strokeColor_(color)
     .gridColor_(Color.gray)
     .background_(Color.clear)
     .thumbSize_(10)

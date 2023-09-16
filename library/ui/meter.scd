@@ -26,7 +26,7 @@ func: {|node|
     };
 
     node = if (node.respondsTo(\node)) {node.node}{node};
-    bus = node.bus.index;
+    bus = node.bus.index.debug("bus index");
     numchannels = node.bus.numChannels;
 
     meters = Array.fill( numchannels, { arg i;

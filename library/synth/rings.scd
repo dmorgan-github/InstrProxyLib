@@ -28,7 +28,7 @@ synth: {|freq, gate, aeg|
     //var odd = sig[1];
     //var evenodd = \evenodd.kr(0, spec:ControlSpec(0, 1, \lin, 0, 0, "rings"));
     //sig = even.blend(odd, evenodd).asArray.sum;
-    sig = sig.slice(slice);
+    sig = sig.slice(slice.debug("slice"));
     sig
 },
 doc: "

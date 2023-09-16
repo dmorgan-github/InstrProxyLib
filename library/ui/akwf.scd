@@ -5,8 +5,10 @@ func: {|node|
     var view;
     var folders, wavetables, loadwavs, list;
     var wtView = View().layout_(VLayout());
+    // TODO: this needs to be configurable
     var root = "/Users/david/Documents/supercollider/resources/AKWF";
     var wtpage, selected;
+    var color = node.color;
     wtpage = node.get(\wtpage);
 
     folders = {|dir|
@@ -46,7 +48,7 @@ func: {|node|
                     .gridOn_(false)
                     .drawsRMS_(false)
                     .drawsBoundingLines_(false)
-                    .waveColors_( [node.color] )
+                    .waveColors_( [color] )
                     //.maxSize_(60)
                     .mouseDownAction_({|ctrl, x, y, modifiers, buttonNumber, clickCount|
 

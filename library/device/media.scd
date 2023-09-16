@@ -71,7 +71,7 @@ var show = {arg path;
             .bounds_(Rect(width:750))
             .align_(\left)
             .object_(path)
-            .string_(PathName(currentFile.path).fileName)
+            .string_(PathName(currentFile.path.debug("media path")).fileName)
             .toolTip_(path),
             
             HLayout(

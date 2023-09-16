@@ -22,12 +22,22 @@ func: {|node|
         node.set(\kb_toggle, order);    
     };
 
+    /*
 	map = [
 		'z', 'x', 'c', 'v', 'b',
 		'a', 's', 'd', 'f', 'g',
 		'h', 'j', 'k', 'l', ';',
 		'q', 'w', 'e', 'r', 't',
 		'y', 'u', 'i', 'o', 'p'
+	];
+    */
+
+    map = [
+		'z', 's', 'x', 'd', 'c',
+		'v', 'g', 'b', 'h', 'n',
+		'j', 'm', 'q', '2', 'w',
+		'3', 'e', 'r', '5', 't',
+		'6', 'y', '7', 'u', 'i'
 	];
 
 	rows = 5;
@@ -54,7 +64,8 @@ func: {|node|
             num = buttons - num;
             label = map[num];
             if (hilight.().includes(num.mod(12))) {
-                color = node.color.alpha_(0.5);
+                color = node.color;
+                color.alpha_(0.5);
             };
             Button()
             .states_([[label, nil, color], [label, nil, Color.white.alpha_(0.9)]])
@@ -72,7 +83,7 @@ func: {|node|
                 //var note = 12 * octave + num + root;
                 if (mode == \push) {
                     ctrl.value = 1;
-                }
+                };
             })
             .action_({|ctrl|
                 var octave = (node.get(\octave) ?? 3);
@@ -120,7 +131,7 @@ func: {|node|
             }
         })
         .background_(Color.clear)
-        .value_(default.debug("default")+1);
+        .value_(default+1);
     };
 
     update.();
@@ -157,19 +168,18 @@ func: {|node|
                 node.on(note, vel);
                 if (num < keyboard.size) {
                     keyboard[num].value = 1;
-                }
+                };
             } {
                 if (mode == \toggle) {
                     keys.removeAt(note);
                     node.off(note);
                     if (num < keyboard.size) {
                         keyboard[num].value = 0;
-                    }
+                    };
                 }
             }
-
 		};
-		nil;
+		true;
 	})
 	.keyUpAction_({arg ctrl, char;
 		var val = map.indexOf(char.asSymbol);
@@ -182,9 +192,11 @@ func: {|node|
                 node.off(note);
                 if (num < keyboard.size) {
                     keyboard[num].value = 0;
-                }
+                };
+                true;
             }
-        }
+        };
+        true
 	})
     .resize_(1)
 	.onClose_({arg ctrl;

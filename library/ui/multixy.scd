@@ -1,6 +1,7 @@
 (
 func: {|instr, onload, onaction, title|
 
+    var node = node.color;
     var envview, view;
     view = View().layout_(VLayout().spacing_(0).margins_(0));
     envview = EnvelopeView()
@@ -28,7 +29,7 @@ func: {|instr, onload, onaction, title|
     onload.(envview);
 
     instr.do({|node, i|
-        envview.setFillColor(i, if (node.isMonitoring and: {node.isPlaying} ) { node.color.alpha_(0.3) } { Color.grey.alpha_(0.5) } );
+        envview.setFillColor(i, if (node.isMonitoring and: {node.isPlaying} ) { color.alpha_(0.3) } { Color.grey.alpha_(0.5) } );
         envview.setString(i, node.key);
     });
 

@@ -13,6 +13,8 @@ var func = {|node|
     var cursorcolor;
     var pos = node.get(\pos);
     var bufs = node.get(\bufs);
+    var color = node.color;
+
     showBuf = {|sfv, buf, pos|
         buf.loadToFloatArray(action:{|a|
             {
@@ -45,7 +47,7 @@ var func = {|node|
         .drawsBoundingLines_(false)
         .gridColor_(Color.black)
         .background_(Color.black)
-        .waveColors_([node.color, node.color])
+        .waveColors_([color, color])
         .gridResolution_(0.0)
         .timeCursorOn_(true)
         .timeCursorColor_(cursorcolor)
@@ -128,7 +130,7 @@ var func = {|node|
                                 sfv.waveColors = [Color.white, Color.white];
                                 {
                                     //sfv.background = Color.black
-                                    sfv.waveColors = [node.color, node.color];
+                                    sfv.waveColors = [color, color];
                                 }.defer(0.1);
                             }
                         }

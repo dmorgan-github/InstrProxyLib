@@ -3,7 +3,7 @@ func: {|node, index|
 
     var sliders = ();
     var height = 20;
-    var color = node.color ? Color.rand;
+    var color = node.color;
     var fxnode = if (node.respondsTo(\node)) { node.node }{ node };
     var scroll;
     var getSpec, getKeys, getGroups, getView;

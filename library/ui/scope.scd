@@ -7,6 +7,7 @@ func: {|node|
     var mousedown = false;
     var view, scope, scopeview;
     var numchannels, palette, xslider, yslider;
+    var color = node.color;
     node = if (node.respondsTo(\node)) {node.node}{node};
     cnt = node.get(\scope_style) ?? {0};
 
@@ -27,7 +28,7 @@ func: {|node|
     4.do({
         scopeview.children[0].children[0].remove
     });
-    scopeview.children[0].children[0].waveColors_([node.color, Color.white]);
+    scopeview.children[0].children[0].waveColors_([color, Color.white]);
     scopeview.children[0].children[2].remove;
     scopeview.children[0].children[1].remove;
     scopeview.children[0].children[0].background = Color.black;//Color.new255(77, 77, 77);

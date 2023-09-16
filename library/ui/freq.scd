@@ -2,22 +2,23 @@
 func: {|node|
 
     var background, view, scope, stack, scopeview;
-    var monitorwatcher, color;
-    view = View(bounds:Rect(0, 0, 511/2, 300/2)).layout_(VLayout().margins_(0).spacing_(0));
+    var monitorwatcher, activecolor, inactivecolor, color;
+    view = View(bounds:Rect(0, 0, 511/2, 300/2)).layout_(VLayout().margins_(1).spacing_(0));
     scopeview = View(bounds:Rect(0, 0, 511/2, 300/2))
-    .layout_(VLayout().margins_(0).spacing_(0))
-    //.resize_(1)
-    ;
+    .layout_(VLayout().margins_(0).spacing_(0));
     scope = FreqScopeView(scopeview, scopeview.bounds);
+    activecolor = node.color;
+    inactivecolor = Color.grey;
+
     node = if (node.respondsTo(\node)) {node.node}{node};
-    color = if (node.isMonitoring) { node.color } { Color.grey};
+    color = if (node.isMonitoring) { activecolor } { inactivecolor };
 
     monitorwatcher = {|obj, what|
         if (what == \play) {
-            scope.waveColors_([node.color]);
+            scope.waveColors_([activecolor]);
         }{
             if (what == \stop) {
-                scope.waveColors_([Color.grey]);
+                scope.waveColors_([inactivecolor]);
             }
         }
     };
@@ -108,7 +109,7 @@ func: {|node|
 
     view
     .resize_(1)
-    .background_(Color.red)
+    //.background_(Color.red)
     .onClose_({ 
         node.removeDependant(monitorwatcher);
         scope.kill

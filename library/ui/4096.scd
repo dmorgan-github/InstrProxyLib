@@ -17,6 +17,8 @@ plot([ ~mag[0..50], ~phs[0..50] ]).plotMode_(\bars)
 
 (
 func: {|node|
+
+    // TODO: this needs to be configurable
     var path = "/Users/david/Documents/supercollider/resources/4096 Volume 1 (NeverEngine Labs)/Signals/Necklaces (concatenated renders)/Single Cycles 141n.wav";
     var key = 'wavetables';
     var buf = Halo.at(key);
@@ -26,6 +28,10 @@ func: {|node|
     var currentsfv;
     var wtnum = node.get(\wtnum);
     var wtpage = node.get(\wtpage);
+    var color = node.color;
+
+    \here.postln;
+
     view = View().layout_(VLayout());
 
     loadView = {|buf|
@@ -36,7 +42,7 @@ func: {|node|
             .gridOn_(false)
             .drawsRMS_(false)
             .drawsBoundingLines_(false)
-            .waveColors_( [node.color] )
+            .waveColors_( [color] )
             .mouseUpAction_({|ctrl|
                 {
                     var wt = wavetables[index];
