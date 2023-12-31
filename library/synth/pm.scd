@@ -5,7 +5,9 @@ synth: {|freq, gate|
     mod = {
         var ratio = \mratio.kr(1, spec:DMControlSpec(0.5, 20, \lin, 0, 1, units:"pm", sort:0));
         var fb = \mfb.kr(0, spec:DMControlSpec(-1, 1.5, \lin, 0, 0, units:"pm", sort:1));
-        var index = \mindex.kr(0, spec:DMControlSpec(0, 20, \lin, 0, 0, units:"pm", sort:2));
+        //var index = \mindex.kr(0, spec:DMControlSpec(0, 20, \lin, 0, 0, units:"pm", sort:2));
+        var start = \mindex_start.kr(1, spec:DMControlSpec(0, 100, \lin, 0, 1, units:"pm"));
+        var end = \mindex_end.kr(1, spec:DMControlSpec(0, 100, \lin, 0, 1, units:"pm"));
         var atk = \matk.kr(0.01, spec:DMControlSpec(0, 2, \lin, 0, 0.01, units:"pm", sort:3));
         var dec = \mdec.kr(0.3, spec:DMControlSpec(0, 2, \lin, 0, 0.3, units:"pm", sort:5));
         var suslevel = \msuslevel.kr(1, spec:DMControlSpec(0, 1, \lin, 0, 0.7, units:"pm", sort:6));
@@ -31,9 +33,10 @@ synth: {|freq, gate|
             );
         };
 
-        meg = meg.ar(gate:gate + Impulse.kr(0));
+        meg = meg.ar(gate:gate + Impulse.kr(0)).linlin(0, 1, start, end);
         sig = SinOscFB.ar(freq * ratio, fb);
-        sig = sig * meg * index;
+        //sig = sig * meg * index;
+        sig = sig * meg;
         sig;
     };
 

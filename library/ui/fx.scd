@@ -95,7 +95,7 @@ func: {|node|
                                 var ctrl = obj['ctrl'];
                                 if (ctrl.view.notNil) {
                                     var key = 'ui/' ++ ctrl.view;
-                                    if (DMModule.exists(key)) {
+                                    if (Module.exists(key)) {
                                         var fxview = UiModule(ctrl.view).view(fxnode, index);
                                         fxview.bounds = Rect(view.bounds.left, view.bounds.top);
                                         fxview.front;

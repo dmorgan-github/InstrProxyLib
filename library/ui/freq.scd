@@ -100,6 +100,7 @@ func: {|node|
 
     stack = StackLayout(background.().alpha_(0.5), scopeview).mode_(1);
     view.layout.add(stack);
+    view.layout.add(nil);
 
     scope.inBus = node.bus.index;
     scope.freqMode = 1;

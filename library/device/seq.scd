@@ -264,7 +264,7 @@ proxy.addUniqueMethod(\instrs, {|self, instrs| self.set(\instrs, instrs) });
 (
 func: { proxy },
 doc: "
-~seq = DMModule('device/seq').()
+~seq = Module('device/seq').()
 (
 ~seq.instrs([
     [midinote: 0, legato: 0.1, amp: 1].p <> ~m2,

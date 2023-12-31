@@ -17,7 +17,7 @@ var func = {|topic, key, func|
 (
 func: func,
 doc: "
-~sub = DMModule('device/sub')
+~sub = Module('device/sub')
 Pbind() <> ~sub.(\prob, \abc, {|val| if (val.coin) {1}{\} })
 "
 )

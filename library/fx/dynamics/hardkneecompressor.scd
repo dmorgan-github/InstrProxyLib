@@ -1,5 +1,26 @@
-// https://scsynth.org/t/multiband-compressor/3753/4
 
+
+/*
+(
+    // https://nathan.ho.name/posts/negative-compression/
+    var compGain;
+    compGain = { |in, threshold, slope, attack = 0.05, release = 0.3|
+        var inArray, amplitude;
+        inArray = if(in.isArray) { in } { [in] };
+        amplitude = (Amplitude.ar(inArray, attack, release).sum / inArray.size.sqrt).max(-100.dbamp).ampdb;
+        ((amplitude - threshold).max(0) * (slope - 1)).lag(attack).dbamp;
+    };
+    
+    {
+        var snd;
+        snd = SinOsc.ar(440) * Env.perc(0.01, 1.0).ar;
+        snd = snd * compGain.(snd, threshold: -10, slope: -2, attack: 0.1, release: 0.3);
+        (snd * -6.dbamp) ! 2;
+    }.play(fadeTime: 0);
+)
+*/
+
+// https://scsynth.org/t/multiband-compressor/3753/4
 (
 func: { |in|
     var sig;

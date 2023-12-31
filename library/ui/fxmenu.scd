@@ -2,7 +2,7 @@
 func: {|node|
 
     var paths;
-    var path = DMModule.libraryDir ++ "fx/";
+    var path = Module.libraryDir ++ "fx/";
     var fxmenu, browse;
     var vstlist = Library.at(\vstlist);
 

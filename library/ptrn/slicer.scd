@@ -7,7 +7,14 @@ Spec.add(\numbeats, ControlSpec(1, 64, \lin, 1, 4));
 func: {
 
     Pbind(
-        \legato, 1,
+        \legato, Pfunc({|evt|
+            var val = evt['legato'];
+            if (val.notNil) {
+                val
+            } {
+                1
+            }
+        }),
         \atk, Pfunc({|evt|
             var atk = evt['atk'];
             if (atk.isNil) {
@@ -94,8 +101,15 @@ func: {
             numbeats/numslices;
         }),
         \sustain, Pfunc({|evt|
+            var sustain = evt['sustain'];
+            var legato = evt['legato'] ?? 0.7;
             var dur = evt['dur'];
-            dur * thisThread.clock.beatDur;
+            var val;
+            if (sustain.notNil) {
+                val = sustain
+            } {
+                val = dur * thisThread.clock.beatDur * legato
+            }
         }),
         \startPos, Plazy({|evt|
             var val = evt[\slices];

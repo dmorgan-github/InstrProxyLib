@@ -102,7 +102,7 @@ func: {arg node;
     loadBuf = {
         buf = node.get(\buf);
 
-        buf.debug("buf.....");
+        //buf.debug("buf.....");
 
         if (buf.notNil) {
 
@@ -128,14 +128,13 @@ func: {arg node;
                 });
 
                 {
-                    
                     bufnumView.object = buf;
                     bufnumView.string = buf.bufnum;
                     bufnumView.align = \right;
 
                     srView.string = buf.sampleRate;
                     numframesView.string = buf.numFrames;
-                    durView.string = buf.duration;
+                    durView.string = buf.duration.trunc(0.0001);
                 }.defer
             }
         };    

@@ -49,7 +49,7 @@ var func = {
 (
     func: func,
     doc: "
-~yis << DMModule('ptrn/xy').()
+~yis << Module('ptrn/xy').()
 ~yis @.step [1, 2] @.dup [2, 3]
 ~yis @.vals [0, 2, 4, 6, 8]
     "

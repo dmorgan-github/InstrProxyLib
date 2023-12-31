@@ -9,7 +9,7 @@ func: {|node, index|
     var getSpec, getKeys, getGroups, getView;
     var nodewatcher;
 
-    scroll = ScrollView().hasBorder_(false).autohidesScrollers_(true);
+    scroll = ScrollView().hasBorder_(false).autohidesScrollers_(false).hasVerticalScroller_(true).hasHorizontalScroller_(false);
 
     getSpec = {|key|
         var specs = node.getSpec;

@@ -33,7 +33,7 @@ var synth = {|freq|
     detune = LFNoise2.kr(0.25.dup(numvoices)).bipolar(0.15).midiratio;
 
     sig = TGrains.ar(
-        numChannels: 1,
+        numChannels: 2,
         trigger: trig,
         bufnum: buf,
         rate: rate * detune,

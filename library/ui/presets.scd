@@ -4,7 +4,7 @@ func: {|node|
     var morphbeats = 20;
     var frompresetview, topresetview;
 
-    var buttons = 14.collect({|i|
+    var buttons = 28.collect({|i|
         var color_active = Color.white.alpha_(0.9);
         var color_saved = Color.green.alpha_(0.9);
         var color_empty = Color.clear.alpha_(0.9);
@@ -31,7 +31,8 @@ func: {|node|
                     DMPreset.addCurrent(node, i);
                 } {
                     //log.("% preset %".format(\morph, i));
-                    DMPreset.morph(node, i, beats:morphbeats);
+                    //DMPreset.morph(node, i, beats:morphbeats);
+                    DMPreset.apply(node, i);
                 };
             }{
                 // button stays on
@@ -62,10 +63,11 @@ func: {|node|
         HLayout(
 
             GridLayout.rows(
-                buttons[0..6],
-                buttons[7..13]
+                buttons[0..13],
+                buttons[14..27]
             ).margins_(0).spacing_(0),
 
+            /*
             NumberBox()
             .action_({|ctrl|
                 morphbeats = ctrl.value;
@@ -74,7 +76,9 @@ func: {|node|
             .fixedWidth_(25)
             .value_(morphbeats)
             .background_(Color.clear),
+            */
 
+            /*
             frompresetview = NumberBox()
             .value_(0)
             .clipLo_(0)
@@ -83,6 +87,9 @@ func: {|node|
             .fixedWidth_(25)
             .background_(Color.clear)
             ,
+            */
+
+            /*
             LevelSlider("blend", [0, 1].asSpec)
             //.orientation_(\horizontal)
             //.thumbSize_(0.7)
@@ -98,6 +105,7 @@ func: {|node|
             .minDecimals_(0)
             .fixedWidth_(25)
             .background_(Color.clear)
+            */
 
         ).margins_(2).spacing_(2),
 
