@@ -7,6 +7,7 @@ func: {|node|
     scopeview = View(bounds:Rect(0, 0, 511/2, 300/2))
     .layout_(VLayout().margins_(0).spacing_(0));
     scope = FreqScopeView(scopeview, scopeview.bounds);
+    scope.dbRange = 96;
     activecolor = node.color;
     inactivecolor = Color.grey;
 

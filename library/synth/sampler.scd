@@ -38,7 +38,7 @@ synth: {|freq, gate|
         interpolation: 4 // cubic interpolation
     );
 
-    SendReply.kr(Impulse.kr(updateFreq), '/bufpos', [0, phase], replyid);
+    SendReply.kr(Impulse.kr(updateFreq) * (replyid > 0), '/bufpos', [0, phase], replyid);
 
     sig;
 }

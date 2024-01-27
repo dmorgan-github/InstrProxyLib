@@ -8,7 +8,7 @@ func: {|node|
         var color_active = Color.white.alpha_(0.9);
         var color_saved = Color.green.alpha_(0.9);
         var color_empty = Color.clear.alpha_(0.9);
-        var issaved = DMPreset.getPreset(node, i).notNil;
+        var issaved = Preset.getPreset(node, i).notNil;
         var color_init = if (issaved) {color_saved}{color_empty};
 
         //[node, i, issaved].postln;
@@ -25,14 +25,13 @@ func: {|node|
             });
 
             if (ctrl.value == 1) {
-                var preset = DMPreset.getPreset(node, i);
+                var preset = Preset.getPreset(node, i);
                 if (preset.isNil) {
                     //log.("% preset %".format(\save, i));
-                    DMPreset.addCurrent(node, i);
+                    Preset.addCurrent(node, i);
                 } {
                     //log.("% preset %".format(\morph, i));
-                    //DMPreset.morph(node, i, beats:morphbeats);
-                    DMPreset.apply(node, i);
+                    Preset.apply(node, i);
                 };
             }{
                 // button stays on
@@ -45,12 +44,12 @@ func: {|node|
             // 524288 option
             if (mod == 262144) {
                 //log.("% preset %".format(\remove, i));
-                DMPreset.remove(node, i);
+                Preset.remove(node, i);
                 ctrl.states = [ [nil, nil, color_empty ], [nil, nil, color_active ] ];
             };
             if (mod == 131072) {
                 //log.("% preset %".format(\overwrite, i));
-                DMPreset.addCurrent(node, i);
+                Preset.addCurrent(node, i);
             };
         })
         .states_([ [nil, nil, color_init ], [nil, nil, color_active ] ])

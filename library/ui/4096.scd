@@ -86,7 +86,6 @@ func: {|node|
         });
     };
 
-    // redo with await
     if (buf.isNil) {
         Buffer.read(Server.default, path, action:{|buf|
             loadView.(buf);

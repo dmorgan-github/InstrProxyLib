@@ -158,6 +158,7 @@ func: {|node, index|
                     .keyDownAction_({|ctrl, char, mod|
                         //[char, mod, unicode, keycode, key].postln
 
+                        /*
                         var tdef = "%_lfo".format(key).asSymbol;
 
                         if (char == $d) { // stop and clear
@@ -195,6 +196,7 @@ func: {|node, index|
                             };
                             //rec.debug("lfo rec".format(key));
                         };
+                        */
                     })
                     .value_(val)
                 ]

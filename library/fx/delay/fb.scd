@@ -53,10 +53,10 @@ synth: {arg in;
     var lfophase = \delay_lfophase.kr(0, spec:ControlSpec(0, 1, \lin, 0, 0, units:"delay"));
     var lfodepth = \delay_lfodepth.kr(0, spec: ControlSpec(0, 1, \lin, 0, 0, units:"delay")).lag(0.01);
     var lfo = SinOsc.kr(lfoHz, [0pi, lfophase * pi]).unipolar(lfodepth);
-    var time = \delay_time.kr(1, spec:ControlSpec(0.001, 20, \lin, 0.08, units:"delay"));
+    var time = \delay_time.kr(0.5, spec:ControlSpec(0.001, 20, \lin, 0, 0.5, units:"delay"));
     var feedback = \delay_feedback.kr(0, spec:ControlSpec(0, 2, \lin, 0, 0, units:"delay"));
     var width = \delay_width.kr(1, spec:ControlSpec(0, 1, \lin, 0, 1, units:"delay"));
-    var ratio = \delay_ratio_right.kr(1, spec:ControlSpec(1, 2, \lin, 0, 1, units:"delay"));
+    var ratio = \delay_ratio_right.kr(1.3, spec:ControlSpec(1, 2, \lin, 0, 1.3, units:"delay"));
 
     time = ~delaytime ?? time; 
 

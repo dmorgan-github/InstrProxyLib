@@ -5,6 +5,8 @@ var ctrl = Environment.make({|self|
 
     self.know = true;
 
+    // ~twister = M('ctrl/twister').()
+    // ~twister.twist(~t[4].node, \softclip_drive -> 0)
     self.twist = {|self, node ...assoc|
         midi.connect("twister", nil, {|ctrl|
              ctrl.cc("mf_twist_%".format(node.key).asSymbol, 0, node, *assoc)

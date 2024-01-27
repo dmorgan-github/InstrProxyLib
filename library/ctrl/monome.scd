@@ -67,7 +67,7 @@ var onLaunch = {|self, x, y, z|
             t.play;
             // TODO: probably move this into a custom handler
             // so that we aren't making too many assumptions here
-            DMPreset.apply(t, y);
+            Preset.apply(t, y);
         } {
             t.stop
         }

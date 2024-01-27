@@ -88,11 +88,27 @@ func: {arg node;
     var dragSink;
     var loadBuf;
     var color = node.color;
+    var onsetsbtn, onsets;
+    var onsetcolors = [
+        Color.new255(10, 147, 150),
+        Color.new255(148, 210, 189),
+        Color.new255(233, 216, 166),
+        Color.new255(238, 155, 0),
+        Color.new255(202, 103, 2),
+        Color.new255(187, 62, 3),
+        Color.new255(174, 32, 18),
+        Color.new255(155, 34, 38)
+    ];
 
     id = UniqueID.next;
     oscdef = "bufpos_%".format(id).asSymbol;
     osckey = 'bufpos';
     cursorcolor = Color(0.84076716899872, 0.8562139749527, 0.69819803237915);
+    onsets = node.get(\onsets);
+    if (onsets.isNil) {
+        onsets = 8.collect({ 0 });
+        node.set(\onsets, onsets)
+    };
 
     bufnumView = DragSource().background_(Color.clear);//.object_(buf).string_("buffer")
     srView = StaticText();
@@ -101,9 +117,6 @@ func: {arg node;
 
     loadBuf = {
         buf = node.get(\buf);
-
-        //buf.debug("buf.....");
-
         if (buf.notNil) {
 
             if (buf.isNumber) {
@@ -153,23 +166,36 @@ func: {arg node;
     .gridResolution_(0.0)
     .timeCursorOn_(true)
     .timeCursorColor_(cursorcolor)
+    .currentSelection_(0)
     .mouseUpAction_({|ctrl, x, y|
-        var val = ctrl.selection(0);
+
+        var num = sfv.currentSelection;
+        var val = ctrl.selection(num);
         var start = val[0];
         var len = val[1];
-        var end = start + len;
-        var numframes = buf.numFrames;
-        var startPos = start/numframes;
-        var endPos = end/numframes;
 
-        //[startPos, endPos].debug(\pos);
-        if (endPos <= startPos) {
-            var start = startPos * numframes;
-            var size = numframes - start;
-            endPos = 1;
-            ctrl.setSelection(0, [start, size])
-        };
-        node.set('endPos', endPos, 'startPos', startPos);
+        if (num > 0) {
+            var size = 250, onset;
+            onset = start / buf.numFrames;
+            ctrl.setSelection(num, [start, size]);
+            ctrl.setSelectionColor(num, onsetcolors[num] );
+            onsets = onsets[num-1] = onset;
+            node.set(\onsets, onsets);
+        } {
+            var end = start + len;
+            var numframes = buf.numFrames;
+            var startPos = start/numframes;
+            var endPos = end/numframes;
+
+            //[startPos, endPos].debug(\pos);
+            if (endPos <= startPos) {
+                var start = startPos * numframes;
+                var size = numframes - start;
+                endPos = 1;
+                ctrl.setSelection(0, [start, size])
+            };
+            node.set('endPos', endPos, 'startPos', startPos);
+        }
     });
     sfv.setSelectionColor(0, Color.white.alpha_(0.2));
     sfv.canReceiveDragHandler = {|view|
@@ -179,6 +205,7 @@ func: {arg node;
     sfv.receiveDragHandler = {|view, x, y|
         var val = View.currentDrag.value;
         if (val.isString) {
+            // TODO: update to new
             B.read(val, cb:{|buf|
                 node.set(\buf, buf)
             })
@@ -198,6 +225,23 @@ func: {arg node;
         };
     };
 
+    onsetsbtn = 8.collect({|num|
+        Button()
+        .maxWidth_(20) 
+        .states_( [ [num, nil, onsetcolors[num].copy.alpha_(0.3) ], [num, nil, onsetcolors[num] ] ] )
+        .action_({|ctrl|
+            if (ctrl.value == 1) {
+                sfv.currentSelection = num;
+                onsetsbtn.do({|btn, i|
+                    if (i != num) {
+                        btn.value = 0
+                    }    
+                })
+            }
+        })
+    });
+
+    //view.layout.add(HLayout(*onsetsbtn));
     view.layout.add(sfv);
     view.layout.add(
         HLayout(nil,
@@ -250,6 +294,7 @@ func: {arg node;
     .onClose_({
         "close".debug(\buf);
         node.removeDependant(watcher);
+        node.set(\bufposreplyid, -1);
         if (skipjack.notNil) {
             skipjack.debug("stop");
             skipjack.stop;

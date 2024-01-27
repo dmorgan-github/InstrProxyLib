@@ -17,62 +17,45 @@
         var current = 0;
 
         OSCdef('/radio1').permanent_(false).free;
+        (1..16).do({|num| var path = "/radials%".format(num).asSymbol; OSCdef(path).permanent_(false).free });
+        (1..8).do({|num| 
+            var path; 
+            path = "/preset/%".format(num).asSymbol; 
+            OSCdef(path).permanent_(false).free;
+            path = "/ptrn/%".format(num).asSymbol; 
+            OSCdef(path).permanent_(false).free;
+            path = "/vol%".format(num).asSymbol; 
+            OSCdef(path).permanent_(false).free;
+            path = "/pan%".format(num).asSymbol; 
+            OSCdef(path).permanent_(false).free;
+            path = "/play%".format(num).asSymbol; 
+            OSCdef(path).permanent_(false).free;
+        });
 
         ctrl = Environment.make({|self|
 
-            var netaddr;
             var reset_track;
 
             self.know = true;
-            netaddr = NetAddr(recAddr.debug("recAddr"), recPort);
+            self.netaddr = NetAddr(recAddr.debug("recAddr"), recPort);
 
             reset_track = {|val|
-                var color = colors.wrapAt(val);
                 var obj;
                 current = val;
-                Server.default.bind({
-                    // 16 radials
-                    (1..16).do({|num|
-                        var path = "radials_color%".format(num);
-                        netaddr.sendMsg(path, color);
-                        netaddr.sendMsg("radio1color", color ++ "55");
-                        netaddr.sendMsg("/label%".format(num), "");
-                        netaddr.sendMsg("/radials%".format(num), 0);
-                    });
-                    // 8 presets
-                    (1..8).do({|num|
-                        netaddr.sendMsg("presetcolor/%".format(num), color ++ "55");
-                    })
-                });
-        
                 obj = data[val.asInteger];
                 if (obj.notNil()) {
                     obj['reset'].()
-                };
+                } {
+                    (1..16).do({|num|
+                        self.netaddr.sendMsg("/label%".format(num), "");
+                        self.netaddr.sendMsg("/radials%".format(num), 0);
+                    });
+                    (1..8).do({|num|
+                        self.netaddr.sendMsg("/preset/%".format(num), 0);   
+                        self.netaddr.sendMsg("/ptrn/%".format(num), 0);  
+                    })
+                }
             };
-
-            /*
-            (1..16).do({|num|
-                var path = "/grid1/%".format(num).asSymbol;
-                OSCdef(path, {|msg| 
-                    var obj, val;
-                    //msg.debug("grid1 val");
-                    val = msg[1];
-                    obj = data[current];
-                    //obj.debug("track");
-                    if (obj.notNil) {
-                        var node = obj['node'];
-                        if (val > 0) {
-                            var ptrn = node.ptrns[num-1];
-                            if (ptrn.notNil) {
-                                node.source = ptrn
-                            }
-                        }
-                    }
-                }, path:path)
-                .fix    
-            });
-            */
 
             // set up osc for track selector
             OSCdef('/radio1', {|msg|
@@ -84,14 +67,19 @@
             // set up osc for radials
             (1..16).do({|num|
                 var path = "/radials%".format(num).asSymbol;
+
                 OSCdef(path, {|msg|
+
+                    var obj;
                     var mapped, ctrl, spec, filter;
-                    var obj = data[current];
+                    obj = data[current];
+
                     if (obj.notNil) {
                         var props = obj['props'];
                         var node = obj['node'];
                         var val = msg[1];
-                        ctrl = props[num];
+                        ctrl = props[num-1];
+
                         if (ctrl.notNil) {
                             if (ctrl.isFunction) {
                                 ctrl.(val)
@@ -112,72 +100,72 @@
             // preset selector
             (1..8).do({|num|
                 var path;
-                path = "/preset/%".format(num);
+                path = "/preset/%".format(num).asSymbol;
                 OSCdef(path, {|msg|
                     var val = msg[1];
                     if (val > 0) {
                         var obj = data[current];
-                        //obj.debug("obj");
+                        var selected = num-1;
                         if (obj.notNil) {
                             var node = obj['node'];
-                            DMPreset.apply(node, num-1)
+                            Preset.apply(node, selected);
+                            node.set(\preset_num, selected);
+                        } {
+                            //node.set(\preset_num, nil);    
                         }
                     }
                 }, path: path)
                 .fix; 
             });
 
-            // pattern launcher
-            (1..8).do({|track|
-
-                var selected = nil;
-
-                (1..4).do({|num|
-                    var path = "/ptrn%/%".format(track, num);
-                    //path.debug("path*****");
-
-                    OSCdef(path, {|msg|
-                        var val = msg[1];
-                        var node;
-                        var obj = data[track-1];
-                        //obj.debug("obj*****");
-
+            // ptrn selector
+            (1..8).do({|num|
+                var path;
+                path = "/ptrn/%".format(num).asSymbol;
+                OSCdef(path, {|msg|
+                    var val = msg[1];
+                    if (val > 0) {
+                        var obj = data[current];
+                        //obj.debug("obj");
                         if (obj.notNil) {
-                            node = obj['node'];
-                            //node.debug("node************");
-                            if (val > 0) {
-                                var ptrn;
-                                selected = num-1;
-                                ptrn = node.ptrns[selected];
-                                if (ptrn.notNil) {
-                                    node.source = ptrn;
-                                    node.play;
-                                }
-                            }{
-                                if ( (num-1) == selected) {
-                                    node.stop;
-                                    selected = nil
-                                }
+                            var ptrn, selected;
+                            var node = obj['node'];
+                            selected = num-1;
+                            ptrn = node.ptrns[selected];
+                            node.set(\ptrn_num, selected);
+                            if (ptrn.notNil) {
+                                node.source = ptrn;
                             }
+                        } {
+                            //node.set(\ptrn_num, nil);    
                         }
-                    }, path: path)
-                    .fix; 
-                })
-                
+                    }
+                }, path: path)
+                .fix; 
+            });
+
+            (0..7).do({|num|
+                // obj index is zero-based
+                // but everything else is one-based
+                var path = "/play%".format(num+1).asSymbol;
+                OSCdef(path, {|msg|
+                    var val = msg[1];
+                    if (val > 0) {
+                        var obj = data[num];
+                        if (obj.notNil) {
+                            obj.node.play;
+                        }
+                    } {
+                        var obj = data[num];
+                        if (obj.notNil) {
+                            obj.node.stop;
+                        }
+                    }
+                }, path: path).fix
             });
 
             reset_track.(0);
-            netaddr.sendMsg("/radio1", 0);
-
-            (1..8).do({|track|
-                (1..8).do({|num|
-                    var key;
-                    //var key = "/preset%/%".format(track, num);
-                    //netaddr.sendMsg(key, 0);   
-                    key = "/ptrn%/%".format(track, num);
-                    netaddr.sendMsg(key, 0);   
-                })
-            });
+            self.netaddr.sendMsg("/radio1", 0);
         
             // node needs to be an obj with get/set methods
             // obj should have getSpec
@@ -193,49 +181,65 @@
 
                 reset = {
                 
+                    // TODO: i don't know if this server bind is necessary
                     Server.default.bind({
-                        (1..16).do({|num|
-                            //var osckey = "t%_osc_%".format(index, num).asSymbol;
-                            //OSCdef(osckey).permanent_(false).free;
-                            netaddr.sendMsg("/label%".format(num), "");  
-                            netaddr.sendMsg("/radials%".format(num), 0);           
+
+                        (1..8).do({|num|
+                            var preset_num = node.get(\preset_num);
+                            var ptrn_num = node.get(\ptrn_num);
+
+                            if ( (num-1) ==  preset_num) {
+                                self.netaddr.sendMsg("/preset/%".format(num), 1);   
+                            }{
+                                self.netaddr.sendMsg("/preset/%".format(num), 0); 
+                            };
+
+                            if ( (num-1) ==  ptrn_num) {
+                                self.netaddr.sendMsg("/ptrn/%".format(num), 1);  
+                            }{
+                                self.netaddr.sendMsg("/ptrn/%".format(num), 0);  
+                            }
                         });
 
-                        // try to initialze device with current values
-                        order.indices.do({|num|
+                        (1..16).do({|num|
 
                             var spec, min, max, current, val;
-                            var ctrl = order[num];
-                
-                            if (ctrl.isFunction) {
-                            }{
-                                // update label
-                                var key = "label%".format(num);
-                                netaddr.sendMsg(key, ctrl.asString);
+                            var ctrl = order[num-1];
 
-                                spec = node.getSpec[ctrl];
-                                if (spec.isNil) {
-                                    spec = [0, 1].asSpec;
-                                };
-                
-                                min = spec.minval;
-                                max = spec.maxval;
-                                current = node.get(ctrl);
-                                if (current.notNil) {
-                                    // don't know how to unmap to a range that is not 0-1
-                                    if (spec.warp.isKindOf(ExponentialWarp)) {
-                                        val = current.explin(min, max, 0, 1);
-                                    }{
-                                        val = current.linlin(min, max, 0, 1);
+                            if (ctrl.isNil) {
+                                self.netaddr.sendMsg("/label%".format(num), "");  
+                                self.netaddr.sendMsg("/radials%".format(num), 0); 
+                            }{
+
+                                if (ctrl.isFunction) {
+                                }{
+                                    var key = "/label%".format(num);
+                                    self.netaddr.sendMsg(key, ctrl.asString);
+
+                                    spec = node.getSpec[ctrl];
+                                    if (spec.isNil) {
+                                        spec = [0, 1].asSpec;
                                     };
-                                    //[node.key, \curent, current, \cc, ccval].debug(ctrl);
-                                    try {
-                                        netaddr.sendMsg("/radials%".format(num), val);
-                                    } {|err|
-                                        "osc out: %".format(err).warn;
+                    
+                                    min = spec.minval;
+                                    max = spec.maxval;
+                                    current = node.get(ctrl);
+                                    if (current.notNil) {
+                                        // don't know how to unmap to a range that is not 0-1
+                                        if (spec.warp.isKindOf(ExponentialWarp)) {
+                                            val = current.explin(min, max, 0, 1);
+                                        }{
+                                            val = current.linlin(min, max, 0, 1);
+                                        };
+                                        //[node.key, \curent, current, \cc, ccval].debug(ctrl);
+                                        try {
+                                            self.netaddr.sendMsg("/radials%".format(num), val);
+                                        } {|err|
+                                            "osc out: %".format(err).warn;
+                                        }
                                     }
-                                }
-                            }
+                                };
+                            };    
                         });
                     })
                 };
@@ -246,7 +250,8 @@
                     props: order
                 );
                 reset.();
-                netaddr.sendMsg("/radio1", index);
+                index = index -1;
+                self.netaddr.sendMsg("/radio1", index);
                 current = index;
                 data.put(index, obj);
             };
