@@ -22,6 +22,7 @@ func: {|node|
     scope = Stethoscope.new(s, view:scopeview).style_(cnt)
     .index_(node.bus.index)
     .numChannels_(numchannels)
+    .cycle_(s.sampleRate / 300)
     .yZoom_(10)
     .xZoom_(5);
 

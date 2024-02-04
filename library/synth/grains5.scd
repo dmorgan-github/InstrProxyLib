@@ -1,3 +1,96 @@
+/*
+(
+var multiChannelTrigger = { |numChannels, trig|
+    numChannels.collect{ |chan|
+        PulseDivider.ar(trig, numChannels, chan);
+    };
+};
+
+var multiChannelPhase = { |triggers, windowRate|
+    triggers.collect{ |localTrig, i|
+        var hasTriggered = PulseCount.ar(localTrig) > 0;
+        var localPhase = Sweep.ar(localTrig, windowRate * hasTriggered);
+        localPhase * (localPhase < 1);
+    };
+};
+
+var hanningWindow = { |phase|
+    (1 - (phase * 2pi).cos) / 2 * (phase < 1);
+};
+
+SynthDef(\granular, { |sndBuf|
+
+    var numChannels = 8;
+
+    var tFreq, trig, windowRate, triggers, windowPhases, grainWindows, pos, sig;
+
+    tFreq = \tFreq.kr(10);
+    trig = Impulse.ar(tFreq);
+    windowRate = tFreq / \overlap.kr(1);
+
+    triggers = multiChannelTrigger.(numChannels, trig);
+    windowPhases = multiChannelPhase.(triggers, windowRate);
+    grainWindows = hanningWindow.(windowPhases);
+
+    pos = Phasor.ar(
+        trig: DC.ar(0),
+        rate: \posRate.kr(1) * BufRateScale.kr(sndBuf) * SampleDur.ir / BufDur.kr(sndBuf),
+        start: \posLo.kr(0),
+        end: \posHi.kr(1)
+    );
+
+    sig = PlayBuf.ar(
+        numChannels: 1,
+        bufnum: sndBuf,
+        rate: \playBackRate.kr(1),
+        trigger: triggers,
+        startPos: pos * BufFrames.kr(sndBuf),
+        loop: 1
+    );
+
+    sig = sig * grainWindows;
+
+    sig = Pan2.ar(sig, \pan.kr(0));
+    sig = sig.sum;
+
+    sig = sig * \amp.kr(-10.dbamp);
+
+    sig = LeakDC.ar(sig);
+    OffsetOut.ar(\out.kr(0), sig);
+}).add;
+)
+    
+b = Buffer.read(s, Platform.resourceDir +/+ "sounds/a11wlk01.wav");
+
+(
+x = Synth(\granular, [
+    \tFreq, 1000,
+    \overlap, 8,
+    \sndBuf, b,
+    \amp, -25.dbamp, 
+    \out, 4
+]);
+)
+
+x.free;
+    
+(
+x = Synth(\granular, [
+    \tFreq, 200,
+    \posRate, 0.5,
+    \playBackRate, 1,
+    \overlap, 0.5,
+    \sndBuf, b,
+    \amp, -5.dbamp,
+    \out, 4
+]);
+)
+x.set(\tFreq, 180, \overlap, 2, \posRate, 0.125, \playBackRate, 0.5)
+
+x.free;
+*/
+
+
 (
 var synth = {|freq|
 

@@ -88,15 +88,18 @@ var getGridVals = {|scale='major', interval=7, root=24|
     result;
 };
 
-var getHilights = {|vals|
+var getHilights = {|vals, root=24|
 
+    var degreevals, result;
     "getHilights".postln;
-
-    vals.collect({|row|
+    degreevals = (root + [0, 12, 24, 36, 48, 60, 72, 84]);
+    result = vals.collect({|row|
         row.collect({|v|
-            (24 + [0, 12, 24, 36, 48, 60, 72, 84]).includes(v.asInteger)
+            //[degreevals, v].debug("*************");
+            degreevals.asInteger.includes(v.asInteger)
         })    
-    }).reverse
+    });
+    result.reverse
 };
 
 var func = {|self|
@@ -115,39 +118,32 @@ var func = {|self|
     gridvals = getGridVals.(scale, interval, root);
     hilights = getHilights.(gridvals);
 
-    self.data = {
-        data
-    };
-
-    self.node = {
-        node;
-    };
-
-    self.node_ = {|self, val|
-        node = val;
-        scale = node.get(\scale) ?? Scale.major;
-        root = 24 + (node.get(\root) ?? 0);
-        gridvals = getGridVals.(scale, interval, root);
-        hilights = getHilights.(gridvals);
-        self.wake;
-    };
-
+    self.data = { data };
+    self.node = { node };
     self.kbMode = \press;
-    self.gridVals = {
-        gridvals
-    };
+    self.gridVals = { gridvals };
     self.hilights = { hilights };
     self.scale = { scale };
     self.root = { root };
     self.interval = { interval };
-    self.interval_ = {|self, val| interval = val };
+
+    self.setNode = {|self, argNode, argInterval=7|
+        node = argNode;
+        interval = argInterval;
+        scale = node.get(\scale) ?? Scale.major;
+        root = 24 + (node.get(\root) ?? 0);
+
+        [\scale, (root + scale.degrees).midiname, \root, root, \interval, interval].debug("grid");
+        gridvals = getGridVals.(scale, interval, root);
+        hilights = getHilights.(gridvals, root);
+        self.wake;
+    };
 
     self.wake = {
 
         \wake.debug("monomekb");
 
         grid.all(0);  
-
         // restore toggled keys
         rows.do({|y|
             kbcols.do({|x|

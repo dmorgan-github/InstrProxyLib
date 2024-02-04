@@ -15,7 +15,7 @@ var func = {|node|
             node.set(\recbuf, buf);
         };
 
-        proxy = DMNodeProxy();
+        proxy = InstrNodeProxy();
         proxy.color = node.color;
         proxy[0] = node.node;
         proxy.set(\buf, buf, \rec, 0, \dorefresh, 1);

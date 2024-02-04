@@ -144,6 +144,7 @@
                 .fix; 
             });
 
+            // play, amp, pan buttons
             (0..7).do({|num|
                 // obj index is zero-based
                 // but everything else is one-based
@@ -161,7 +162,27 @@
                             obj.node.stop;
                         }
                     }
-                }, path: path).fix
+                }, path: path).fix;
+
+                path = "/vol%".format(num+1).asSymbol;                
+                OSCdef(path, {|msg|
+                    var val = msg[1];
+                    var obj = data[num];
+                    if (obj.notNil) {
+                        var amp = val.linlin(0, 1, 0, 2);
+                        obj.node.set(\vol, amp)
+                    }
+                }, path: path).fix;
+
+                path = "/pan%".format(num+1).asSymbol;
+                OSCdef(path, {|msg|
+                    var val = msg[1];
+                    var obj = data[num];
+                    if (obj.notNil) {
+                        var pan = val.linlin(0, 1, -1, 1);
+                        obj.node.set(\center, pan)
+                    }
+                }, path: path).fix;
             });
 
             reset_track.(0);
@@ -174,15 +195,24 @@
         
                 var props, nums;
                 var order, reset, obj;
+                var vol, pan;
         
                 props = assoc.collect({|a| a.key });
                 nums = assoc.collect({|a| a.value });
                 order = Order.newFromIndices(props.asArray, nums.asArray);
 
+                vol = node.get(\vol) ?? 1;
+                vol = vol.linlin(0, 2, 0, 1);
+                self.netaddr.sendMsg("/vol%".format(num), vol);  
+
+                pan = node.get(\pan) ?? 0;
+                pan = pan.linlin(-1, 1, 0, 1);
+                self.netaddr.sendMsg("/pan%".format(num), pan);  
+
                 reset = {
                 
                     // TODO: i don't know if this server bind is necessary
-                    Server.default.bind({
+                    //Server.default.bind({
 
                         (1..8).do({|num|
                             var preset_num = node.get(\preset_num);
@@ -241,7 +271,7 @@
                                 };
                             };    
                         });
-                    })
+                    //})
                 };
 
                 obj = (

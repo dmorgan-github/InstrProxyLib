@@ -12,10 +12,14 @@ synth: {|freq, gate|
     var end = \endPos.kr(1, spec: ControlSpec(0, 1, \lin, 0, 1, units:"sampler") );
     var pitched = \pitched.kr(0, spec:ControlSpec(0, 1, \lin, 1, 0, units:"sampler"));
 
+    /*
     var rate = Select.kr(pitched, [
-        \rate.kr(1, spec:ControlSpec(0.125, 4, \lin, 0, 1, "sampler")),
+        \rate.kr(1, spec:ControlSpec(0.125, 4, \lin, 0, 1, "sampler")).value,
         freq/root
     ]);
+    */
+
+    var rate = \rate.kr(1, spec:ControlSpec(0.125, 4, \lin, 0, 1, "sampler"));
 
     var dir = Select.kr(
         \rev.kr(0, spec:ControlSpec(0, 1, \lin, 1, 0, units:"sampler")) > 0.5,

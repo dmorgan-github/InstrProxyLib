@@ -5,30 +5,30 @@ synth: {|freq, gate, aeg|
     var velamt = ~velamt ?? 0;
     var vel = ~vel ?? 1;
     var envmode = ~fenvmode.debug("feg fenvmode");
-    var keyamt = \keyamt.kr(0, spec: DMControlSpec(0, 1, \lin, 0, 0, "filter", sort:8));
-    var cutoff = \cutoff.kr(2000, spec: DMControlSpec(100, 16000, \exp, 0, 2000, "filter", sort:9));
-    var res = \res.kr(0.1, spec:DMControlSpec(0, 1, \lin, 0, 0.1, units:"filter", sort:10));
-    var fadd = \fadd.kr(0, spec:DMControlSpec(0, 1, \lin, 0, 0, units:"filter", sort:11)).linlin(0, 1, 0, 4000);
+    var keyamt = \keyamt.kr(0, spec: InstrControlSpec(0, 1, \lin, 0, 0, "filter", sort:8));
+    var cutoff = \cutoff.kr(2000, spec: InstrControlSpec(100, 16000, \exp, 0, 2000, "filter", sort:9));
+    var res = \res.kr(0.1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, units:"filter", sort:10));
+    var fadd = \fadd.kr(0, spec:InstrControlSpec(0, 1, \lin, 0, 0, units:"filter", sort:11)).linlin(0, 1, 0, 4000);
     var basefreq = 48.midicps;
     var cutoffratio, feg;
 
     if (envmode == \follow) {
         feg = aeg;
     } {
-        var fatkcurve = \fatkcurve.kr(-1, spec: DMControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:5));
-        var fdeccurve = \fdeccurve.kr(-1, spec: DMControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:6));
-        var frelcurve = \frelcurve.kr(-1, spec: DMControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:7));
+        var fatkcurve = \fatkcurve.kr(-1, spec: InstrControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:5));
+        var fdeccurve = \fdeccurve.kr(-1, spec: InstrControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:6));
+        var frelcurve = \frelcurve.kr(-1, spec: InstrControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:7));
 
-        var atk = \fatk.kr(0, spec: DMControlSpec(0, 1, \lin, 0, 0.01, units:"filter", sort:1));
-        var dec = \fdec.kr(0.2, spec: DMControlSpec(0, 1, \lin, 0, 0.2, units:"filter", sort:2));
-        var suslevel = \fsuslevel.kr(1, spec: DMControlSpec(0, 1, \lin, 0, 1, units:"filter", sort:3));
-        var rel = \frel.kr(0.2, spec: DMControlSpec(0, 8, \lin, 0, 0.29, units:"filter", sort:4));
+        var atk = \fatk.kr(0, spec: InstrControlSpec(0, 1, \lin, 0, 0.01, units:"filter", sort:1));
+        var dec = \fdec.kr(0.2, spec: InstrControlSpec(0, 1, \lin, 0, 0.2, units:"filter", sort:2));
+        var suslevel = \fsuslevel.kr(1, spec: InstrControlSpec(0, 1, \lin, 0, 1, units:"filter", sort:3));
+        var rel = \frel.kr(0.2, spec: InstrControlSpec(0, 8, \lin, 0, 0.29, units:"filter", sort:4));
         var curve = [fatkcurve, fdeccurve, frelcurve];
         //var curve = [fatkcurve, frelcurve];
         var ts = \fts.kr(1);
 
         if (gatemode.debug("filter gate mode") == \retrig) {
-            var sus = \fsustain.kr(1, spec:DMControlSpec(0, 1, \lin, 0, 0.1, units:"filter", sort:1));
+            var sus = \fsustain.kr(1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, units:"filter", sort:1));
             feg = Env(
                 [0, 1, suslevel, suslevel, 0],
                 [

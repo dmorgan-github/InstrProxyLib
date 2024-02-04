@@ -18,15 +18,15 @@ synth: {|freq, gate|
 
         var num = i;
         var units = "op" ++ num;
-        var ratio = ('op' ++ num ++ 'ratio').asSymbol.kr(1, spec: DMControlSpec(1/8, 31, \lin, 0.0, 1, units: units, sort:1) );
-        var atk = ('op' ++ num ++ 'atk').asSymbol.kr(1, spec: DMControlSpec(0, 2, \lin, 0, 0.01, units: units, sort:2) );
-        var dec = ('op' ++ num ++ 'dec').asSymbol.kr(1, spec: DMControlSpec(0, 1, \lin, 0, 0.2, units: units, sort:3) );
-        var suslevel = ('op' ++ num ++ 'suslevel').asSymbol.kr(0.7, spec: DMControlSpec(0, 1, \lin, 0, 0.7, units: units, sort:4) );
-        var rel = ('op' ++ num ++ 'rel').asSymbol.kr(0.5, spec: DMControlSpec(0, 8, \lin, 0, 0.5, units: units, sort:5) );
+        var ratio = ('op' ++ num ++ 'ratio').asSymbol.kr(1, spec: InstrControlSpec(1/8, 31, \lin, 0.0, 1, units: units, sort:1) );
+        var atk = ('op' ++ num ++ 'atk').asSymbol.kr(1, spec: InstrControlSpec(0, 2, \lin, 0, 0.01, units: units, sort:2) );
+        var dec = ('op' ++ num ++ 'dec').asSymbol.kr(1, spec: InstrControlSpec(0, 1, \lin, 0, 0.2, units: units, sort:3) );
+        var suslevel = ('op' ++ num ++ 'suslevel').asSymbol.kr(0.7, spec: InstrControlSpec(0, 1, \lin, 0, 0.7, units: units, sort:4) );
+        var rel = ('op' ++ num ++ 'rel').asSymbol.kr(0.5, spec: InstrControlSpec(0, 8, \lin, 0, 0.5, units: units, sort:5) );
 
-        var atkcurve = ('op' ++ num ++ 'atkcurve').asSymbol.kr(0, spec: DMControlSpec(-8, 8, \lin, 0, 0, units: units, sort:6) );
-        var deccurve = ('op' ++ num ++ 'deccurve').asSymbol.kr(0, spec: DMControlSpec(-8, 8, \lin, 0, 0, units: units, sort:7) );
-        var relcurve = ('op' ++ num ++ 'relcurve').asSymbol.kr(0, spec: DMControlSpec(-8, 8, \lin, 0, 0, units: units, sort:8) );
+        var atkcurve = ('op' ++ num ++ 'atkcurve').asSymbol.kr(0, spec: InstrControlSpec(-8, 8, \lin, 0, 0, units: units, sort:6) );
+        var deccurve = ('op' ++ num ++ 'deccurve').asSymbol.kr(0, spec: InstrControlSpec(-8, 8, \lin, 0, 0, units: units, sort:7) );
+        var relcurve = ('op' ++ num ++ 'relcurve').asSymbol.kr(0, spec: InstrControlSpec(-8, 8, \lin, 0, 0, units: units, sort:8) );
 
         var env = Env.adsr(
             attackTime:atk, decayTime:dec, sustainLevel:suslevel, releaseTime:rel,
@@ -34,8 +34,8 @@ synth: {|freq, gate|
             curve:[atkcurve, deccurve, relcurve]
         ).ar(gate: gate);
 
-        var index = units.asSymbol.kr(0.15, spec: DMControlSpec(0, 1, \lin, 0, 0.15, units: units, sort:0)).linlin(0, 1, 0, 2pi);
-        var lfoamt = ('op' ++ num ++ 'lfoamt').asSymbol.kr(1, spec: DMControlSpec(0, 1, \lin, 0, 0, units: units, sort:9) );
+        var index = units.asSymbol.kr(0.15, spec: InstrControlSpec(0, 1, \lin, 0, 0.15, units: units, sort:0)).linlin(0, 1, 0, 2pi);
+        var lfoamt = ('op' ++ num ++ 'lfoamt').asSymbol.kr(1, spec: InstrControlSpec(0, 1, \lin, 0, 0, units: units, sort:9) );
 
         vel = 1+(vel * velamt);
         index = index * (1+(indexlfo * lfoamt)) * vel;
