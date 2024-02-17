@@ -1,4 +1,19 @@
 (
+
+/*
+    SynthDef("sampPlay" ++ numch, { |bufnum, gate = 1, amp = 1, vol = 1, start = 0, out|
+        var	phase = Line.ar(0, BufFrames.kr(bufnum), BufDur.kr(bufnum), doneAction: 2),
+        sig = BufRd.ar(numch, bufnum, phase, loop: 0, interpolation: 4),
+        // sig = PlayBuf.ar(numch, bufnum, BufRateScale.ir(bufnum), startPos: start,
+        // loop: 0, doneAction: 2),
+        eg = EnvGen.kr(Env.asr(0.01, amp, 0.02), gate, doneAction: 2);
+        SendReply.ar(Impulse.ar(15), '/phase', phase);
+        sig = sig * eg * vol;
+        if(numch == 1) { sig = sig ! 2 };
+        Out.ar(out, sig);
+    }).add;
+*/
+
 synth: {|freq|
 
      var root = \rootfreq.kr(60.0.midicps,

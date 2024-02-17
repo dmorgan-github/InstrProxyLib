@@ -124,21 +124,24 @@ func: {arg node;
             };
 
             if (buf.notNil) {
-                buf.loadToFloatArray(action:{|a|
-                    {
-                        var startPos = node.get(\startPos) ?? {0};
-                        var endPos = node.get(\endPos) ?? {1};
-                        var numframes, selstart, selend, selsize;
-                        numframes = buf.numFrames;
-                        selstart = startPos * numframes;
-                        selend = endPos * numframes;
-                        selsize = selend - selstart;
+                
+                {
+                    buf.loadToFloatArray(action:{|a|
+                        //{
+                            var startPos = node.get(\startPos) ?? {0};
+                            var endPos = node.get(\endPos) ?? {1};
+                            var numframes, selstart, selend, selsize;
+                            numframes = buf.numFrames;
+                            selstart = startPos * numframes;
+                            selend = endPos * numframes;
+                            selsize = selend - selstart;
 
-                        sfv.setData(a, channels: buf.numChannels);
-                        sfv.setSelection(0, [selstart, selsize]);
+                            sfv.setData(a, channels: buf.numChannels);
+                            sfv.setSelection(0, [selstart, selsize]);
 
-                    }.defer
-                });
+                        //}.defer
+                    });
+                }.fork(AppClock);
 
                 {
                     bufnumView.object = buf;

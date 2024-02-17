@@ -73,7 +73,6 @@ synth: {|freq|
 	//Out.ar(out, Pan2.ar(Mix.new(sig), pan));
     //Mix.new(sig)
 
-
     SendReply.kr(Impulse.kr(updateFreq), '/bufpos', [0, pos * bufFrames], replyid);
 
     sig.sum!2

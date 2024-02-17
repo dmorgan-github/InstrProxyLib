@@ -98,7 +98,8 @@ var synth = {|freq|
     var numvoices = 5;
     var replyid = \bufposreplyid.kr(-1);
     var pan, grainamp, rate, detune, pos, durmod, phase;
-    var trig = CoinGate.ar(\prob.kr(1) , Impulse.ar( \grainrate.ar(20) ));
+    //var trig = CoinGate.ar(\prob.kr(1) , Impulse.ar( \grainrate.ar(20) ));
+    var trig = numvoices.collect( { Impulse.ar( \grainrate.ar(20) *  (2 ** rrand(-1.0, 1.0))  )  } );
 
     var graindur = \graindur.kr(0.1);//LFNoise2.ar( 1!numvoices ).range(0.01, 0.5);
     var buf = \buf.kr;

@@ -8,6 +8,7 @@ func: {|node|
     var meterWidth = 15;
     var meters, view, synth;
     var alpha = 0.6;
+    //var color = node.color.alpha_(alpha);//Color.green.alpha_(alpha);
     var color = Color.green.alpha_(alpha);
     var metercolor = if (node.isMonitoring) {color}{Color.grey};
 

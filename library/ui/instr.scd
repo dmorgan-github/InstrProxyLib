@@ -92,6 +92,7 @@ func: {|node, index, cmds|
             var getNext;
             var result = nil;
             getNext = {
+
                 if (hasMoreTokens.()) {
                     spec.pairsDo({|k, v|
                         if (result.isNil) {
@@ -117,20 +118,24 @@ func: {|node, index, cmds|
             if (result.isNil) {
                 "unexpected token %".format(str[cursor]).throw
             };
+
             result;
         };
 
         exec = {|list|
 
             var exit = false;
+
             while ({ hasMoreTokens.() and: { exit.not } }, {
                 var token = getNextToken.();
+
                 //token.debug("token");
                 switch(token['type'],
                     // entities
                     'string', {
                         var ui = token['val'];
                         ui = ui.asString.split($/);
+                        //ui.debug("ui..................");
                         list.add( getView.(ui[0], ui[1]) )
                     },
                     // grouping delimiters
@@ -169,6 +174,7 @@ func: {|node, index, cmds|
         target.children.do({|child|
             child.remove
         });
+
         layout = parse.(cmd.asString);
         target.layout.add( layout );
     };

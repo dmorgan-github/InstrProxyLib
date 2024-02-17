@@ -21,6 +21,9 @@ func: {|node|
                 or: {
                     VSTPlugin.plugins[val.asSymbol].category.contains("Synth")
                 }
+                or: {
+                    VSTPlugin.plugins[val.asSymbol].vendor.contains("MeldaProduction")
+                }
             });
  
             vstlist = list.asArray.sort;

@@ -237,6 +237,7 @@ func: {|node, index|
     scroll
     .background_(Color.black)
     .minHeight_(150)
+    .minWidth_(100)
     .resize_(1)
     .onClose_({
         node.removeDependant(nodewatcher);

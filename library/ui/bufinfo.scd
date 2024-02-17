@@ -3,16 +3,20 @@ func: {arg buf;
 
     var bufname = if (buf.path.notNil) { PathName(buf.path).fileName } { "buf" };
     var view = View().layout_(VLayout().margins_(0).spacing_(0)).minSize_(Size(300, 150));
+
     var sfv = SoundFileView()
     .gridResolution_(0.0)
     .drawsRMS_(false)
     .toolTip_(bufname);
 
-    buf.loadToFloatArray(action:{arg a;
-        {
-            sfv.setData(a, channels: buf.numChannels);
-        }.defer
-    });
+    {
+        buf.loadToFloatArray(action:{arg a;
+            //{
+                sfv.setData(a, channels: buf.numChannels);
+            //}.defer
+        });
+    }.fork(AppClock);
+    
     view.layout.add(sfv);
     view.layout.add(
         HLayout(nil,

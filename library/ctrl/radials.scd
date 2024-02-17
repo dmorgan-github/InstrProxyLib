@@ -2,6 +2,8 @@
     var func = {|recAddr="192.168.86.250", recPort=57125|
 
         var init, ctrl;
+
+        /*
         var colors = [
             "d53e4f",
             "f46d43",
@@ -12,6 +14,7 @@
             "66c2a5",
             "3288bd"
         ];
+        */
 
         var data = Order();
         var current = 0;
@@ -149,6 +152,9 @@
                 // obj index is zero-based
                 // but everything else is one-based
                 var path = "/play%".format(num+1).asSymbol;
+                // initialize play buttons as hidden
+                self.netaddr.sendMsg("/play%visible".format(num+1), false);
+
                 OSCdef(path, {|msg|
                     var val = msg[1];
                     if (val > 0) {
@@ -180,7 +186,7 @@
                     var obj = data[num];
                     if (obj.notNil) {
                         var pan = val.linlin(0, 1, -1, 1);
-                        obj.node.set(\center, pan)
+                        obj.node.set(\out_pan, pan)
                     }
                 }, path: path).fix;
             });
@@ -203,11 +209,14 @@
 
                 vol = node.get(\vol) ?? 1;
                 vol = vol.linlin(0, 2, 0, 1);
-                self.netaddr.sendMsg("/vol%".format(num), vol);  
+                self.netaddr.sendMsg("/vol%".format(index), vol);  
 
                 pan = node.get(\pan) ?? 0;
                 pan = pan.linlin(-1, 1, 0, 1);
-                self.netaddr.sendMsg("/pan%".format(num), pan);  
+                self.netaddr.sendMsg("/pan%".format(index), pan);
+
+                // enable play button
+                self.netaddr.sendMsg("/play%visible".format(index), true);
 
                 reset = {
                 
