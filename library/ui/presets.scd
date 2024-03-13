@@ -55,6 +55,7 @@ func: {|node|
         .states_([ [nil, nil, color_init ], [nil, nil, color_active ] ])
         //.value_( if(issaved.postln) {1} {0} )
         .maxSize_(Size(12, 12))
+        //.maxHeight_(12)
     });
 
     View().layout_(
@@ -62,8 +63,8 @@ func: {|node|
         HLayout(
 
             GridLayout.rows(
-                buttons[0..13],
-                buttons[14..27]
+                buttons[0..15],
+                //buttons[14..27]
             ).margins_(0).spacing_(0),
 
             /*

@@ -3,6 +3,7 @@ var synth = {|freq, gate, aeg|
     
     var frange, env;
     var envmode = ~fenvmode.debug("feg fenvmode");
+    var voices = ~voices;
 
     var cutoff = \cutoff.kr(2000, spec: InstrControlSpec(100, 16000, \exp, 0, 2000, "filter", sort:9));
     var fstart = \fstart.kr(1, spec:InstrControlSpec( 0, 1, \lin, 0, 1, units:"filter", sort:10 ) );
@@ -19,7 +20,29 @@ var synth = {|freq, gate, aeg|
         var atkcurve = \fatkcurve.kr(-1, spec: InstrControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:5));
         var deccurve = \fdeccurve.kr(-1, spec: InstrControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:6));
         var relcurve = \frelcurve.kr(-1, spec: InstrControlSpec(-8, 8, \lin, 0, -1, units:"filter", sort:7));
-        env = Env.adsr(atk, dec, suslevel, rel, curve:[atkcurve, deccurve, relcurve]).ar(gate:gate);
+        //env = Env.adsr(atk, dec, suslevel, rel, curve:[atkcurve, deccurve, relcurve]).ar(gate:gate);
+
+        if (voices == \mono) {
+            var sus = \fsustain.kr(1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, units:"filter", sort:1));
+            env = Env(
+                [0, 1, suslevel, suslevel, 0],
+                [
+                    atk,
+                    dec,
+                    sus,
+                    rel
+                ],
+                curve:[atkcurve, deccurve, relcurve]
+            ).ar(gate:gate);
+        }{
+            env = Env.adsr(
+                atk,
+                dec,
+                suslevel,
+                rel,
+                curve:[atkcurve, deccurve, relcurve]
+            ).ar(gate:gate);//.linlin(0, 1, 1, 0.1);
+        };
     };
 
     [ (cutoff * env.linlin(0, 1, fstart, fend) ).clip(20, 20000), res]

@@ -12,7 +12,7 @@ synth: {|gate, doneAction=(Done.freeSelf)|
         \relcurve.kr(-4, spec: InstrControlSpec(-8, 8, \lin, 0, -4, units:"aeg", sort:6))
     ];
 
-    if (~gatemode == \retrig) {
+    if (~voices == \mono) {
         var sus = \sustain.kr(0.1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, units:"aeg", sort:2));
         env = Env([0, suslevel, suslevel, 0], [atk, sus, rel], curve:curve);
     }{

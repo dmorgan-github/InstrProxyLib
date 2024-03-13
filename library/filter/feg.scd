@@ -1,7 +1,7 @@
 (
 synth: {|freq, gate, aeg|
 
-    var gatemode = ~gatemode;
+    var voices = ~voices;
     var velamt = ~velamt ?? 0;
     var vel = ~vel ?? 1;
     var envmode = ~fenvmode.debug("feg fenvmode");
@@ -27,7 +27,7 @@ synth: {|freq, gate, aeg|
         //var curve = [fatkcurve, frelcurve];
         var ts = \fts.kr(1);
 
-        if (gatemode.debug("filter gate mode") == \retrig) {
+        if (voices == \mono) {
             var sus = \fsustain.kr(1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, units:"filter", sort:1));
             feg = Env(
                 [0, 1, suslevel, suslevel, 0],

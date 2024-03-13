@@ -107,15 +107,27 @@ func: {|node|
                                     var left, top;
                                     var fxview = UiModule('instr').view(fxnode, index);
                                     var parents = view.getParents();
+                                    var parent;
+                                    var win;
                                     if (parents.notNil) {
                                         var width;
-                                        var parent = parents.last;
+                                        parent = parents.last;
                                         width = parent.bounds.width;
                                         left = parent.bounds.left + width + 5;
                                         top = parent.bounds.top;
                                     };
-                                    fxview.bounds = Rect(left, top, 100, 200);
+                                    //fxview.bounds = Rect(left, top, 100, 200);
                                     fxview.front;
+                                    //win = parent.findWindow;
+                                    //if (win.notNil) {
+                                    //    win.setTopLeftBounds(fxview.bounds.top_(top).left_(left), 0)
+                                    //};
+
+                                    //[left, top].postln;
+                                    //parent.moveTo(0, top);
+                                    //parent.bounds = Rect(left, top, 100, 200);
+                                    //fxview.parent.setTopLeftBounds( Rect(left, top, 100, 200) )
+                                
                                 }
                             }
                         }),

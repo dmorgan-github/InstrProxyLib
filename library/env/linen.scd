@@ -3,7 +3,7 @@ synth: {|gate, doneAction=(Done.freeSelf)|
 
     var atk = \atk.kr(0.01, spec:InstrControlSpec(0, 8, \lin, 0, 0.01, units:"aeg", sort:0));
     var sus = \sustain.kr(1, spec: InstrControlSpec(0, 8, \lin, 0, 1, units:"aeg", sort:1));
-    var rel = \rel.kr(0.1, spec: InstrControlSpec(0, 8, \lin, 0, 0.1, units:"aeg", sort:3));
+    var rel = \rel.kr(1, spec: InstrControlSpec(0, 8, \lin, 0, 1, units:"aeg", sort:3));
 
     var ts = \ts.kr(1);
     var curve = [

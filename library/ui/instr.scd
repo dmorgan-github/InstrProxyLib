@@ -42,6 +42,9 @@ func: {|node, index, cmds|
         $6: "meter"
     );
 
+   var  w = Window("test", bounds:Rect(top: Window.screenBounds.height/2, left: 100, width:200, height:200), border: false);//.front;
+   //w.setTopLeftBounds(w.bounds.top_(Window.screenBounds.height/2).left_(100), 0);
+
     if (index.isNil) {
         var fx = UiModule('fx').view(node);
         var presets = UiModule('presets').view(node);
@@ -179,12 +182,32 @@ func: {|node, index, cmds|
         target.layout.add( layout );
     };
 
-    view = View(bounds:75@150)
+    view = View(parent: w, bounds:200@200)
+    //view = View(bounds:75@150)
     .name_(windowname)
     .layout_(VLayout(
+
+        HLayout(
+            StaticText()
+            .string_(windowname)
+            .stringColor_( Color.white.alpha_(0.5) )
+            .mouseMoveAction_({|ctrl, x, y|
+
+                var bounds = ctrl.bounds;
+                var screen = ctrl.mapToGlobal(Point(x, y));
+                var screenX = screen.x;
+                var screenY = screen.y;
+                var width = 200;//view.sizeHint.width;
+                var height = 200;//view.sizeHint.height;
+
+                w.setTopLeftBounds(Rect(left:screenX, top:screenY, width: width, height: height), menuSpacer:0);
+            }),
+            nil
+        ),
+
         HLayout(
             target
-        ).margins_(5).spacing_(5),
+        ).margins_(2).spacing_(2),
 
         HLayout(
             DragSource()
@@ -238,9 +261,10 @@ func: {|node, index, cmds|
                             node.stop
                         },
                         \close, {
-                            target.children.do({|child|
-                                child.remove
-                            });
+                            //target.children.do({|child|
+                            //    child.remove
+                            //});
+                            w.close;
                         },
                         {
                             var cmd = val.asString;
@@ -350,5 +374,7 @@ func: {|node, index, cmds|
             loadViews.(cmd);
         } 
     });
+
+    w.asView;
 }
 )

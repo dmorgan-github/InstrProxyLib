@@ -19,7 +19,7 @@ synth: {|freq, gate|
 
         var meg, sig;
         var curve = [atkcurve, deccurve, relcurve];
-        if (~gatemode.debug("pm gate mode") == \retrig) {
+        if (~voices == \mono) {
             var sus = \msustain.kr(0.1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, units:"pm", sort:12));
             meg = Env([0, 0, 1, suslevel, suslevel, 0], [0, atk, dec, sus, rel], curve:curve);
             //env = Env([0, 1, suslevel, suslevel, 0], [atk, dec, sus, rel], curve:curve);

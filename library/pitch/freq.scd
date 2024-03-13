@@ -8,9 +8,6 @@ synth: {
 
     //detune = detune * Select.kr( in_freq > 130, [0, 1] );
     detune = detune * in_freq.linlin(130, 261, 0, 1);
-
-    //detune.poll;
-
     bend = \bend.ar(0, spec: ControlSpec(-12, 12, \lin, 0, 0, units:"pitch")).midiratio;
     freqbend = in_freq * bend;
     freq = Vibrato.ar([freqbend + detune.neg, freqbend + detune],

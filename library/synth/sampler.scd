@@ -3,7 +3,10 @@ synth: {|freq, gate|
 
     var numchannels = ~numchannels ?? {1};
     var updateFreq = 15;
-    var root = \rootfreq.kr(60.0.midicps).clip(20, 20000);
+    var root = \rootfreq.kr(60.0.midicps,
+        spec:ControlSpec(20, 20000, \exp, 0, 60.0.midicps, units:"grainr")
+    ).clip(20, 20000);
+
     var replyid = \bufposreplyid.kr(-1);
     var buf = \buf.kr(0, spec:ControlSpec(units:"buf"));
     var numframes = max(BufFrames.kr(buf), 1);
@@ -19,7 +22,8 @@ synth: {|freq, gate|
     ]);
     */
 
-    var rate = \rate.kr(1, spec:ControlSpec(0.125, 4, \lin, 0, 1, "sampler"));
+    //var rate = \rate.kr(1, spec:ControlSpec(0.125, 4, \lin, 0, 1, "sampler"));
+    var rate = freq/root;
 
     var dir = Select.kr(
         \rev.kr(0, spec:ControlSpec(0, 1, \lin, 1, 0, units:"sampler")) > 0.5,
