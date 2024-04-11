@@ -42,7 +42,7 @@ func: {|node, index, cmds|
         $6: "meter"
     );
 
-   var  w = Window("test", bounds:Rect(top: Window.screenBounds.height/2, left: 100, width:200, height:200), border: false);//.front;
+   //var  w = Window("test", bounds:Rect(top: Window.screenBounds.height/2, left: 100, width:200, height:200), border: false);//.front;
    //w.setTopLeftBounds(w.bounds.top_(Window.screenBounds.height/2).left_(100), 0);
 
     if (index.isNil) {
@@ -182,11 +182,12 @@ func: {|node, index, cmds|
         target.layout.add( layout );
     };
 
-    view = View(parent: w, bounds:200@200)
-    //view = View(bounds:75@150)
+    //view = View(parent: w, bounds:200@200)
+    view = View(bounds:75@150)
     .name_(windowname)
     .layout_(VLayout(
 
+        /*
         HLayout(
             StaticText()
             .string_(windowname)
@@ -204,6 +205,7 @@ func: {|node, index, cmds|
             }),
             nil
         ),
+        */
 
         HLayout(
             target
@@ -375,6 +377,6 @@ func: {|node, index, cmds|
         } 
     });
 
-    w.asView;
+    //w.asView;
 }
 )

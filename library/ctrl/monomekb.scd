@@ -130,8 +130,12 @@ var func = {|self|
     self.setNode = {|self, argNode, argInterval=7|
         node = argNode;
         interval = argInterval;
-        scale = node.get(\scale) ?? Scale.major;
+        scale = node.get(\scale) ?? { Scale.major };
         root = 24 + (node.get(\root) ?? 0);
+
+        if (scale.isArray) {
+            scale = Scale(scale)
+        };
 
         [\scale, (root + scale.degrees).midiname, \root, root, \interval, interval].debug("grid");
         gridvals = getGridVals.(scale, interval, root);
@@ -233,5 +237,11 @@ var func = {|self|
     setup.()
 };
 
-(func: { Environment.make(func) }  )
+(
+    func: { Environment.make(func) },
+    doc: "
+~kb = M('ctrl/monomekb').()
+~kb.setNode(t(4), 7)
+"
+)
 )

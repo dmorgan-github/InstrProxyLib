@@ -26,7 +26,8 @@ func: {|node|
         }
     };
 
-    node = if (node.respondsTo(\node)) {node.node}{node};
+    //node = if (node.respondsTo(\node)) {node.node}{node};
+    node = node.tryPerform(\node) ?? {node};
     bus = node.bus.index.debug("bus index");
     numchannels = node.bus.numChannels;
 

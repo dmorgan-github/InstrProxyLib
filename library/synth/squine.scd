@@ -13,7 +13,7 @@ synth: {|freq|
     //var cliplfodepth = \cliplfodepth.kr(0, spec:ControlSpec(0, 1, \lin, 0, 0, "squine"));
     //var cliplfo = SinOsc.ar(cliplforate).unipolar(cliplfodepth);
 
-    var clip = \clip.kr(0, spec:ControlSpec(0, 1, \lin, 0, 0, units:"squine"));
+    var clip = \clyp.kr(0, spec:ControlSpec(0, 1, \lin, 0, 0, units:"squine"));
     var skew = \skew.kr(0, spec:ControlSpec(-1, 1, \lin, 0, 0, units:"squine"));
     var sync = \hardsync.kr(0);
 

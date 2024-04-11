@@ -11,7 +11,8 @@ func: {|node|
     activecolor = node.color;
     inactivecolor = Color.grey;
 
-    node = if (node.respondsTo(\node)) {node.node}{node};
+    //node = if (node.respondsTo(\node)) {node.node}{node};
+    node = node.tryPerform(\node) ?? {node};
     color = if (node.isMonitoring) { activecolor } { inactivecolor };
 
     monitorwatcher = {|obj, what|

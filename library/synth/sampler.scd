@@ -4,7 +4,7 @@ synth: {|freq, gate|
     var numchannels = ~numchannels ?? {1};
     var updateFreq = 15;
     var root = \rootfreq.kr(60.0.midicps,
-        spec:ControlSpec(20, 20000, \exp, 0, 60.0.midicps, units:"grainr")
+        spec:ControlSpec(20, 20000, \exp, 0, 60.0.midicps, units:"sampler")
     ).clip(20, 20000);
 
     var replyid = \bufposreplyid.kr(-1);

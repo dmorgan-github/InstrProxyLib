@@ -9,7 +9,8 @@ func: {|node|
 
     var swap, moveUp, moveDown, updateButtons, fxwatcher;
     var fxbuttonsview = View().layout_(VLayout().margins_(1).spacing_(1));
-    var fxnode = if (node.respondsTo(\node)) { node.node }{ node };
+    //var fxnode = if (node.respondsTo(\node)) { node.node }{ node };
+    var fxnode = node.tryPerform(\node) ?? { node };
     var fxmenu = UiModule('fxmenu');
     //var presetview = UiModule('presets');
 

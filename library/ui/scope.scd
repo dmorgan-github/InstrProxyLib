@@ -6,9 +6,10 @@ func: {|node|
     var zoomy = 10, zoomx = 5;
     var mousedown = false;
     var view, scope, scopeview;
-    var numchannels, palette, xslider, yslider;
+    var numchannels, palette,  xslider, yslider;
     var color = node.color;
-    node = if (node.respondsTo(\node)) {node.node}{node};
+    //node = if (node.respondsTo(\node)) {node.node}{node};
+    node = node.tryPerform(\node) ?? {node};
     cnt = node.get(\scope_style) ?? {0};
 
     palette = QPalette();

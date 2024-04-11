@@ -4,7 +4,8 @@ func: {|node, index|
     var sliders = ();
     var height = 20;
     var color = node.color;
-    var fxnode = if (node.respondsTo(\node)) { node.node }{ node };
+    //var fxnode = if (node.respondsTo(\node)) { node.node }{ node };
+    var fxnode = node.tryPerform(\node) ?? {node};
     var scroll;
     var getSpec, getKeys, getGroups, getView;
     var nodewatcher;

@@ -147,6 +147,7 @@ func: {arg node;
                     bufnumView.object = buf;
                     bufnumView.string = buf.bufnum;
                     bufnumView.align = \right;
+                    bufnumView.maxWidth_(50);
 
                     srView.string = buf.sampleRate;
                     numframesView.string = buf.numFrames;
