@@ -9,7 +9,7 @@ synth: {|gate, doneAction=(Done.freeSelf)|
     ts = \ts.kr(1);
 
     curve = [
-        \atkcurve.kr(0, spec: InstrControlSpec(-8, 8, \lin, 0, 0, units:"aeg", sort:4)),
+        \atkcurve.kr(-4, spec: InstrControlSpec(-8, 8, \lin, 0, -4, units:"aeg", sort:4)),
         \deccurve.kr(-4, spec: InstrControlSpec(-8, 8, \lin, 0, -4, units:"aeg", sort:5)),
         \relcurve.kr(-4, spec: InstrControlSpec(-8, 8, \lin, 0, -4, units:"aeg", sort:6))
     ];

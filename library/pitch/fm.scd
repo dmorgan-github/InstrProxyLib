@@ -1,6 +1,6 @@
 (
 synth: {
-    var freq = \freq.ar(261).lag(\glis.kr(0));
+    var freq = \freq.ar(261).lag(\glide.kr(0));
     var modratio = \modratio.ar(1, spec:ControlSpec(0.25, 20, \lin, 0, 1, "pitch"));
     var index = \index.ar(0,
         spec:ControlSpec(0, 2pi, \lin, 0, 0, "pitch")

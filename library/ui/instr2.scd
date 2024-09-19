@@ -42,7 +42,7 @@ func: {|node, index, cmds|
         $6: "meter"
     );
 
-   //var  w = Window("test", bounds:Rect(top: Window.screenBounds.height/2, left: 100, width:200, height:200), border: false);//.front;
+   var  w = Window("test", bounds:Rect(top: Window.screenBounds.height-300, left: 275, width:200, height:200), border: false);//.front;
    //w.setTopLeftBounds(w.bounds.top_(Window.screenBounds.height/2).left_(100), 0);
 
     if (index.isNil) {
@@ -182,31 +182,64 @@ func: {|node, index, cmds|
         target.layout.add( layout );
     };
 
-    //view = View(parent: w, bounds:200@200)
-    view = View(bounds:75@175)
-    .fixedWidth_(175)
+    view = View(parent: w, bounds:200@200)
+    //view = View(bounds:75@175)
+    //.fixedWidth_(175)
     .name_(windowname)
     .layout_(VLayout(
 
-        /*
         HLayout(
             StaticText()
             .string_(windowname)
-            .stringColor_( Color.white.alpha_(0.5) )
+
+            //.stringColor_( Color.white.alpha_(0.5) )
+            .stringColor_( Color.white )
+            //.background_(node.color)
             .mouseMoveAction_({|ctrl, x, y|
 
+                var width, height;
                 var bounds = ctrl.bounds;
                 var screen = ctrl.mapToGlobal(Point(x, y));
                 var screenX = screen.x;
                 var screenY = screen.y;
-                var width = 200;//view.sizeHint.width;
-                var height = 200;//view.sizeHint.height;
-
+                //width = 200;//view.sizeHint.width;
+                //height = 200;//view.sizeHint.height;
+                width = view.bounds.width;
+                height = view.bounds.height;
+                //[ctrl.bounds, view.bounds].debug("info");
                 w.setTopLeftBounds(Rect(left:screenX, top:screenY, width: width, height: height), menuSpacer:0);
             }),
-            nil
+
+            nil,
+
+            Button().states_([ ["⛭", node.color, Color.clear] ])
+            .font_(Font(size:12))
+            .fixedSize_(12)
+            .action_({
+                loadViews.("props")
+            }),
+
+            Button().states_([ ["⩏", node.color, Color.clear] ])
+            .font_(Font(size:12))
+            .fixedSize_(12)
+            .action_({
+                loadViews.("fx")
+            }),
+
+            Button().states_([ ["⧉", node.color, Color.clear] ])
+            .font_(Font(size:12))
+            .fixedSize_(12)
+            .action_({
+                loadViews.("freq")
+            }),
+
+            Button().states_([ ["⨳", node.color, Color.clear] ])
+            .font_(Font(size:12))
+            .fixedSize_(12)
+            .action_({
+                loadViews.("presets")
+            }),
         ),
-        */
 
         HLayout(
             target
@@ -218,8 +251,7 @@ func: {|node, index, cmds|
                 .object_(node)
                 .maxWidth_(17)
                 .string_(">")
-                .dragLabel_(node.key)
-                ,
+                .dragLabel_(node.key),
 
                 TextField()
                 .keyDownAction_({|ctrl, char, mod, unicode, keycode, key|
@@ -325,6 +357,15 @@ func: {|node, index, cmds|
                                         rhs = parts[1].stripWhiteSpace.asFloat;
                                         fxnode.vol = rhs;
                                     },
+                                    {cmd.beginsWith("-h")}, {
+
+                                        var cmd = val.asString;
+                                        parts = cmd.split(Char.space);
+                                        lhs = parts[0];
+                                        rhs = parts[1].stripWhiteSpace.asFloat;
+                                        w.asView.resizeTo(200, rhs);
+                                        w.asView.children[0].resizeTo(200, rhs)
+                                    },
                                     {
                                         var parts;
                                         cmd = cmd.asString.stripWhiteSpace;
@@ -380,6 +421,7 @@ func: {|node, index, cmds|
         } 
     });
 
-    //w.asView;
+    topEnvironment.put(\win, w);
+    w.asView;
 }
 )

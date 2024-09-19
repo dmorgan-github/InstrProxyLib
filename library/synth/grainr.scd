@@ -29,6 +29,7 @@ var func = {|freq|
     var ratescale = BufRateScale.kr(buf);
     var pbstretch = \pbstretch.kr(50, spec:ControlSpec(1, 100, \lin, 0, 20, units:"grainr") );
     var trigrate = \grainrate.kr(20, spec:ControlSpec(0.125, 20, \lin, 0, 20, units:"grainr") );
+    var prob = \prob.kr(1, spec: ControlSpec(0, 1, \lin, 0, 1, units:"grainr"));
     var startPos = \startPos.kr(0) * numframes;
     var endPos = \endPos.kr(1) * numframes;
     var dur = (endPos - startPos)/BufSampleRate.kr(buf);
@@ -43,6 +44,8 @@ var func = {|freq|
     overlap.debug("overlap");
     trig = Impulse.ar(trigrate);
     trigs = multiChannelTrigger.(overlap, trig);
+    trigs = CoinGate.ar(prob, trigs);
+    
     windowphase = multiChannelPhase.(trigs, trigrate/overlap);
     env = IEnvGen.ar(Env([0, 1, 0], [0.5, 0.5], \sin), windowphase);
 

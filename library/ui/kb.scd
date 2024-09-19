@@ -14,7 +14,22 @@ func: {|node|
     var order;
 
     //var octave = (node.get(\octave) ?? 3).debug("octave");
-    var root = ~root ?? 0;
+    var root = (node.get(\root) ?? 0).debug("root");
+
+    // TODO: wtf
+    if ( node.get(\scale).isKindOf(Scale) ) {
+        var temp;
+        scale = node.get(\scale);
+        temp = Scale.all.parent.select({|s| s.name == scale.name.asString });
+        if (temp.size > 0) {
+            defaultScale = temp.keys.as(Array)[0]
+        }
+    };
+
+    //if (node.get(\scale).isKindOf(Scale)) {
+        //scale = node.get(\scale);
+        //defaultScale = scale.name;
+    //};
 
     order = node.get(\kb_toggle);
     if (order.isNil) {
@@ -120,10 +135,8 @@ func: {|node|
     };
 
     scales = {
-
         var names = Scale.names.select({|scale| Scale.at(scale).pitchesPerOctave == 12 });
         var default = names.detectIndex({|n| n == defaultScale});
-
         PopUpMenu().items_([""] ++ names).action_({|ctrl|
             if (ctrl.item != "") {
                 scale = Scale.at(ctrl.item.asSymbol);
@@ -155,6 +168,13 @@ func: {|node|
         ),
         keyboardview
     ).spacing_(2).margins_(2))
+    .mouseDownAction_({|ctrl|
+        \active.debug("kb");
+        keyboardview.focus(true)
+    })
+    //.mouseOverAction_({|ctrl|
+    //    \mouseover.postln;    
+    //})
 	.keyDownAction_({arg ctrl, char, mod, uni, keycode, key;
 		var val = map.indexOf(char.asSymbol);
 

@@ -63,7 +63,7 @@ synth: {arg in;
     sig = FbC({arg fb;
         var fx = fb * feedback + sig;
         Limiter.ar(fx, 1)
-    }, 20, time.value.debug("delaytime").lag(0.01) * (1 + lfo) * [1, ratio]);
+    }, 20, time.value.debug("delaytime") * (1 + lfo) * [1, ratio]);
 
     sig = HPF.ar(sig, hpf);
     sig = BLowPass4.ar(sig, lpf, res.linlin(0, 1, 1, 0.001));

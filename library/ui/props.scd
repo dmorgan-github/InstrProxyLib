@@ -10,7 +10,10 @@ func: {|node, index|
     var getSpec, getKeys, getGroups, getView;
     var nodewatcher;
 
-    scroll = ScrollView().hasBorder_(false).autohidesScrollers_(false).hasVerticalScroller_(true).hasHorizontalScroller_(false);
+    scroll = ScrollView().hasBorder_(false)
+    .autohidesScrollers_(false)
+    .hasVerticalScroller_(true)
+    .hasHorizontalScroller_(false);
 
     getSpec = {|key|
         var specs = node.getSpec;
@@ -58,8 +61,7 @@ func: {|node, index|
                 \out,
                 \in,
                 \bufposreplyid,
-                \wet1000,
-                \wet1010,
+                \levelreplyid,
                 \fadeTime,
                 \envbuf,
                 //\buf,

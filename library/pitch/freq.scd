@@ -1,7 +1,7 @@
 (
 synth: {
     var bend, freqbend, freq;
-    var glis = \glis.kr(0, spec: ControlSpec(0, 1, \lin, 0, 0, units:"pitch"));
+    var glis = \glide.kr(0, spec: ControlSpec(0, 1, \lin, 0, 0, units:"pitch"));
     var in_freq = \freq.ar(261).lag(glis);
     var detune = \detunehz.kr(0,
         spec: ControlSpec(0, 10, \lin, 0, 0, units:"pitch")) * PinkNoise.ar(0.007).range(0.9, 1.1);

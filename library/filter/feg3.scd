@@ -3,12 +3,19 @@ var synth = {|freq, gate, aeg|
     
     var frange, env;
     var envmode = ~fenvmode.debug("feg fenvmode");
+    var keytrack = ~keytrack.debug("keytrack") ?? 0;
     var voices = ~voices;
 
     var cutoff = \cutoff.kr(2000, spec: InstrControlSpec(100, 16000, \exp, 0, 2000, "filter", sort:9));
     var fstart = \fstart.kr(1, spec:InstrControlSpec( 0, 1, \lin, 0, 1, units:"filter", sort:10 ) );
     var fend = \fend.kr(1, spec:InstrControlSpec( 0, 1, \lin, 0, 1, units:"filter", sort:11));
     var res = \res.kr(0.1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, units:"filter", sort:12));
+    var keytrackamt = \keytrackamt.kr(1);
+
+
+    if (keytrack == 1) {
+        cutoff = freq * keytrackamt;
+    };
 
     if (envmode == \follow) {
         env = aeg

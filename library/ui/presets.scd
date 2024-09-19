@@ -4,7 +4,7 @@ func: {|node|
     var morphbeats = 20;
     var frompresetview, topresetview;
 
-    var buttons = 28.collect({|i|
+    var buttons = 16.collect({|i|
         var color_active = Color.white.alpha_(0.9);
         var color_saved = Color.green.alpha_(0.9);
         var color_empty = Color.clear.alpha_(0.9);
@@ -60,12 +60,32 @@ func: {|node|
 
     View().layout_(
 
-        HLayout(
+        VLayout(
 
             GridLayout.rows(
-                buttons[0..15],
+                buttons
+                //buttons[0..15],
                 //buttons[14..27]
             ).margins_(0).spacing_(0),
+
+            LevelSlider(\morph, [0, 127, \lin, 1, 0].asSpec, node.color)
+            .maxHeight_(20)
+            .action_({|ctrl|
+                //ctrl.value.postln;
+                var val = ctrl.value;
+                var num = Preset.getPresets(node).size;
+                var index = val.linlin(0, 127, 0, num-1);
+                index = index.floor;
+                {
+                    buttons.do({|b, i|
+                        b.value = 0;
+                        if (i == index) {
+                            b.value = 1
+                        }
+                    })
+                }.defer;
+                Preset.morph2(node, val)
+            })
 
             /*
             NumberBox()

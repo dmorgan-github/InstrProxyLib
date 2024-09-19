@@ -60,7 +60,7 @@ a = {
 
 	SendReply.ar(trig, '/recSummary', rms);
 
-	// RecordBuf.ar( /* you fill in this part */ );
+	// RecordBuf.ar( you fill in this part  );
 
 	sig * 0.1
 }.play;
@@ -152,13 +152,14 @@ func: {arg node;
                     srView.string = buf.sampleRate;
                     numframesView.string = buf.numFrames;
                     durView.string = buf.duration.trunc(0.0001);
-                }.defer
+                };//.defer
             }
         };    
     };
 
-    view = View().layout_(VLayout().margins_(1).spacing_(1));//.minSize_(Size(300, 150));
+    view = View().layout_(VLayout().margins_(1).spacing_(1)).fixedHeight_(80);//.minSize_(Size(300, 150));
     sfv = SoundFileView()
+    //.minHeight_(150)
     .resize_(1)
     .gridOn_(false)
     .drawsRMS_(false)
@@ -210,9 +211,14 @@ func: {arg node;
         var val = View.currentDrag.value;
         if (val.isString) {
             // TODO: update to new
-            B.read(val, cb:{|buf|
+            "load buf".debug("buf.scd");
+            fork({
+                // TODO always using mono
+                var result = B.read(val, [0]);
+                result.wait;
+                buf = result.value;
                 node.set(\buf, buf)
-            })
+            });
         };
         if (val.isKindOf(Buffer)) {
             node.set(\buf, val)
@@ -247,6 +253,7 @@ func: {arg node;
 
     //view.layout.add(HLayout(*onsetsbtn));
     view.layout.add(sfv);
+    /*
     view.layout.add(
         HLayout(nil,
             bufnumView,
@@ -258,11 +265,13 @@ func: {arg node;
             durView
         ).spacing_(2).margins_(2)
     );
+    */
 
     // TODO: this is very inneficient
     // but i'm not sure how to render buffer
     // updates without reloading
     refresh = {
+        \refresh.debug("buf.scd");
         buf.loadToFloatArray(action:{arg a;
 		    {
 			    sfv.setData(a, channels: buf.numChannels);

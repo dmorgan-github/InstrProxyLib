@@ -102,11 +102,11 @@ func: {|node|
                                         fxview.front;
                                     } {
                                         "custom view does not exists: %".format(key).warn;
-                                        UiModule('instr').gui(fxnode, index)
+                                        UiModule('instr2').gui(fxnode, index)
                                     }
                                 }{
                                     var left, top;
-                                    var fxview = UiModule('instr').view(fxnode, index);
+                                    var fxview = UiModule('instr2').view(fxnode, index);
                                     var parents = view.getParents();
                                     var parent;
                                     var win;
@@ -173,6 +173,7 @@ func: {|node|
     fxnode.addDependant(fxwatcher);
     view.layout.add( fxmenu.view(fxnode).resize_(1) );
     view.layout.add( fxbuttonsview.resize_(1));
+    view.layout.add( nil );
     //view.layout.add( presetview.view(fxnode) );
     //view.layout.add( nil);
     view

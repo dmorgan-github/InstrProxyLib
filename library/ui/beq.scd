@@ -190,10 +190,11 @@ func: {arg node;
 
         values.do({ |svals,i|
             var color;
-            color = Color.hsv(
-                i.linlin(0,values.size, 0, 1),
-                0.75, 0.7).alpha_(if (selected == i) { 0.75 } { 0.25 }
-			);
+            //color = Color.hsv(
+            //    i.linlin(0,values.size, 0, 1),
+            //    0.75, 0.7).alpha_(if (selected == i) { 0.75 } { 0.25 }
+			//);
+            color = node.color.alpha_(if (selected == i) { 0.75 } { 0.25 } );
 
             Pen.color = color;
             Pen.moveTo(0@(svals[0]));
@@ -259,7 +260,7 @@ func: {arg node;
             view.decorator = FlowLayout(view.bounds.moveTo(0,0));
             StaticText(view, 35@14).font_(font).align_(\right).string_("freq:");
             vw_array = vw_array.add(
-                RoundNumberBox(view, 40@14).font_(font).value_(frdb[i][0])
+                NumberBox(view, 40@14).font_(font).value_(frdb[i][0])
 				.clipLo_(20).clipHi_(22000)
 				.action_({ |vw|
 					frdb[i][0] = vw.value;
@@ -270,7 +271,7 @@ func: {arg node;
 
             StaticText(view, 25@14).font_(font).align_(\right).string_("db:");
             vw_array = vw_array.add(
-                RoundNumberBox(view, 40@14).font_(font).value_(frdb[i][1])
+                NumberBox(view, 40@14).font_(font).value_(frdb[i][1])
 				.clipLo_(-36).clipHi_(36)
 				.action_({ |vw|
 					frdb[i][1] = vw.value;
@@ -285,7 +286,7 @@ func: {arg node;
 			.string_((0: "rs:", 4:"rs:")[i] ? "rq" );
 
             vw_array = vw_array.add(
-                RoundNumberBox(view, 40@14)
+                NumberBox(view, 40@14)
 				.font_(font)
 				.value_(frdb[i][2])
 				.step_(0.1).clipLo_(if ([0,4].includes(i)) { 0.6 } {0.01}).clipHi_(10)
@@ -303,7 +304,7 @@ func: {arg node;
         uvw.mouseMoveAction_ { |vw, x, y, mod| mouseMoveAction.(vw, x, y, mod); };
         uvw.drawFunc = { |vw| drawFunc.(vw); };
 
-		/*
+		
         bypassButton = RoundButton.new(window, 17@17)
 		.extrude_(true).border_(1)
 		.states_([
@@ -317,7 +318,7 @@ func: {arg node;
 			);
 		})
 		.resize_(7);
-		*/
+		
 
         window.refresh;
         window = window.asView.fixedSize_(Size(337, 185)).background_(Color.clear);

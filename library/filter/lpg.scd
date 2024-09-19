@@ -1,6 +1,8 @@
 (
 synth: {|in, gate, freq, aeg|
 
+    var lpg, coffset, coffsetlfodepth, coffsetlforate;
+    var cscale, cscalelfodepth, cscalelforate;
     var fatk = \fatk.kr(0, spec: InstrControlSpec(0, 1, \lin, 0, 0.0, units:"lpg", sort:0));
     var frel = \frel.kr(0.05, spec: InstrControlSpec(0, 1, \lin, 0, 0.05, units:"lpg", sort:1));
     var fatkcurve = \fatkcurve.kr(-4, spec: InstrControlSpec(-8, 8, \lin, 0, -4, units:"lpg", sort:2));
@@ -15,14 +17,24 @@ synth: {|in, gate, freq, aeg|
         ]
     ).ar(gate: gate);
 
-    var lpg = LPG.ar(in,
+    coffset = \controloffset.kr(0.1, spec: InstrControlSpec(0, 1, \lin, 0, 0.1, units:"lpg", sort:4));
+    //coffsetlfodepth = \coffsetlfodepth.kr(0, spec:InstrControlSpec(0, 1, \lin, 0, 0, "lpg", sort: 5) ) + 1;
+    //coffsetlforate = \coffsetlforate.kr(0, spec:InstrControlSpec(0, 20, \lin, 0, 0, "lpg", sort: 6) );
+    //coffset = coffset * (coffsetlfodepth ** SinOsc.kr(coffsetlforate, phase:1.5pi) );
+
+    cscale = \controlscale.kr(0.1, spec: InstrControlSpec(0, 1, \lin, 0, 0.1, units:"lpg", sort:7));
+    //cscalelfodepth = \cscalelfodepth.kr(0, spec:InstrControlSpec(0, 1, \lin, 0, 0, "lpg", sort: 8) ) + 1;
+    //cscalelforate = \cscalelforatee.kr(0, spec:InstrControlSpec(0, 20, \lin, 0, 0, "lpg", sort: 9) );
+    //cscale = cscale * (cscalelfodepth ** SinOsc.kr(cscalelforate, phase:1.5pi) );
+
+    lpg = LPG.ar(in,
         controlinput: feg,
-        controloffset: \controloffset.kr(0.1, spec: InstrControlSpec(0, 1, \lin, 0, 0.1, units:"lpg", sort:4)),
-        controlscale: \controlscale.kr(0.2, spec: InstrControlSpec(0, 1, \lin, 0, 0.2, units:"lpg", sort:5)),
-        vca: \vca.kr(0.1, spec: InstrControlSpec(0, 1, \lin, 0, 0.1, units: "lpg", sort:6)),
-        resonance: \res.kr(0.2, spec: InstrControlSpec(0, 1.8, \lin, 0, 0.2, units:"lpg", sort:7)).linlin(0, 1, 0, 1.8),
+        controloffset: coffset.clip(0, 1), //coffset.clip(0, 1),
+        controlscale: cscale.clip(0, 1), //cscale.clip(0, 1),
+        vca: \vca.kr(0.1, spec: InstrControlSpec(0, 1, \lin, 0, 0.1, units: "lpg", sort:11)),
+        resonance: \res.kr(0.2, spec: InstrControlSpec(0, 1, \lin, 0, 0.2, units:"lpg", sort:12)).linlin(0, 1, 0, 1.8),
         lowpassmode:1,
-        linearity: \linearity.kr(1, spec: InstrControlSpec(0, 1, \lin, 0, 1, units:"lpg", sort:8))
+        linearity: \linearity.kr(1, spec: InstrControlSpec(0, 1, \lin, 0, 1, units:"lpg", sort:13))
     );
 
     lpg;

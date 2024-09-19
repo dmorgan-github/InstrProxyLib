@@ -15,9 +15,9 @@ var browse = {arg path;
 
 var show = {arg path;
 	
-	var height = 250;
-	var width = 300;
-    var browser, previous, view, cv, draw, detailsView, loadSfv, scroll;
+	var height = 200;
+	var width = 200;
+    var browser, previous, view, cv, draw, detailsView, loadSfv, scroll, title, w;
 
     var win = Window("Browser", Rect(0, 0, 200, 200));
 	win.asView.decorator_(FlowLayout(bounds:win.bounds));
@@ -31,12 +31,34 @@ var show = {arg path;
     ;
 	scroll.decorator_(FlowLayout(scroll.bounds));
 
-	view = View(bounds:width@height).layout_(VLayout().spacing_(0).margins_(0))
+    w = Window(bounds: Rect(top: Window.screenBounds.height-300, left: 275, width:width, height:height), border: true);
+	view = w //Window(bounds: Rect(top: Window.screenBounds.height-300, left: 275, width:width, height:height), border: false)
+    .layout_(VLayout().spacing_(0).margins_(0))
+    .asView
     .name_("media")
     .background_(Color.black);
 	
     detailsView = View().layout_(VLayout().margins_(0).spacing_(0)).background_(Color(0.2, 0.2, 0.2)); 
 
+    title = StaticText()
+    .mouseMoveAction_({|ctrl, x, y|
+        var width, height;
+        var bounds = ctrl.bounds;
+        var screen = ctrl.mapToGlobal(Point(x, y));
+        var screenX = screen.x;
+        var screenY = screen.y;
+        //width = 200;//view.sizeHint.width;
+        //height = 200;//view.sizeHint.height;
+        width = view.bounds.width;
+        height = view.bounds.height;
+
+        //\here.postln;
+        //[ctrl.bounds, view.bounds].debug("info");
+        w.setTopLeftBounds(Rect(left:screenX, top:screenY, width: width, height: height), menuSpacer:0);
+    })
+    ;
+
+    view.layout.add(title);
     view.layout.add(scroll);
     view.layout.add(detailsView);
 
@@ -78,6 +100,7 @@ var show = {arg path;
 
                 sfv,
 
+                /*
                 View().layout_(VLayout(
                     GridLayout.rows(
                         [
@@ -129,6 +152,7 @@ var show = {arg path;
                     ),
                     nil
                 ).margins_(1).spacing_(1)).background_(Color(0.3, 0.3, 0.3))
+                */
             ).margins_(2).spacing_(5)
         ).margins_(1).spacing_(1));
 
@@ -150,10 +174,11 @@ var show = {arg path;
 		view.removeAll;
 		view.decorator.reset;
 
-		StaticText(view, textwidth@height)
-		.string_(path)
-		.stringColor_(Color.white);
-		view.decorator.nextLine;
+
+		//StaticText(view, textwidth@height)
+        title.string_(path).resizeTo(textwidth, height);
+		//.stringColor_(Color.white);
+		//view.decorator.nextLine;
 
 		StaticText.new(view, width@height)
 		.string_("^")
@@ -192,7 +217,8 @@ var show = {arg path;
 		});
 
         view.decorator.nextLine;
-        StaticText(view, width@height).string_(" ");
+        StaticText(view, width@height).string_("....");
+        view.decorator.nextLine;
 	};
 
 	draw.(path, scroll);

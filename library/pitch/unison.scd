@@ -1,7 +1,7 @@
 (
 synth: {
     var numvoices = ~numvoices ?? 2;
-    var freq = \freq.ar(261).lag(\glis.kr(0));
+    var freq = \freq.ar(261).lag(\glide.kr(0));
     var detunehz = \detunehz.kr(0);
     var detunedepth = \detunedepth.kr(0, spec: ControlSpec(0, 1, \lin, 0, 0, "pitch"));
     // 1000 * 2.pow({ (0.05/12).sum3rand } ! 2).sort

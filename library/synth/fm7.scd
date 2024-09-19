@@ -97,7 +97,7 @@ presets: [
         'op5', 0.13659098493869,
         'op5lfoamt', 0,
         'op2deccurve', -4,
-        'glis', 0,
+        'glide', 0,
         'atkcurve', -4,
         'detunehz', 0,
         'op3', 0.14709798378012,

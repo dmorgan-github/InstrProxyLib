@@ -133,6 +133,8 @@ func: {
             var slicedur = evt[\dur];
             var loopprob = evt.use({ ~loopprob.value }) ?? 0;
             var loopdurs = evt.use({ ~loopdurs.value });
+            var rel = evt.use({ ~rel.value });
+            var atk = evt.use({ ~atk.value });
             var result;
 
             if (loopdurs.isNil) {
@@ -146,8 +148,9 @@ func: {
                     var val = evt[\startPos] + ((slicedur * loopdurs.choose)/bufdur);
                     val
                 }{
-                    1;
-                    //evt[\startPos] + (slicedur/bufdur)
+                    // 1;
+                    var dur = slicedur + atk + rel;
+                    evt[\startPos] + (dur/bufdur)
                 }
             });
             result//.debug("result");

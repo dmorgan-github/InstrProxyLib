@@ -8,11 +8,11 @@ synth: {|freq, gate, aeg|
     var pos = \pos.kr(0.25, spec:ControlSpec(0, 1, \lin, 0, 0.25, "rings"));
     var model = \model.kr(0, spec:ControlSpec(0, 5, \lin, 1, 0, "rings"));
     var poly = \poly.kr(1, spec:ControlSpec(1, 4, \lin, 1, 1, "rings"));
-    var exciter = ~exciter ?? {DC.kr(0)};
+    var exciter = ~exciter ?? {DC.ar(0)};
     var slice = ~slice ?? [0, 1];
 
     var sig = MiRings.ar(
-        in: DC.kr(0),// exciter.value.debug("exciter"),
+        in: exciter.value.debug("exciter"),
         trig: gate,
         pit: pitch,
         struct: struct,

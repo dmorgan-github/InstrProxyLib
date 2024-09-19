@@ -1,10 +1,10 @@
 (
 synth: {|freq|
 
-    var atk = \atk.kr(0.0025, spec:ControlSpec(0, 1, \lin, 0, 0.0025, "drum"));
-    var dec = \dec.kr(0.0025, spec:ControlSpec(0, 1, \lin, 0, 0.0025, "drum"));
-    var rel = \rel.kr(5, spec:ControlSpec(0.01, 8, \lin, 0, 5, "drum"));
-    var curve = \curve.kr(0, spec: ControlSpec(-8, 8, \lin, 0, 0, "drum"));
+    var atk = \drum_atk.kr(0.0025, spec:ControlSpec(0, 1, \lin, 0, 0.0025, "drum"));
+    var dec = \drum_dec.kr(0.0025, spec:ControlSpec(0, 1, \lin, 0, 0.0025, "drum"));
+    var rel = \drum_rel.kr(5, spec:ControlSpec(0.01, 8, \lin, 0, 5, "drum"));
+    var curve = \drum_curve.kr(0, spec: ControlSpec(-8, 8, \lin, 0, 0, "drum"));
     var position = \position.kr(0.8, spec: ControlSpec(0, 1, \lin, 0, 0.8, "drum"));
     var exBlend = \exBlend.kr(0, spec: ControlSpec(-1, 1, \lin, 0, 0, "drum"));
     var decCoef = \decCoef.kr(0.225, spec: ControlSpec(0, 1, \lin, 0, 0.225, "drum") );

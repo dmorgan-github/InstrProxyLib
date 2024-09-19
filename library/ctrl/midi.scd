@@ -1,26 +1,24 @@
 (
 var ctrl = Environment.make({|self|
 
+    var actions = Dictionary();
     self.know = true;
 
+    self.onAction = {|self, action, func|
+        actions.put(action, func);
+        self
+    };
+
     self.connect = {|self, device, name, cb|
-
-        var def = Deferred();
-
-        fork({
-            // MIDIClient.list is async
-            MIDIClient.list;
-            0.5.wait;
-            def.value = \done;
-        });
 
         fork({
 
             var dest, src, out;
             var sources, destinations;
 
-            // wait for lists
-            def.wait;
+            // MIDIClient.list is async
+            MIDIClient.list;
+            0.5.wait;
 
             sources = MIDIClient.sources;
             destinations = MIDIClient.destinations;
@@ -29,38 +27,46 @@ var ctrl = Environment.make({|self|
                 e.device.toLower.contains(device.asString.toLower)
             });
 
-            src = if (src.size > 1) {
-                if (name.notNil) {
-                    var result = src.select({|e| e.name.asString.toLower.contains(name.asString.toLower) });
-                    if (result.size > 0) {
-                        result[0]
-                    }{
-                        "unable to find src % with %".format(device, name).throw
+            if (src.size == 0) {
+                "midi source not found".throw;
+            } {
+                if (src.size > 1) {
+                    if (name.notNil) {
+                        var result = src.select({|e| e.name.asString.toLower.contains(name.asString.toLower) });
+                        if (result.size > 0) {
+                            src = result[0]
+                        }{
+                            "unable to find src % with %".format(device, name).throw
+                        }
+                    } {
+                        "multiple ports for src device".throw
                     }
                 } {
-                    "multiple ports for src device".throw
-                }
-            } {
-                src[0]
+                    src = src[0]
+                };
             };
 
             dest = destinations.select({|e| 
                 e.device.asString.toLower.contains(device.asString.toLower) 
             });
 
-            dest = if (dest.size > 1) {
-                if (name.notNil) {
-                    var result = dest.select({|e| e.name.asString.toLower.contains(name.asString.toLower) });
-                    if (result.size > 0) {
-                        result[0]
+            if (dest.size == 0) {
+                "midi destination not found".throw;
+            }{
+                if (dest.size > 1) {
+                    if (name.notNil) {
+                        var result = dest.select({|e| e.name.asString.toLower.contains(name.asString.toLower) });
+                        if (result.size > 0) {
+                            dest = result[0]
+                        }{
+                            "unable to find dest % with %".format(device, name).throw
+                        }
                     }{
-                        "unable to find dest % with %".format(device, name).throw
+                        "multiple ports for dest device".throw
                     }
-                }{
-                    "multiple ports for dest device".throw
-                }
-            } {
-                dest[0]
+                } {
+                    dest = dest[0]
+                };
             };
 
             out = MIDIOut.newByName(dest.device, dest.name).connect;
@@ -74,125 +80,69 @@ var ctrl = Environment.make({|self|
         });
     };
 
-    self.note = {|self, key, chan=0, node, note|
-        var srcId;
-        var noteonkey = "%_noteon".format(key).asSymbol.debug("noteon");
-        var noteoffkey = "%_noteoff".format(key).asSymbol.debug("noteoff");
+    self.note = {|self, chan=0|
+        
+        var srcId, note;
+        var key = self.src.name;
+        var noteonkey = "%_%_noteon".format(key, chan).asSymbol.debug("noteon");
+        var noteoffkey = "%_%_noteoff".format(key, chan).asSymbol.debug("noteoff");
+        srcId = self.src.uid.debug("src uid");
 
         if (note.isNil) {
             note = (0..110);
         };
 
-        srcId = self.src.uid.debug("src uid");
         MIDIdef.noteOn(noteonkey, {|vel, note, chan|
-            node.on(note, vel);
+            actions['noteOn'].(note, vel, chan)
         }, noteNum:note, chan:chan, srcID: srcId)
         .fix;
 
         MIDIdef.noteOff(noteoffkey, {|vel, note, chan|
-            node.off(note);
+            actions['noteOff'].(note, chan);
         }, noteNum:note, chan:chan, srcID: srcId)
         .fix;
+
         self;
     };
 
-    self.bend = {|self, key, chan=0, func, bendmid=8191, bendmin=(-12), bendmax=12|
-        var bendkey = "%_bend".format(key).asSymbol.debug("bend");
+    self.bend = {|self, chan=0, bendmid=8191, bendmin=(-12), bendmax=12|
+        var key = self.src.name;
+        var bendkey = "%_%_bend".format(key, chan).asSymbol.debug("bend");
         var srcId = self.src.uid.debug("src uid");
 
-        MIDIdef.bend(bendkey, {|val|
+        MIDIdef.bend(bendkey, {|val, chan|
             val = val.linlin(0, bendmid * 2, bendmin, bendmax);
-            func.(val);
+            actions['bend'].(val, chan);
         }, chan:chan, srcID: srcId)
         .fix;
+
         self;
     };
 
-    self.control = {|self, key, chan, ccNums, func|
-        var srcId;
-        var cckey = "%_control".format(key).asSymbol.debug("control");
-        srcId = self.src.uid.debug("src uid");
+    self.cc = {|self, chan=0, ccNums|
+
+        var key = self.src.name;
+        var cckey = "%_%_cc".format(key, chan).asSymbol.debug("cc");
+        var srcId = self.src.uid.debug("src uid");
 
         MIDIdef.cc(cckey, {|val, num, chan|
-            func.(num, val)
-        }, ccNum:ccNums, chan:chan, srcID:srcId);
-    };
-
-    // node needs to be an obj with get/set methods
-    // obj should have getSpec
-    // assoc =  'prop' -> <ccnum>
-    self.cc = {|self, key, chan, node ...assoc|
-
-        var cckey = "%_cc".format(key).asSymbol.debug("cc");
-        var props, ccNums;
-        var order, srcId, out;
-
-        //props = pairs.select({|a, i| i.even});
-        //ccNums = pairs.select({|a, i| i.odd});
-        props = assoc.collect({|a| a.key });
-        ccNums = assoc.collect({|a| a.value });
-        order = Order.newFromIndices(props.asArray, ccNums.asArray);
-        srcId = self.src.uid.debug("src uid");
-        out = self.out.debug("out");
-
-        //[key, chan, node, assoc].debug("********");
-
-        MIDIdef.cc(cckey, {|val, num, chan|
-            var mapped, ctrl, spec, filter;
-            ctrl = order[num];
-            if (ctrl.isFunction) {
-                ctrl.(val)
-            } {
-                spec = node.getSpec[ctrl];
-                if (spec.isNil) {
-                    spec = [0, 1].asSpec;
-                };
-                mapped = spec.map(val/127);
-                node.set(ctrl, mapped);
-            }
+            actions['cc'].(num, val, chan);
         }, ccNum:ccNums, chan:chan, srcID:srcId)
         .fix;
 
-        // try to initialze device with current values
-        order.indices.do({|num|
-            var spec, min, max, current, ccval;
-            var ctrl = order[num];
-
-            if (ctrl.isFunction) {
-            }{
-                spec = node.getSpec[ctrl];
-                if (spec.isNil) {
-                    spec = [0, 1].asSpec;
-                };
-
-                min = spec.minval;
-                max = spec.maxval;
-                current = node.get(ctrl);
-                if (current.notNil) {
-                    // don't know how to unmap to a range that is not 0-1
-                    if (spec.warp.isKindOf(ExponentialWarp)) {
-                        ccval = current.explin(min, max, 0, 127);
-                    }{
-                        ccval = current.linlin(min, max, 0, 127);
-                    };
-                    //[node.key, \curent, current, \cc, ccval].debug(ctrl);
-                    try {
-                        out.control(chan, num, ccval);
-                    } {|err|
-                        "midi out: %".format(err).warn;
-                    }
-                }
-            }
-        });
+        self;
     };
 
-    self.disconnect = {|self, key|
+    /*
+    // TODO: Update to find defs based on key prefix
+    self.disconnect = {|self|
         var noteonkey = "%_noteon".format(key).asSymbol;
         var noteoffkey = "%_noteoff".format(key).asSymbol;
         var bendkey = "%_bend".format(key).asSymbol;
         var cckey = "%_cc".format(key).asSymbol;
         [noteonkey, noteoffkey, bendkey, cckey].do({|mykey| MIDIdef(mykey).permanent_(false).free });
     };
+    */
 
 });
 
