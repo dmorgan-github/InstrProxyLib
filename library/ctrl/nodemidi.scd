@@ -1,6 +1,6 @@
 (
 /*
-this is a convenience object for wiring midi to a single node
+convenience object for wiring midi to a single node
 */
 var ctrl = Environment.make({|self|
 
@@ -25,16 +25,19 @@ var ctrl = Environment.make({|self|
         .onAction('noteOff', {|note, vel, chan| 
             node.off(note) 
         })
-        .onAction('bend', {|val, chan| 
+        .onAction('bend', {|val, chan|
+            [val].debug("bend");
             node.set(\bend, val) 
-        });
+        })
         .connect(device, name);
         self;
+
     };
 
     self.note = {|self, obj, chan=0|
         node = obj;
-        midi.note(chan) ;
+        midi.note(chan);
+        midi.bend(chan);
         self;
     };
 
@@ -42,9 +45,8 @@ var ctrl = Environment.make({|self|
     self.cc = {|self, obj, kv, chan=0|
         var props, ccNums, order;
         node = obj;
-        kv = kv.as(Dictionary);
-        props = kv.collect({|v, k| k }).as(Array);
-        ccNums = kv.collect({|v, k| v }).as(Array);
+        props = kv.collect({|a| a.key }).as(Array);
+        ccNums = kv.collect({|a| a.value }).as(Array);
         order = Order.newFromIndices(props, ccNums);
 
         midi.onAction('cc', {|num, val, chan|

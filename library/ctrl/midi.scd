@@ -133,16 +133,14 @@ var ctrl = Environment.make({|self|
         self;
     };
 
-    /*
     // TODO: Update to find defs based on key prefix
     self.disconnect = {|self|
-        var noteonkey = "%_noteon".format(key).asSymbol;
-        var noteoffkey = "%_noteoff".format(key).asSymbol;
-        var bendkey = "%_bend".format(key).asSymbol;
-        var cckey = "%_cc".format(key).asSymbol;
-        [noteonkey, noteoffkey, bendkey, cckey].do({|mykey| MIDIdef(mykey).permanent_(false).free });
+        //var noteonkey = "%_noteon".format(key).asSymbol;
+        //var noteoffkey = "%_noteoff".format(key).asSymbol;
+        //var bendkey = "%_bend".format(key).asSymbol;
+        //var cckey = "%_cc".format(key).asSymbol;
+        //[noteonkey, noteoffkey, bendkey, cckey].do({|mykey| MIDIdef(mykey).permanent_(false).free });
     };
-    */
 
 });
 

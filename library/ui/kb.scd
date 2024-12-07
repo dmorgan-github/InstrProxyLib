@@ -10,7 +10,7 @@ func: {|node|
     var map, rows, cols, buttons, hilight;
     var keyboard, grid, func, scales;
     var keyboardview, update;
-    var mode = node.get(\kb_mode) ?? \push;
+    var mode = node.get(\kbmode) ?? \push;
     var order;
 
     //var octave = (node.get(\octave) ?? 3).debug("octave");
@@ -162,7 +162,7 @@ func: {|node|
                 }{
                     mode = \push
                 };
-                node.set(\kb_mode, mode);
+                node.set(\kbmode, mode);
             })
             .value_( if (mode == \push) {0}{1} )
         ),

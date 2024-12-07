@@ -92,7 +92,8 @@ var func = {|self|
 
     var handler, grid, onKbPress;
     var kbcols = 8;
-    var keys = Array.fill(kbcols*rows, {0});
+    var numtracks = 8;
+    var keys = Array.fill(kbcols*rows*numtracks, {0});
     var gridvals, hilights;
     var octaveHiLight = 3;
     var ledOn = 15;
@@ -111,7 +112,7 @@ var func = {|self|
 
         root = self.defaultRoot + root;
         gridvals = getGridVals.(scale, interval, root);
-        gridvals.midiname.debug("monomekb");
+        //gridvals.midiname.debug("monomekb");
         hilights = getHilights.(gridvals, root);
         self.kbMode = mode;
         self.wake;
@@ -124,12 +125,19 @@ var func = {|self|
     };
 
     self.wake = {
+
+        var offset, end, temp;
         grid.all(0);  
         // restore toggled keys
+
+        offset = (prevX.max(0) - kbcols) * kbcols * rows;
+        end = offset + (kbcols * rows) -1;
+        //[offset, offset + (kbcols * rows) -1].debug("offset");
+        temp = keys[offset..end];
         rows.do({|y|
             kbcols.do({|x|
                 var pos = x + (y * kbcols);
-                var val = keys[pos];
+                var val = temp[pos];
                 if (val == 1) {
                     grid.led(x, y, ledOn)
                 } {
@@ -139,8 +147,6 @@ var func = {|self|
                 }
             })
         });
-
-        grid.key(handler)
     };
 
     self.sleep = {
@@ -150,7 +156,7 @@ var func = {|self|
     };
 
     self.config = {|self, kv|
-        kv.postln;
+        \config.debug("monomekb");
         if (kv.notNil) {
             actions = kv.as(Dictionary);
         };
@@ -162,25 +168,27 @@ var func = {|self|
         var note = gridvals[row][x];
         if (z == 1) {
             actions[\noteOn].(self, [note, 127]);
-            //self.changed(\noteOn, [note, 127]);
         }{
             actions[\noteOff].(self, [note]);
-            //self.changed(\noteOff, [note]);
         };
         1
     };
 
     handler = {|x, y, z|
-        var kbX = x.mod(kbcols);
-        var pos = kbX + (y * kbcols);
 
         // left hand side
         if (x < kbcols) {
             var hilight = hilights[y][x];
             // button press
             if (z == 1) {
-                //var alpha = 1;
+
                 if (self.kbMode == \toggle) {
+                    var offset;
+                    var kbX = x.mod(kbcols);
+                    var pos = kbX + (y * kbcols);
+
+                    offset = (prevX - kbcols) * kbcols * rows;
+                    pos = pos + offset;
                     keys[pos] = 1 - keys[pos];
                     z = keys[pos];
                 };
@@ -261,9 +269,12 @@ var func = {|self|
             if (obj.node.notNil) {
                 var scale = obj.node.get(\scale);
                 var root = obj.node.get(\root);
+                var mode = obj.node.get(\kbmode) ?? 'press';
                 //scale=(Scale.major), mode='press', root=0, interval=7
-                obj.initKb(scale, \press, root, 7);
-            };
+                obj.initKb(scale, mode, root, 7);
+            } {
+                "track % not set".format(num).debug("select")
+            }
         },
         play: {|obj, val|
             var num = val[0]+1;
@@ -289,6 +300,7 @@ var func = {|self|
         def = connect.();
         def.wait();
         grid = def.value;
+        grid.key(handler);
         "connected...".inform;
         actions['startUp'].(self)
     });

@@ -1,37 +1,37 @@
 (
-var midi = Module('ctrl/midi').();
-
 var ctrl = Environment.make({|self|
 
+    var midi;
     self.know = true;
-    midi.connect("twister");
 
-    // ~twister = M('ctrl/twister').()
-    // ~twister.twist(~t[4].node, \softclip_drive -> 0)
-    self.cc = {|self, node ...assoc|
-        midi.cc("mf_twist_%".format(node.key).asSymbol, 0, node, *assoc)
-    };
-
-    self.note = {|self, on, off|
-        var obj = ();
-        var chan = 1;
-        var key = "mf_twist_%".format(chan).asSymbol;
-        obj[\on] = {|self, note, vel|
-            on.(note, vel)    
+    midi = Module('ctrl/midi').();
+    midi
+    .onAction('cc', {|num, val, chan|
+        if (num < 8) {
+            var track = T.tracks[num+1];
+            if (track.notNil) {
+                val = val.linlin(0, 127, -60, 2).dbamp;
+                track.set(\vol, val)
+            };
         };
-        obj[\off] = {|self, note|
-            off.(note)
-        };
-        midi.note(key, chan, obj)
-    };
+    })
+    .connect("twister", nil, {|ctrl|
+        var chan = 0;
+        ctrl.cc(chan, (0..15));
+        (0..15).do({|i|
+            var val = 1;
+            var track = T.tracks[i+1];
+            if (track.notNil) {
+                val = track.get(\vol) ?? 1;
+                val = val.linlin(-60.dbamp, 2.dbamp, 0, 127);
+                ctrl.out.control(chan, i, val);     
+            }
+        })
+        
+    });
 
-    self.click = {|self, func|
-        midi.control('mf_click', 3, (0..16), func)
-    };
-
-    self.disconnect = {|self, node|
-        var key = node.key;
-        midi.disconnect(key);
+    self.disconnect = {|self|
+        midi.disconnect();
     }
 });
 

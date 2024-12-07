@@ -369,8 +369,8 @@ func = {|freq, gate|
         var dec =   "op%dec".format(num).asSymbol.kr(0.2, spec: [0, 2, \lin, 0, 0.2, "op%".format(num)]);
         var sus =   "op%suslevel".format(num).asSymbol.kr(0.5, spec: [0, 1, \lin, 0, 0.5, "op%".format(num)]);
         var rel =   "op%rel".format(num).asSymbol.kr(1, spec: [0, 2, \lin, 0, 1, "op%".format(num)]);
-        var curve = "op%curve".format(num).asSymbol.kr(-4, spec: [-40, 40, \lin, 0, -4, "op%".format(num)]);
-        [freq * fmod, 0, Env.adsr(attackTime:atk, decayTime: dec, sustainLevel: sus, releaseTime: rel, curve: curve).ar(gate: gate) * op]
+        var curve = "op%curve".format(num).asSymbol.kr(0, spec: [-8, 8, \lin, 0, 0, "op%".format(num)]);
+        [freq * fmod, 0.5pi, Env.adsr(attackTime:atk, decayTime: dec, sustainLevel: sus, releaseTime: rel, curve: curve).kr(gate: gate) * op]
         //[freq * fmod, 0, Env([0, 0, 1, 1 * sus, 0], [0, atk, dec, rel], curve: curve, releaseNode: 3).ar(gate: gate) * op];
     });
 
@@ -378,6 +378,7 @@ func = {|freq, gate|
     mods = algo[0].value(fb * 2pi).collect(_ * 2pi);
     slice = algo[1].postln;
     sig = FM7.ar(ops.postln, mods).slice(slice).asArray;
+    DetectSilence.ar(sig, doneAction:Done.freeSelf);
     sig
 };
 

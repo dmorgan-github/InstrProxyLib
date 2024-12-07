@@ -7,11 +7,11 @@ var synth = {|freq, gate, aeg|
     var voices = ~voices;
 
     var cutoff = \cutoff.kr(2000, spec: InstrControlSpec(100, 16000, \exp, 0, 2000, "filter", sort:9));
-    var fstart = \fstart.kr(1, spec:InstrControlSpec( 0, 1, \lin, 0, 1, units:"filter", sort:10 ) );
-    var fend = \fend.kr(1, spec:InstrControlSpec( 0, 1, \lin, 0, 1, units:"filter", sort:11));
+    var fstart = 1;//\fstart.kr(1, spec:InstrControlSpec( 0, 1, \lin, 0, 1, units:"filter", sort:10 ) );
+    var fend = 1;//\fend.kr(1, spec:InstrControlSpec( 0, 1, \lin, 0, 1, units:"filter", sort:11));
+    var famt = \famt.kr(0.3, spec:InstrControlSpec(-1, 1, \lin, 0, 0.3, units:"filter", sort:10 ));
     var res = \res.kr(0.1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, units:"filter", sort:12));
     var keytrackamt = \keytrackamt.kr(1);
-
 
     if (keytrack == 1) {
         cutoff = freq * keytrackamt;
@@ -51,6 +51,9 @@ var synth = {|freq, gate, aeg|
             ).ar(gate:gate);//.linlin(0, 1, 1, 0.1);
         };
     };
+
+    fstart = 1;
+    fend = 1 * (10 ** famt);
 
     [ (cutoff * env.linlin(0, 1, fstart, fend) ).clip(20, 20000), res]
 };
