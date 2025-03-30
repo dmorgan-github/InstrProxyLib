@@ -110,7 +110,7 @@ var func = {|self|
             scale = Scale(scale)
         };
 
-        root = self.defaultRoot + root;
+        root = self.defaultRoot + root;//.debug("root");
         gridvals = getGridVals.(scale, interval, root);
         //gridvals.midiname.debug("monomekb");
         hilights = getHilights.(gridvals, root);
@@ -255,17 +255,19 @@ var func = {|self|
             var vel = val[1];
             if (obj.node.notNil) {
                 obj.node.on(note, vel);
+                obj.changed(\noteOn, [note, vel, nil]);
             }; 
         },
         noteOff: {|obj, val|
             var note = val[0];
             if (obj.node.notNil) {
-                obj.node.off(note)
+                obj.node.off(note);
+                obj.changed(\noteOff, [note]);
             };
         },
         select: {|obj, val|
             var num = val+1;
-            obj.node = T.tracks[num];
+            obj.node = self.tracks.wrapAt(num);
             if (obj.node.notNil) {
                 var scale = obj.node.get(\scale);
                 var root = obj.node.get(\root);
@@ -278,14 +280,14 @@ var func = {|self|
         },
         play: {|obj, val|
             var num = val[0]+1;
-            var track = T.tracks[num];
+            var track = self.tracks.wrapAt(num);
             if (track.notNil) {
                 track.play;
             };  
         },
         stop: {|obj, val|
             var num = val[0]+1;
-            var track = T.tracks[num];
+            var track = self.tracks.wrapAt(num);
             if (track.notNil) {
                 track.stop;
             }; 
@@ -307,7 +309,7 @@ var func = {|self|
 };
 
 (
-    func: {|kv| Environment.make(func).config(kv) },
+    func: {|tracks, kv| Environment.make(func) },
     doc: ""
 )
 )

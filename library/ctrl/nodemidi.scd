@@ -26,7 +26,6 @@ var ctrl = Environment.make({|self|
             node.off(note) 
         })
         .onAction('bend', {|val, chan|
-            [val].debug("bend");
             node.set(\bend, val) 
         })
         .connect(device, name);

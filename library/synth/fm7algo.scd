@@ -375,7 +375,7 @@ func = {|freq, gate|
     });
 
     algo = algos[algo-1];
-    mods = algo[0].value(fb * 2pi).collect(_ * 2pi);
+    mods = algo[0].value(fb).collect(_ * (pi/2) );
     slice = algo[1].postln;
     sig = FM7.ar(ops.postln, mods).slice(slice).asArray;
     DetectSilence.ar(sig, doneAction:Done.freeSelf);

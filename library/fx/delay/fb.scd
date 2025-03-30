@@ -46,7 +46,7 @@ synth: {arg in;
     var sig = in;
     var tempo = TempoClock.default.beatDur;
     var beatdur = \beatdur.kr(tempo, spec:ControlSpec(0.001, 4, \lin, 0, tempo, units:"delay") );
-    var hpf = \delay_hpf.kr(100, spec:ControlSpec(20, 10000, \lin, 0, 100, "delay")); 
+    var hpf = \delay_hpf.kr(100, spec:ControlSpec(20, 10000, \lin, 0, 100, "delay"));
     var lpf = \delay_lpf.kr(20000, spec:ControlSpec(10000, 20000, \lin, 0, 20000, "delay"));
     var res = \delay_res.kr(0, spec:ControlSpec(0, 1, \lin, 0, 0, units:"delay"));
     var lfoHz = \delay_lfohz.kr(0, spec: ControlSpec(0, 10, \lin, 0, 0, units:"delay"));
@@ -58,11 +58,11 @@ synth: {arg in;
     var width = \delay_width.kr(1, spec:ControlSpec(0, 1, \lin, 0, 1, units:"delay"));
     var ratio = \delay_ratio_right.kr(1.3, spec:ControlSpec(1, 2, \lin, 0, 1.3, units:"delay"));
 
-    time = ~delaytime ?? time; 
+    time = ~delaytime ?? time;
 
     sig = FbC({arg fb;
         var fx = fb * feedback + sig;
-        Limiter.ar(fx, 1)
+        fx;//Limiter.ar(fx, 1)
     }, 20, time.value.debug("delaytime") * (1 + lfo) * [1, ratio]);
 
     sig = HPF.ar(sig, hpf);

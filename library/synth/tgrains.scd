@@ -7,9 +7,7 @@ synth: {|freq|
 
     var buf = \buf.kr(spec:ControlSpec(units:"buf"));
 
-    var root = \rootfreq.kr(60.0.midicps,
-        spec:ControlSpec(20, 20000, \exp, 0, 60.0.midicps, units:"tgrains")
-    ).clip(20, 20000);
+    var root = \rootfreq.kr(60.0.midicps).clip(20, 20000);
 
     var pitched = \pitched.kr(0, spec:ControlSpec(0, 1, \lin, 1, 0, units:"tgrains"));
 

@@ -25,7 +25,7 @@ var func = {|node|
         };
     
         self.play = {|self ... nums|
-            nums = nums.asArray.flatten;
+            nums = nums.asArray.flatten.debug("device/layers");
             if (nums.isNil or: {nums.size < 1} ) {
                 self.node.stop  
             }{

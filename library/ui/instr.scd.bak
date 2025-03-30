@@ -1,22 +1,21 @@
-
-/*
+/\*
 (
 w = Window("test", Rect(800, 200, 500, 400)).front;
 w.layout = VLayout(
-	nil,
-	StaticText().align_(\center).string_("hello"),
-	nil
+nil,
+StaticText().align*(\center).string*("hello"),
+nil
 );
 
-w.view  // a TopView btw
-.onResize_({ |view|
-	view.findWindow.bounds.debug("resized")
+w.view // a TopView btw
+.onResize*({ |view|
+view.findWindow.bounds.debug("resized")
 })
-.onMove_({ |view|
-	view.findWindow.bounds.debug("moved")
+.onMove*({ |view|
+view.findWindow.bounds.debug("moved")
 });
 )
-*/
+\*/
 
 (
 func: {|node, index, cmds|
@@ -26,7 +25,7 @@ func: {|node, index, cmds|
     var currentcmd;
     var fxnode = node.node;
     var windowname = if (index.notNil) {
-        "%/%".format(node.key, fxnode.fxchain[index].name);
+        "%/%".format(node.key, fxnode.inserts[index].name);
     }{
         node.key
     };
@@ -42,8 +41,8 @@ func: {|node, index, cmds|
         $6: "meter"
     );
 
-   var  w = Window("test", bounds:Rect(top: Window.screenBounds.height-300, left: 275, width:200, height:200), border: false);//.front;
-   //w.setTopLeftBounds(w.bounds.top_(Window.screenBounds.height/2).left_(100), 0);
+//var w = Window("test", bounds:Rect(top: Window.screenBounds.height/2, left: 100, width:200, height:200), border: false);//.front;
+//w.setTopLeftBounds(w.bounds.top*(Window.screenBounds.height/2).left*(100), 0);
 
     if (index.isNil) {
         var fx = UiModule('fx').view(node);
@@ -169,7 +168,7 @@ func: {|node, index, cmds|
     };
 
     getView = {|currentcmd, args|
-        UiModule(currentcmd).view(node, args)         
+        UiModule(currentcmd).view(node, args)
     };
 
     loadViews = {|cmd|
@@ -182,64 +181,31 @@ func: {|node, index, cmds|
         target.layout.add( layout );
     };
 
-    view = View(parent: w, bounds:200@200)
-    //view = View(bounds:75@175)
-    //.fixedWidth_(175)
+    //view = View(parent: w, bounds:200@200)
+    view = View(bounds:75@175)
+    .fixedWidth_(175)
     .name_(windowname)
     .layout_(VLayout(
 
+        /*
         HLayout(
             StaticText()
             .string_(windowname)
-
-            //.stringColor_( Color.white.alpha_(0.5) )
-            .stringColor_( Color.white )
-            //.background_(node.color)
+            .stringColor_( Color.white.alpha_(0.5) )
             .mouseMoveAction_({|ctrl, x, y|
 
-                var width, height;
                 var bounds = ctrl.bounds;
                 var screen = ctrl.mapToGlobal(Point(x, y));
                 var screenX = screen.x;
                 var screenY = screen.y;
-                //width = 200;//view.sizeHint.width;
-                //height = 200;//view.sizeHint.height;
-                width = view.bounds.width;
-                height = view.bounds.height;
-                //[ctrl.bounds, view.bounds].debug("info");
+                var width = 200;//view.sizeHint.width;
+                var height = 200;//view.sizeHint.height;
+
                 w.setTopLeftBounds(Rect(left:screenX, top:screenY, width: width, height: height), menuSpacer:0);
             }),
-
-            nil,
-
-            Button().states_([ ["⛭", node.color, Color.clear] ])
-            .font_(Font(size:12))
-            .fixedSize_(12)
-            .action_({
-                loadViews.("props")
-            }),
-
-            Button().states_([ ["⩏", node.color, Color.clear] ])
-            .font_(Font(size:12))
-            .fixedSize_(12)
-            .action_({
-                loadViews.("fx")
-            }),
-
-            Button().states_([ ["⧉", node.color, Color.clear] ])
-            .font_(Font(size:12))
-            .fixedSize_(12)
-            .action_({
-                loadViews.("freq")
-            }),
-
-            Button().states_([ ["⨳", node.color, Color.clear] ])
-            .font_(Font(size:12))
-            .fixedSize_(12)
-            .action_({
-                loadViews.("presets")
-            }),
+            nil
         ),
+        */
 
         HLayout(
             target
@@ -251,7 +217,8 @@ func: {|node, index, cmds|
                 .object_(node)
                 .maxWidth_(17)
                 .string_(">")
-                .dragLabel_(node.key),
+                .dragLabel_(node.key)
+                ,
 
                 TextField()
                 .keyDownAction_({|ctrl, char, mod, unicode, keycode, key|
@@ -357,15 +324,6 @@ func: {|node, index, cmds|
                                         rhs = parts[1].stripWhiteSpace.asFloat;
                                         fxnode.vol = rhs;
                                     },
-                                    {cmd.beginsWith("-h")}, {
-
-                                        var cmd = val.asString;
-                                        parts = cmd.split(Char.space);
-                                        lhs = parts[0];
-                                        rhs = parts[1].stripWhiteSpace.asFloat;
-                                        w.asView.resizeTo(200, rhs);
-                                        w.asView.children[0].resizeTo(200, rhs)
-                                    },
                                     {
                                         var parts;
                                         cmd = cmd.asString.stripWhiteSpace;
@@ -418,10 +376,10 @@ func: {|node, index, cmds|
         var cmd = shortcuts[char];
         if (cmd.notNil) {
             loadViews.(cmd);
-        } 
+        }
     });
 
-    topEnvironment.put(\win, w);
-    w.asView;
+    //w.asView;
+
 }
 )

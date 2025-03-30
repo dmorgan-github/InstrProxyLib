@@ -6,9 +6,7 @@ var func = {|freq|
     var sig, chain, localbuf;
     var bufs = \buf.kr([0, 0]);
 
-    var root = \rootfreq.kr(60.0.midicps,
-        spec:ControlSpec(20, 20000, \exp, 0, 60.0.midicps, units:"pvplaybuf")
-    ).clip(20, 20000);
+    var root = \rootfreq.kr(60.0.midicps).clip(20, 20000);
 
     rate = \rate.kr(1, spec: ControlSpec(-4.0, 4.0, \lin, 0, 1));
     offset = \offset.kr(0);

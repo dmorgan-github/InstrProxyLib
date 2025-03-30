@@ -1,8 +1,5 @@
 (
-synth: {|gate, doneAction=(Done.freeSelf)|
+synth: {|gate|
     DC.ar(1);
-},
-props: (
-    hasgate: false
-)
+}
 )

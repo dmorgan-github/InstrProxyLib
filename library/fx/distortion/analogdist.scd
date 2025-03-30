@@ -2,10 +2,10 @@
 synth: {|in|
 
     var compress;
-    var drivegain = \anadist_drive.kr(0.5, spec:InstrControlSpec(0, 1, \lin, 0, 0.5, "analogdist", sort:0));
-    var dist_bias = \anadist_bias.kr(0, spec:InstrControlSpec(0.2, 2.5, \lin, 0, 0.2, "analogdist", sort:1));
-    var lowgain = \anadist_lowgain.kr(-20, spec:InstrControlSpec(-60, -10, \lin, 0, -20, "analogdist", sort:2));
-    var highgain = \anadist_higain.kr(-20, spec:InstrControlSpec(-60, -10, \lin, 0, -20, "analogdist", sort:3));
+    var drivegain = \anadist_drive.kr(0.1, spec:InstrControlSpec(0, 1, \lin, 0, 0.1, "analogdist", sort:0));
+    var dist_bias = \anadist_bias.kr(0.8, spec:InstrControlSpec(0, 2.5, \lin, 0, 0.8, "analogdist", sort:1));
+    var lowgain = \anadist_lowgain.kr(0, spec:InstrControlSpec(-60, 0, \lin, 0, 0, "analogdist", sort:2));
+    var highgain = \anadist_higain.kr(0, spec:InstrControlSpec(-60, 0, \lin, 0, 0, "analogdist", sort:3));
     var shelvingfreq = \anadist_centerfreq.kr(600, spec:InstrControlSpec(20, 20000, \exp, 0, 600, "analogdist", sort:4));
     var dist_oversample = \anadist_oversample.kr(1, spec:InstrControlSpec(0, 4, \lin, 1, 1, "analogdist", sort:5));
 
@@ -18,6 +18,7 @@ synth: {|in|
         dist_oversample
     );
 
+    /*
     compress = {|in|
         var amplitudeDb, gainDb;
         var attack = \anadist_atk.kr(0.01, spec:InstrControlSpec(0.01, 1, \lin, 0, 0.01, "analogdist", sort:6));
@@ -29,15 +30,16 @@ synth: {|in|
         sig = in * gainDb.dbamp;
         sig;
     };
+    */
 
     sig = LeakDC.ar(sig);
     //sig = compress.(sig);
-    sig = in.blend(sig * 0.1, \anadist_mix.kr(0, spec:InstrControlSpec(0, 1, \lin, 0, 0, "analogdist", sort:10)));
+    sig = in.blend(sig, \anadist_mix.kr(1, spec:InstrControlSpec(0, 1, \lin, 0, 1, "analogdist", sort:10)));
     sig;
+
 },
 
 doc: "
 oversample: 0 = No oversampling, 1 = x2, 2 = x4, 3 = x8, 4 = x16
 "
 )
-

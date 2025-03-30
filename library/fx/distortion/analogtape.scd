@@ -2,14 +2,15 @@
 synth: {|in|
 
     var tape_bias = \tape_bias.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, "analogtape"));
-    var saturation = \tape_sat.kr(0.9, spec:ControlSpec(0, 2, \lin, 0, 0.9, "analogtape"));
-    var drive = \tape_drive.kr(0.5, spec:ControlSpec(0, 2, \lin, 0, 0.5, "analogtape"));
+    var saturation = \tape_sat.kr(0.9, spec:ControlSpec(0, 1, \lin, 0, 0.9, "analogtape"));
+    var drive = \tape_drive.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, "analogtape"));
     var tape_oversample = 2;//\tape_oversample.kr(2, spec:ControlSpec(0, 4, \lin, 1, 2, "analogtape"));
     var mode = \tape_mode.kr(0, spec:ControlSpec(0, 3, \lin, 1, 0, "analogtape"));
 
     var sig = AnalogTape.ar(in, tape_bias, saturation, drive, tape_oversample, mode);
     sig = in.blend(sig, \analogtape_mix.kr(1, spec:ControlSpec(0, 1, \lin, 0, 1, "analogtape")));
     sig;
+
 },
 
 doc: "

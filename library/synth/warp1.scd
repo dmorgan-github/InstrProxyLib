@@ -17,9 +17,7 @@ var synth = {|freq|
     start = \startPos.kr(0, spec: ControlSpec(0, 0.9999, \lin, 0, 0, units:"sampler"));
     end = \endPos.kr(1, spec: ControlSpec(0, 1, \lin, 0, 1, units:"sampler") );
 
-    root = \rootfreq.kr(60.0.midicps,
-        spec:ControlSpec(20, 20000, \exp, 0, 60.0.midicps, units:"sampler")
-    ).clip(20, 20000);
+    root = \rootfreq.kr(60.0.midicps).clip(20, 20000);
 
     rate = freq/root;
     sawrate = pbstretch.reciprocal * BufSampleRate.kr(buf) / (absdif(start, end) * numframes);

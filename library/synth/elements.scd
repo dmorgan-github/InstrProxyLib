@@ -26,7 +26,7 @@ synth: {|freq, gate|
     };
 
     MiElements.ar(
-        PinkNoise.ar(1),//Hasher.ar(Sweep.ar(0)),//PinkNoise.ar(0.5),
+        Hasher.ar(Sweep.ar(0)),//PinkNoise.ar(0.5),
         0,
         gate, //A2K.kr(gate),
         pit,
@@ -47,5 +47,7 @@ synth: {|freq, gate|
         space,
         model
     );
-}
+}, 
+
+doc: "model: Selects the resonator model: 0:Modal, 1:String, 2:Strings"
 )

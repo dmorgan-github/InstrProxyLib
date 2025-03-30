@@ -16,8 +16,8 @@ func: {|node|
 
     swap = {|node, index2, index1|
 
-        var fx1 = node.fxchain[index1];
-        var fx2 = node.fxchain[index2];
+        var fx1 = node.inserts[index1];
+        var fx2 = node.inserts[index2];
 
         var obj1 = node.objects[index1];
         var obj2 = node.objects[index2];
@@ -30,8 +30,8 @@ func: {|node|
         node.objects[index1] = obj2;
         node.objects[index2] = obj1;
 
-        node.fxchain[index1] = fx2;
-        node.fxchain[index2] = fx1;
+        node.inserts[index1] = fx2;
+        node.inserts[index2] = fx1;
 
         node.changed(\reorder)
     };
@@ -62,7 +62,7 @@ func: {|node|
 
     updateButtons = {
 
-        var ctrls = fxnode.fxchain;
+        var ctrls = fxnode.inserts;
 
         fxbuttonsview.children.do({|child|
             child.remove
@@ -102,11 +102,11 @@ func: {|node|
                                         fxview.front;
                                     } {
                                         "custom view does not exists: %".format(key).warn;
-                                        UiModule('instr2').gui(fxnode, index)
+                                        UiModule('instr').gui(fxnode, index)
                                     }
                                 }{
                                     var left, top;
-                                    var fxview = UiModule('instr2').view(fxnode, index);
+                                    var fxview = UiModule('instr').view(fxnode, index);
                                     var parents = view.getParents();
                                     var parent;
                                     var win;
@@ -128,13 +128,14 @@ func: {|node|
                                     //parent.moveTo(0, top);
                                     //parent.bounds = Rect(left, top, 100, 200);
                                     //fxview.parent.setTopLeftBounds( Rect(left, top, 100, 200) )
-                                
+
                                 }
                             }
                         }),
 
                         nil,
 
+                        /*
                         Button().states_([  ["↓", nil, Color.clear]  ]).action_({
                             moveDown.(index);
                         })
@@ -149,6 +150,7 @@ func: {|node|
                         })
                         .maxWidth_(20)
                         //.icon_(Image.new(App.librarydir ++ "images/noun_Delete_1982479.png")),
+                        */
                     )
                 );
             });
@@ -171,7 +173,7 @@ func: {|node|
     };
 
     fxnode.addDependant(fxwatcher);
-    view.layout.add( fxmenu.view(fxnode).resize_(1) );
+    //view.layout.add( fxmenu.view(fxnode).resize_(1) );
     view.layout.add( fxbuttonsview.resize_(1));
     view.layout.add( nil );
     //view.layout.add( presetview.view(fxnode) );
@@ -182,6 +184,6 @@ func: {|node|
     .onClose_({
         fxnode.removeDependant(fxwatcher);
     });
+
 }
 )
-
