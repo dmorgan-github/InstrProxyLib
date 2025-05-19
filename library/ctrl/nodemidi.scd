@@ -26,7 +26,8 @@ var ctrl = Environment.make({|self|
             node.off(note) 
         })
         .onAction('bend', {|val, chan|
-            node.set(\bend, val) 
+            //[\bend, val].debug("nodemidi.scd");
+            node.bend(val)
         })
         .connect(device, name);
         self;

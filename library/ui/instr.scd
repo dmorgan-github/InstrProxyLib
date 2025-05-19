@@ -42,7 +42,7 @@ func: {|node, index, cmds|
         $6: "meter"
     );
 
-   var  w = Window("test", bounds:Rect(top: Window.screenBounds.height-300, left: 275, width:200, height:200), border: false);//.front;
+   var  w = Window("test", bounds:Rect(top: Window.screenBounds.height-300, left: 275, width:200, height:200));//.front;
    //w.setTopLeftBounds(w.bounds.top_(Window.screenBounds.height/2).left_(100), 0);
 
     if (index.isNil) {
@@ -182,12 +182,13 @@ func: {|node, index, cmds|
         target.layout.add( layout );
     };
 
-    view = View(parent: w, bounds:200@200)
-    //view = View(bounds:75@175)
+    //view = View(parent: w, bounds:200@200)
+    view = View(bounds:75@175)
     //.fixedWidth_(175)
     .name_(windowname)
     .layout_(VLayout(
 
+        /*
         HLayout(
             StaticText()
             .string_(windowname)
@@ -240,6 +241,7 @@ func: {|node, index, cmds|
                 loadViews.("presets")
             }),
         ),
+        */
 
         HLayout(
             target
@@ -271,6 +273,7 @@ func: {|node, index, cmds|
                         currentindex = (currentindex + 1).clip(0, cmdhistory.size);
                     };
 
+                    // enter
                     if (keycode == 36) {
                         //[ctrl, char, mod, unicode, keycode, key].postln;
                         //var args = "[" ++ ctrl.value ++ "]";
@@ -391,6 +394,7 @@ func: {|node, index, cmds|
                                 );
                             }
                         );
+                        ctrl.value = "";
                     }
                 }).background_(Color.clear),
             )
@@ -421,7 +425,8 @@ func: {|node, index, cmds|
         } 
     });
 
-    topEnvironment.put(\win, w);
-    w.asView;
+    //topEnvironment.put(\win, w);
+    //w.asView;
+    view
 }
 )

@@ -9,10 +9,6 @@ synth: {|in, gate, freq, aeg|
     var frelcurve = \frelcurve.kr(-4, spec: InstrControlSpec(-8, 8, \lin, 0, -4, units:"lpg", sort:3));
     var feg;
 
-    if (~voices == \mono) {
-        gate = (1 - \trig.tr(0)) * gate
-    };
-
     feg = Env(
         [0, 1, 0],
         [fatk, frel],

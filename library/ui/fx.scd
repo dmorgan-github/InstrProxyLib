@@ -151,10 +151,11 @@ func: {|node|
                         .maxWidth_(20)
                         //.icon_(Image.new(App.librarydir ++ "images/noun_Delete_1982479.png")),
                         */
-                    )
+                    ),
+                    stretch: 1
                 );
             });
-            fxbuttonsview.layout.add(nil)
+            fxbuttonsview.layout.add(UserView(), stretch:10)
         };
     };
 

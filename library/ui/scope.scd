@@ -83,6 +83,23 @@ func: {|node|
                 .maxWidth_(45) 
                 .value_(10.0),
 
+
+                /*
+                StaticText().string_("c"),
+                NumberBox()
+                .action_({|ctrl|
+                    var val = ctrl.value.clip(1, 1000);
+                    scope.cycle = s.sampleRate / val;
+                })
+                .palette_(palette)
+                .background_(Color.clear)
+                .minDecimals_(2)
+                .clipHi_(1000)
+                .clipLo_(0.01)
+                .maxWidth_(45) 
+                .value_(300),
+                */
+
                 nil
 
             ).margins_(0).spacing_(10)

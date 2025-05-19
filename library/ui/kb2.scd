@@ -2,7 +2,6 @@
 func: {|node|
 
 	var view = View();
-	var baseview;
     var keys = Order.new;
 
     var defaultScale = \majorPentatonic;
@@ -62,31 +61,7 @@ func: {|node|
 
     update = {
 
-        var obj = {|label, borderColor, borderSize, background|
-
-            var holder = SCViewHolder();
-            var view = StaticText()
-            .string_(label)
-            .align_(\center)
-            .background_(background)
-            .mouseDownAction_({|ctrl|
-                ctrl.background = Color.white    
-            })
-            .mouseUpAction_({|ctrl|
-                ctrl.background = background
-            });
-        
-            var border = UserView(bounds:Rect(width:50, height:50))
-            .background_(borderColor)
-            .layout_(VLayout(view).margins_(borderSize))
-            ;
-        
-            holder.view_(border);
-        };
-
-
         keyboard = buttons.collect({arg i;
-
             var label;
             var color = Color.grey.alpha_(0.3);
             var num = buttons-i;
@@ -96,11 +71,6 @@ func: {|node|
                 color = node.color;
                 color.alpha_(0.5);
             };
-
-            /*
-            obj.(label, Color.white, 1, color);
-            */
-
             Button()
             .states_([[label, nil, color], [label, nil, Color.white.alpha_(0.9)]])
             .fixedWidth_(40)

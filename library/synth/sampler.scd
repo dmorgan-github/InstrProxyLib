@@ -8,18 +8,21 @@ synth: {|freq, gate|
     var root = \rootfreq.kr(60.0.midicps).clip(20, 20000);
     var numchannels = ~numchannels ?? {1};
     var bufsamplerate = BufSampleRate.ir(buf);
+    var bufratescale = BufRateScale.kr(buf);
     var numframes = max(BufFrames.kr(buf), 1);
     var start = \startPos.kr(0, spec: ControlSpec(0, 0.9999, \lin, 0, 0, units:"sampler"));
     var end = \endPos.kr(1, spec: ControlSpec(0, 1, \lin, 0, 1, units:"sampler") );
     var fadeTime = \fadeTime.kr(0.0);
     var xfadeTime = \xfadeTime.kr(0.0);
+    var trigger = \trigger.tr(1);
     
-    rate = freq/root;
+    rate = (freq/root);
     dir = Select.kr(
         \rev.kr(0, spec:ControlSpec(0, 1, \lin, 1, 0, units:"sampler")) > 0.5,
         [1, -1]
     );
 
+    trigger = Changed.kr(start) + Changed.kr(end) + \trigger.tr(1);
     start = start * numframes;
     end = end * numframes;
     dur = (end - start) / bufsamplerate;
@@ -27,7 +30,8 @@ synth: {|freq, gate|
     sig = XPlayBuf.ar(
         numchannels, 
         buf,
-        rate: rate * dir,
+        rate: rate * dir, //automatically adjusted to bufratescale
+        trigger: trigger,
         startPos: start / bufsamplerate,
         loopDur: dur,
         loop: loop,

@@ -99,21 +99,28 @@ func: {arg node;
         Color.new255(174, 32, 18),
         Color.new255(155, 34, 38)
     ];
+    var start, size;
+    var startCtrl, sizeCtrl;
 
     id = UniqueID.next;
     oscdef = "bufpos_%".format(id).asSymbol;
     osckey = 'bufpos';
     cursorcolor = Color(0.84076716899872, 0.8562139749527, 0.69819803237915);
+
+    /*
     onsets = node.get(\onsets);
     if (onsets.isNil) {
         onsets = 8.collect({ 0 });
         node.set(\onsets, onsets)
     };
+    */
 
     bufnumView = DragSource().background_(Color.clear);//.object_(buf).string_("buffer")
     srView = StaticText();
     numframesView = StaticText();
     durView = StaticText();
+    startCtrl = LevelSlider(\start);
+    sizeCtrl = LevelSlider(\size);
 
     loadBuf = {
         buf = node.get(\buf);
@@ -136,6 +143,9 @@ func: {arg node;
                             selend = endPos * numframes;
                             selsize = selend - selstart;
 
+                            startCtrl.value_(selstart/numframes);
+                            sizeCtrl.value_(selsize/numframes);
+
                             sfv.setData(a, channels: buf.numChannels);
                             sfv.setSelection(0, [selstart, selsize]);
 
@@ -157,17 +167,19 @@ func: {arg node;
         };    
     };
 
-    view = View().layout_(VLayout().margins_(1).spacing_(1)).fixedHeight_(80);//.minSize_(Size(300, 150));
+    view = View().layout_(VLayout().margins_(1).spacing_(1));//.fixedHeight_(80);//.minSize_(Size(300, 150));
     sfv = SoundFileView()
     //.minHeight_(150)
     .resize_(1)
     .gridOn_(false)
-    .drawsRMS_(false)
-    .drawsCenterLine_(true)
+    //.drawsRMS_(false)
+    //.drawsCenterLine_(true)
     .drawsBoundingLines_(false)
     .gridColor_(Color.black)
     .background_(Color.black)
-    .waveColors_([color, color])
+    .waveColors_([color.alpha_(0.7), color.alpha_(0.7)])
+    .rmsColor_(color)
+    .peakColor_(color)
     .gridResolution_(0.0)
     .timeCursorOn_(true)
     .timeCursorColor_(cursorcolor)
@@ -211,13 +223,14 @@ func: {arg node;
         var val = View.currentDrag.value;
         if (val.isString) {
             // TODO: update to new
-            "load buf".debug("buf.scd");
+            //"load buf".debug("buf.scd");
             fork({
-                // TODO always using mono
-                var result = B.read(val, [0]);
+                // TODO: should be dynamic numchannels
+                var result = B.read(val, [0, 1]);
                 result.wait;
                 buf = result.value;
-                node.set(\buf, buf)
+                node.set(\buf, buf);
+                node.set(\bufpath, val)
             });
         };
         if (val.isKindOf(Buffer)) {
@@ -252,6 +265,26 @@ func: {arg node;
     });
 
     //view.layout.add(HLayout(*onsetsbtn));
+    view.layout.add( HLayout(
+        startCtrl
+        .action_({|ctrl|
+            var val = ctrl.value;
+            var numframes = buf.numFrames;
+            var startPos = val * numframes;
+            start = startPos.floor.asInteger;
+            sfv.setSelectionStart(0, start)
+        }),
+
+        sizeCtrl
+        .action_({|ctrl| 
+
+            var val = ctrl.value;
+            var numframes = buf.numFrames;
+            size = (val * numframes).floor.asInteger;
+            sfv.setSelectionSize(0, size)
+        })
+    ));
+
     view.layout.add(sfv);
     /*
     view.layout.add(

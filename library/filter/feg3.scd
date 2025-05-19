@@ -22,10 +22,6 @@ var synth = {|freq, gate, aeg|
         cutoff = freq * keytrackamt;
     };
 
-    //if (~voices == \mono) {
-    //    gate = (1 - \trig.tr(0)) * gate
-    //};
-
     env = Env.adsr(
         atk,
         dec,

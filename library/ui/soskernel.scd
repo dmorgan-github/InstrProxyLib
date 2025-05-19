@@ -109,47 +109,20 @@ b.free;
 (
 func: {|node|
 
-    var view, kernel, coefs, sosfiltertype, sosfreq;
+    var view, kernel, coefs, sosfiltertype, sosfreq, enabled;
 
-    var types = ["",
-        'BLowPass',
-        'BHiPass',
-        'BAllPass',
-        'BBandPass',
-        'BBandStop',
-        'BPeakEQ',
-        'BLowShelf',
-        'BHiShelf',
-        'LowBoost'
-    ];
-
-    var filterType = PopUpMenu()
-    .items_(types)
-    .action_({|ctrl|
-        ctrl.item.postln;
-        if (ctrl.item != "") {
-            var key = ctrl.item.asSymbol;
-            kernel.selectFilterType(key);
-            node.set(\sosfiltertype, ctrl.value);
-        }
-    });
-
-    var defaultfiltertype = 'BPeakEQ';
-    sosfiltertype = node.get(\sosfiltertype);
-
-    view = View().layout_(VLayout( filterType  ));
+    sosfiltertype = node.get(\sosFilterKey);
+    view = View().layout_(VLayout().spacing_(0).margins_(0));
     kernel = SOSKernel.new(sampleRate:Server.default.sampleRate);
     kernel.filterClass_(BLowPass);
+    kernel.enabled = true;
 
     coefs = node.get(\coefs);
     sosfreq = node.get(\sosfreq);
+    enabled = node.get(\sos_mix) ?? 1;
 
     if (sosfiltertype.notNil) {
-        var val = types[sosfiltertype];
-        kernel.selectFilterType(val);
-        filterType.value = sosfiltertype;
-    } {
-        filterType.value = types.indexOf(defaultfiltertype);
+        kernel.selectFilterType(sosfiltertype);
     };
 
     if (sosfreq.notNil) {
@@ -174,34 +147,30 @@ func: {|node|
             kernel.setQ(sosq);
         };
 
+        if (enabled.notNil) {
+            kernel.enabled = enabled.asBoolean;
+        };
+
         kernel.setCoefs(a0, a1, a2, b1, b2);
-
-    } {
-
-        kernel.selectFilterType(defaultfiltertype);
-        kernel.setFrequency(2300.0);
-        kernel.setGain(3.0);
-        node.set(\coefs, kernel.coefs);
-
-        node.set(\sosfiltertype, types.indexOf(defaultfiltertype));
-        node.set(\sosfreq, kernel.frequency);
-        node.set(\sosgain, kernel.gain);
-        node.set(\sosq, kernel.q);
     };
 
     kernel.view(view)
     .action_( {|view, kernel|
         node.set(
             \coefs, kernel.coefs,
-            \bypass, 1 - kernel.enabled.binaryValue,
+            \sos_mix, kernel.enabled.binaryValue,
             \sosfreq, kernel.frequency,
             \sosgain, kernel.gain,
-            \sosq, kernel.q
+            \sosq, kernel.q,
+            \sosFilterKey, kernel.filterKey
         );
     });
 
     view
     .minSize_(Size(420, 220))
+    .onClose_({
+        kernel.snapshot.debug("kernel.snapshot")
+    })
     .name_(node.key)
     .front
 };

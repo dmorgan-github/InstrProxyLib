@@ -77,7 +77,7 @@ var func = {|freq|
 */
 
 (
-var synth = {
+var synth = {|freq|
 
     var rampToTrig = { |phase|
         var history = Delay1.ar(phase);
@@ -164,8 +164,11 @@ var synth = {
         (phase - SampleDur.ir).wrap(0, 1);
     };
 
+    var updateFreq = 15;
     var numChannels = 10;
+    var replyid = \bufposreplyid.kr(-1);
     var sndBuf = \buf.kr(0);
+    var root = \rootfreq.kr(60.0.midicps).clip(20, 20000);
 
     var stepTrigger, stepPhase, stepSlope, subSampleOffsets;
     var triggers, accumulator, overlaps, maxOverlaps, chanMask;
@@ -203,12 +206,13 @@ var synth = {
     pos = Phasor.ar(
         trig: DC.ar(0),
         rate: posRate * BufRateScale.kr(sndBuf) * SampleDur.ir / BufDur.kr(sndBuf),
-        start: \posLo.kr(0),
-        end: \posHi.kr(1)
+        start: \startPos.kr(0),
+        end: \endPos.kr(1)
     );
 
     rateMod = SinOsc.ar(\rateMF.kr(1));
     rate = \rate.kr(1) + (rateMod * \rateMD.kr(0));
+    rate = freq/root;
 
     grainPhases = (Latch.ar(rate, triggers) * accumulator) + Latch.ar(pos * BufFrames.kr(sndBuf), triggers);
 
@@ -224,6 +228,9 @@ var synth = {
 
     sigs = PanAz.ar(2, sigs, chanMask * \panMax.kr(0.8));
     sig = sigs.sum;
+
+
+    SendReply.kr(Impulse.kr(updateFreq), '/bufpos', [grainPhases], replyid);
 
     //sig = sig * \amp.kr(-20).dbamp;
     //sig = sig * Env.asr(0.001, 1, 0.001).ar(Done.freeSelf, \gate.kr(1));

@@ -10,7 +10,7 @@ var connect = {
     s.waitForBoot({
         MonomeGrid.setAddCallback({arg serial, port, prefix;
             ("grid added: " ++ serial ++ " " ++ port ++ " " ++ prefix).debug("monome grid");
-            if( serial == MonomeGrid.getConnectedDevices[0], {
+            if( serial == MonomeGrid.getRegisteredDevices[0], {
                 cols = grid.cols;
                 rows = grid.rows;
             });
@@ -266,7 +266,7 @@ var func = {|self|
             };
         },
         select: {|obj, val|
-            var num = val+1;
+            var num = val;//+1;
             obj.node = self.tracks.wrapAt(num);
             if (obj.node.notNil) {
                 var scale = obj.node.get(\scale);
@@ -279,14 +279,14 @@ var func = {|self|
             }
         },
         play: {|obj, val|
-            var num = val[0]+1;
+            var num = val[0];//+1;
             var track = self.tracks.wrapAt(num);
             if (track.notNil) {
                 track.play;
             };  
         },
         stop: {|obj, val|
-            var num = val[0]+1;
+            var num = val[0];//+1;
             var track = self.tracks.wrapAt(num);
             if (track.notNil) {
                 track.stop;
@@ -310,6 +310,9 @@ var func = {|self|
 
 (
     func: {|tracks, kv| Environment.make(func) },
-    doc: ""
+    doc: "
+        ~grid = M('ctrl/monomekb').( )
+        ~grid.tracks = [a(6)]
+    "
 )
 )

@@ -105,13 +105,13 @@ var ctrl = Environment.make({|self|
         self;
     };
 
-    self.bend = {|self, chan=0, bendmid=8191, bendmin=(-12), bendmax=12|
+    self.bend = {|self, chan=0, bendmid=8192, bendmin=(-12), bendmax=12|
         var key = self.src.name;
         var bendkey = "%_%_bend".format(key, chan).asSymbol.debug("bend");
         var srcId = self.src.uid.debug("src uid");
 
         MIDIdef.bend(bendkey, {|val, chan|
-            val = val.linlin(0, bendmid * 2, bendmin, bendmax);
+            //val = val.linlin(0, bendmid * 2, bendmin, bendmax);
             actions['bend'].(val, chan);
         }, chan:chan, srcID: srcId)
         .fix;
