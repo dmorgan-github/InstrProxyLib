@@ -13,7 +13,7 @@ var func = {|freq|
     //freq.poll/root;
 
     localbuf = { LocalBuf.new(fftsize) } !2; 
-    chain = PV_PlayBuf(localbuf, bufs.postln, rate:rate, offset:offset, loop: 1); 
+    chain = PV_PlayBuf(localbuf, bufs, rate:rate, offset:offset, loop: 1); 
     sig = IFFT(chain, win); 
     sig;
 };

@@ -5,7 +5,7 @@ synth: {|in|
     var hp = \miverb_hp.kr(0.3, spec:ControlSpec(0, 1, \lin, 0, 0.3, "miverb"));
     var freeze = \miverb_freeze.kr(0, spec:ControlSpec(-1, 1, \lin, 0, 0, "miverb"));
     var sig = MiVerb.ar(LeakDC.ar(in), time, 1, damp, hp, freeze, 0.625);
-    sig = in.blend(sig, \miverb_mix.kr(0.3, spec:ControlSpec(0, 1, \lin, 0, 0.3, "miverb")));
+    //sig = in.blend(sig, \miverb_mix.kr(0.3, spec:ControlSpec(0, 1, \lin, 0, 0.3, "miverb")));
     sig;
 }
 )

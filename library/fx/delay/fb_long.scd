@@ -9,7 +9,7 @@ synth: {arg in;
         fb.reverse * fblevel + Select.ar(fblevel > 0.99, [in, Silent.ar(2)])
     }, size.debug("fblongsize"), del);
 
-    sig = in.blend(sig, \fblong_mix.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.4, "fb_long")));
+    //sig = in.blend(sig, \fblong_mix.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.4, "fb_long")));
     sig;
 }
 )

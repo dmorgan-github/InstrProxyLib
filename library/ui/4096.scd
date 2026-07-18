@@ -30,8 +30,6 @@ func: {|node|
     var wtpage = node.get(\wtpage);
     var color = node.color;
 
-    \here.postln;
-
     view = View().layout_(VLayout());
 
     loadView = {|buf|

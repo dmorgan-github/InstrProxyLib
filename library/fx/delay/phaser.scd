@@ -16,7 +16,7 @@ synth: {|in|
         stages: stages
     );
 
-    sig = in.blend(sig, \phaser_mix.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, "phaser")));
+    //sig = in.blend(sig, \phaser_mix.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, "phaser")));
 
     sig;
 },

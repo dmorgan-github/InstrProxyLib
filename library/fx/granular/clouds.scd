@@ -34,7 +34,7 @@ synth: {|in|
         trig: Impulse.kr(rate)
     );
 
-    sig = in.blend(sig, \clouds_mix.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, units:"clouds")));
+    //sig = in.blend(sig, \clouds_mix.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, units:"clouds")));
     sig;
 },
 doc: "

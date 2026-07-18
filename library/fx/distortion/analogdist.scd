@@ -34,7 +34,7 @@ synth: {|in|
 
     sig = LeakDC.ar(sig);
     //sig = compress.(sig);
-    sig = in.blend(sig, \anadist_mix.kr(1, spec:InstrControlSpec(0, 1, \lin, 0, 1, "analogdist", sort:10)));
+    //sig = in.blend(sig, \anadist_mix.kr(1, spec:InstrControlSpec(0, 1, \lin, 0, 1, "analogdist", sort:10)));
     sig;
 
 },

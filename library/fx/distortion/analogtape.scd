@@ -8,7 +8,7 @@ synth: {|in|
     var mode = \tape_mode.kr(0, spec:ControlSpec(0, 3, \lin, 1, 0, "analogtape"));
 
     var sig = AnalogTape.ar(in, tape_bias, saturation, drive, tape_oversample, mode);
-    sig = in.blend(sig, \analogtape_mix.kr(1, spec:ControlSpec(0, 1, \lin, 0, 1, "analogtape")));
+    //sig = in.blend(sig, \analogtape_mix.kr(1, spec:ControlSpec(0, 1, \lin, 0, 1, "analogtape")));
     sig;
 
 },

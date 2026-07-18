@@ -3,11 +3,15 @@ func: {|node|
 
     var background, view, scope, stack, scopeview;
     var monitorwatcher, activecolor, inactivecolor, color;
-    view = View(bounds:Rect(0, 0, 511/2, 300/2)).layout_(VLayout().margins_(1).spacing_(0));
-    scopeview = View(bounds:Rect(0, 0, 511/2, 300/2))
+    //view = View(bounds:Rect(0, 0, 511/2, 300/2)).layout_(VLayout().margins_(1).spacing_(0));
+    view = View().layout_(VLayout().margins_(1).spacing_(0));
+    //scopeview = View(bounds:Rect(0, 0, 511/2, 300/2))
+    scopeview = View()
     .layout_(VLayout().margins_(0).spacing_(0));
+
     scope = FreqScopeView(scopeview, scopeview.bounds);
     scope.dbRange = 96;
+
     activecolor = node.color;
     inactivecolor = Color.grey;
 
@@ -80,7 +84,8 @@ func: {|node|
             });
         };
 
-        view = UserView.new( bounds:Rect(0,0,400,200));
+        //view = UserView.new( bounds:Rect(0,0,400,200));
+        view = UserView.new( );
         view.drawFunc_({arg view;
             markersImage.drawAtPoint(0@0);
         });
@@ -101,8 +106,8 @@ func: {|node|
     };
 
     stack = StackLayout(background.().alpha_(0.5), scopeview).mode_(1);
-    view.layout.add(stack);
-    view.layout.add(nil);
+    view.layout.add(stack, 1);
+    //view.layout.add(nil);
 
     scope.inBus = node.bus.index;
     scope.freqMode = 1;
@@ -111,7 +116,7 @@ func: {|node|
     scope.waveColors_([color]);
 
     view
-    .resize_(1)
+    .resize_(4)
     //.background_(Color.red)
     .onClose_({ 
         node.removeDependant(monitorwatcher);

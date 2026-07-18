@@ -12,9 +12,25 @@ func: {|node|
     var keyboardview, update;
     var mode = node.get(\kbmode) ?? \push;
     var order;
+    var root;
+    var octaveVal;
 
-    //var octave = (node.get(\octave) ?? 3).debug("octave");
-    var root = (node.get(\root) ?? 0).debug("root");
+    var palette = QPalette()
+    .window_(Color.magenta)
+    .windowText_(Color.green)
+    .button_(Color.black)
+    .buttonText_(Color.white )
+    .base_(Color.blue)
+    .baseText_(Color.yellow)
+    .highlight_(Color.cyan)
+    .highlightText_(Color.magenta);
+
+    palette.setColor(Color.black, \shadow);
+    palette.setColor(Color.black, \dark);
+    palette.setColor(Color.black, \middark);
+
+    octaveVal = (node.get(\octave) ?? 3).debug("octave");
+    root = (node.get(\root) ?? 0).debug("root");
 
     // TODO: wtf
     if ( node.get(\scale).isKindOf(Scale) ) {
@@ -58,7 +74,7 @@ func: {|node|
         }
     };
 
-    keyboardview = View();
+    keyboardview = View().fixedSize_(200@100);
 
     update = {
 
@@ -102,8 +118,9 @@ func: {|node|
             */
 
             Button()
+            .palette_(palette)
             .states_([[label, nil, color], [label, nil, Color.white.alpha_(0.9)]])
-            .fixedWidth_(40)
+            //.fixedWidth_(20)
             .mouseDownAction_({arg ctrl;
                 var octave = (node.get(\octave) ?? 3);
                 if (mode == \push) {
@@ -185,10 +202,27 @@ func: {|node|
             })
             .value_( if (mode == \push) {0}{1} )
         ),
-        keyboardview
+        keyboardview,
+
+        LevelSlider('octave', spec:[1, 8, \lin, 1, 4].asSpec, color:node.color)
+        .action_({|ctrl|
+            node.set('octave', ctrl.value);
+        })
+        .mouseDownAction_({|ctrl, x, y, mod, num, count|
+            false    
+        })
+        .value_(octaveVal)
+
     ).spacing_(2).margins_(2))
-    .mouseDownAction_({|ctrl|
+    .mouseDownAction_({|ctrl, x, y, mod, num, count|
         \active.debug("kb");
+        if (num == 1) {
+            Menu(
+                MenuAction("A", { "A selected".postln }),
+                MenuAction("B", { "B selected".postln }),
+                MenuAction("C", { "C selected".postln }),
+            ).front;
+        };
         keyboardview.focus(true)
     })
     //.mouseOverAction_({|ctrl|

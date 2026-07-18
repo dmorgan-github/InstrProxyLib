@@ -132,11 +132,12 @@ func: {|node, prefix|
     .strokeColor_(color)
     .gridColor_(Color.gray)
     .background_(Color.clear)
-    .thumbSize_(10)
+    .style_(1)
+    .thumbSize_(8)
     .grid_(Point(0.25, 0.25))
     .gridOn_(true)
     .step_(0.0001)
-    .minHeight_(100)
+    //.minHeight_(100)
     ;
 
     curves = getcurves.();

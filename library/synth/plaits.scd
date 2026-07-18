@@ -11,9 +11,9 @@ synth: {|freq, gate, aeg|
     var timbremod = \timb_mod.kr(0, spec: ControlSpec(-1, 1, \lin, 0, 0, "plaits"));
     var morphmod = \morph_mod.kr(0, spec: ControlSpec(-1, 1, \lin, 0, 0, "plaits"));
     var lpg = \lpg.kr(0.5, spec: ControlSpec(0, 1, \lin, 0, 0.5, "plaits"));
-    var level = \level.kr(0, spec: ControlSpec(0, 1, \lin, 0, 0, "plaits"));
+    var level = \level.kr(1, spec: ControlSpec(0, 1, \lin, 0, 1, "plaits"));
     //var level = \level.kr(0.5);
-    var slice = ~slice ?? [0, 1];
+    var slice = ~slice ?? [0];
 
     var note = A2K.kr(freq).cpsmidi;
     var sig;
@@ -24,15 +24,20 @@ synth: {|freq, gate, aeg|
         timbre: timbre,
         morph: morph,
         trigger: gate,
-        level: level.squared,
+        level: level, //.squared,
         fm_mod: fmmod,
         timb_mod: timbremod,
         morph_mod: morphmod,
         decay: decay,
         lpg_colour: lpg
     );
-    sig = sig.slice(slice.debug("slice"));
-    sig.asArray.flatten;//.asArray.flatten.sum
+
+    slice.debug("slice");
+    sig = sig.collect({|v| v.slice( slice ).asArray.sum });
+    //CheckBadValues.kr(sig);
+    //sig = Sanitize.ar(sig);
+    sig
+    //sig.asArray.flatten;//.asArray.flatten.sum
 },
 doc:"
 0:virtual_analog_engine

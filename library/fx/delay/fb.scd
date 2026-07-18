@@ -68,7 +68,7 @@ synth: {arg in;
     sig = HPF.ar(sig, hpf);
     sig = BLowPass4.ar(sig, lpf, res.linlin(0, 1, 1, 0.001));
     sig = Splay.ar(sig, spread: width, center: 0);
-    sig = in.blend(sig, \delay_mix.kr(0.4, spec: ControlSpec(0, 1, \lin, 0, 0.4, "delay") ));
+    //sig = in.blend(sig, \delay_mix.kr(0.4, spec: ControlSpec(0, 1, \lin, 0, 0.4, "delay") ));
     sig
 
 

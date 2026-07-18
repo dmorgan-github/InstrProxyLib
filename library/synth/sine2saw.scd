@@ -8,8 +8,8 @@ var synth = {|freq|
         ]);
     };
     
-    var skew = \skew.kr(0.5);
-    var phase = Phasor.ar(0, freq * SampleDur.ir);
+    var skew = \skew.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, units: "sine2saw"));
+    var phase = Phasor.ar(DC.ar(0), freq * SampleDur.ir);
     var warpedPhase = kink.(phase, skew);
     sig = SinOsc.ar(DC.ar(0), cos(warpedPhase * 2pi).neg );
     sig * 0.2

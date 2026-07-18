@@ -7,7 +7,7 @@ synth: {arg sig_in;
         zcperchunk: \zcperchunk.ar(1, spec:ControlSpec(1, 100, \lin, 0, 1, "squiz")).lag(0.05)
     );
     sig = LeakDC.ar(sig);
-    sig = in.blend(sig, \squiz_mix.kr(0.3, spec: ControlSpec(0, 1, \lin, 0, 0.3, "squiz")));
+    //sig = in.blend(sig, \squiz_mix.kr(0.3, spec: ControlSpec(0, 1, \lin, 0, 0.3, "squiz")));
     sig;
 }
 )

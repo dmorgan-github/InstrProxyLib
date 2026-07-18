@@ -21,16 +21,19 @@ w.view  // a TopView btw
 (
 func: {|node, index, cmds|
 
+    var w;
+    var width, height;
     var cmdhistory = List.new;
     var currentindex = 0;
     var currentcmd;
     var fxnode = node.node;
     var windowname = if (index.notNil) {
-        "%/%".format(node.key, fxnode.inserts[index].name);
+        "%/%".format(node.key, fxnode.fx[index].name);
     }{
         node.key
     };
     var view, target, scope;
+    var offsetX, offsetY;
     var getView, views=[];
     var parse, loadViews;
     var shortcuts = (
@@ -42,16 +45,19 @@ func: {|node, index, cmds|
         $6: "meter"
     );
 
-   var  w = Window("test", bounds:Rect(top: Window.screenBounds.height-300, left: 275, width:200, height:200));//.front;
-   //w.setTopLeftBounds(w.bounds.top_(Window.screenBounds.height/2).left_(100), 0);
+    width = 200;
+    height = 200;
+    
+   //var  w = Window("test", bounds:Rect(top: Window.screenBounds.height-300, left: 275, width:200, height:200));//.front;
+   
+    w = Window("test", bounds:Rect(top: Window.screenBounds.height/2, left: 100, width:width, height:height), border: false);//.front;
+    w.setTopLeftBounds(w.bounds.top_(Window.screenBounds.height/2).left_(100), 0);
 
     if (index.isNil) {
-        //var fx = UiModule('fx').view(node);
-        var presets = UiModule('presets').view(node);
-        var freq = UiModule('freq').view(node).maxHeight_(80);
-        views = [presets, freq]
+        var props = UiModule('props').view(node).minWidth_(width);
+        views = [props]
     } {
-        var props = UiModule('props').view(node, index).minWidth_(200);
+        var props = UiModule('props').view(node, index).minWidth_(width);
         views = [props]
     };
 
@@ -169,7 +175,7 @@ func: {|node, index, cmds|
     };
 
     getView = {|currentcmd, args|
-        UiModule(currentcmd).view(node, args)         
+        UiModule(currentcmd).view(node, args);//.fixedSize_(width)       
     };
 
     loadViews = {|cmd|
@@ -182,8 +188,8 @@ func: {|node, index, cmds|
         target.layout.add( layout );
     };
 
-    //view = View(parent: w, bounds:200@200)
-    view = View(bounds:75@175)
+    view = View(/*parent: w,*/ bounds:width@height)
+    //view = View(bounds:75@175)
     //.fixedWidth_(175)
     .name_(windowname)
     .layout_(VLayout(
@@ -196,50 +202,21 @@ func: {|node, index, cmds|
             //.stringColor_( Color.white.alpha_(0.5) )
             .stringColor_( Color.white )
             //.background_(node.color)
+            .mouseDownAction_({|ctrl, x, y|
+                offsetX = x;
+                offsetY = y;
+            })
             .mouseMoveAction_({|ctrl, x, y|
 
                 var width, height;
                 var bounds = ctrl.bounds;
-                var screen = ctrl.mapToGlobal(Point(x, y));
-                var screenX = screen.x;
-                var screenY = screen.y;
-                //width = 200;//view.sizeHint.width;
-                //height = 200;//view.sizeHint.height;
+                var screen = ctrl.mapToGlobal(Point(x, y));// - ctrl.bounds.origin;
+                var screenX = screen.x - offsetX;
+                var screenY = screen.y - offsetY;
                 width = view.bounds.width;
                 height = view.bounds.height;
-                //[ctrl.bounds, view.bounds].debug("info");
                 w.setTopLeftBounds(Rect(left:screenX, top:screenY, width: width, height: height), menuSpacer:0);
-            }),
-
-            nil,
-
-            Button().states_([ ["⛭", node.color, Color.clear] ])
-            .font_(Font(size:12))
-            .fixedSize_(12)
-            .action_({
-                loadViews.("props")
-            }),
-
-            Button().states_([ ["⩏", node.color, Color.clear] ])
-            .font_(Font(size:12))
-            .fixedSize_(12)
-            .action_({
-                loadViews.("fx")
-            }),
-
-            Button().states_([ ["⧉", node.color, Color.clear] ])
-            .font_(Font(size:12))
-            .fixedSize_(12)
-            .action_({
-                loadViews.("freq")
-            }),
-
-            Button().states_([ ["⨳", node.color, Color.clear] ])
-            .font_(Font(size:12))
-            .fixedSize_(12)
-            .action_({
-                loadViews.("presets")
-            }),
+            })
         ),
         */
 
@@ -247,7 +224,8 @@ func: {|node, index, cmds|
             target
         ).margins_(2).spacing_(2),
 
-        if (index.isNil) {
+        if (false /*index.isNil*/) {
+
             HLayout(
                 DragSource()
                 .object_(node)

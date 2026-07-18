@@ -13,7 +13,7 @@ synth: {|freq, gate|
         phase: phase,
         buf_divs: divs,
         buf_loc: pos.value.clip(0, 1),
-        oversample: 4
+        oversample: 1
     );
 
     sig

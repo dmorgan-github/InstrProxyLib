@@ -1,5 +1,6 @@
 (
 synth: {|in|
+    var input = \comp_inputdb.kr(1, spec: ControlSpec(-24, 24, \lin, 0, 1, units:"compressor") );
     var thresh = \comp_threshdb.kr(-20, spec:ControlSpec(-60, 0, \lin, 0, -20, units:"compressor"));
     var ratio = \comp_ratio.kr(2, spec:ControlSpec(1, 16, \lin, 0, 2, units:"compressor"));
     var atk = \comp_atk.kr(0.02, spec:ControlSpec(0.001, 0.1, \lin, 0, 0.02, units:"compressor"));
@@ -11,8 +12,8 @@ synth: {|in|
     //var control = max(abs(in[0]), abs(in[1]));
     //var sig = SoftKneeCompressor.ar(in, control, thresh, ratio.reciprocal, knee, atk, rel, makeUp:makeup);
     // input (also used as control)
-    sig = SoftKneeCompressor.ar(in, thresh:thresh, ratio:ratio.reciprocal, knee:knee, attack:atk, release:rel, makeUp:makeup);
-    sig = in.blend(sig, \comp_mix.kr(1, spec:ControlSpec(0, 1, \lin, 0, 1, units:"compressor")));
+    sig = SoftKneeCompressor.ar(in * input.dbamp, thresh:thresh, ratio:ratio.reciprocal, knee:knee, attack:atk, release:rel, makeUp:makeup);
+    //sig = in.blend(sig, \comp_mix.kr(1, spec:ControlSpec(0, 1, \lin, 0, 1, units:"compressor")));
     SendReply.kr(Impulse.kr(10) * (replyid > 0), '/compresslevel', [Amplitude.kr(sig - in).lag(0, 1)], replyID: replyid); // Gain Reduction measurement
     sig;
 },

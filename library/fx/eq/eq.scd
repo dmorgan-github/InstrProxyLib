@@ -14,7 +14,7 @@ synth: {|in|
     });
     sig = BHiShelf.ar(sig, hishelfFreq, rs: 1, db:-40);
 
-    sig = in.blend(sig, \eq_mix.kr(1, spec:InstrControlSpec(0, 1, \lin, 0, 1, units:"eq", sort:100)));
+    //sig = in.blend(sig, \eq_mix.kr(1, spec:InstrControlSpec(0, 1, \lin, 0, 1, units:"eq", sort:100)));
     sig;
 }
 )

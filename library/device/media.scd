@@ -1,13 +1,31 @@
 (
+var previous;
+var currentFileIndex = 0;
+var currentFile;
+var filesList = List();
+var pathsList = List();
+var model = Ref();
+var width = 400;
+var height = 600;
+var textHeight = 12;
+
+var fileSelectedFunc = {|ctrl, path, i|
+
+    if (previous.notNil) {
+        if (previous.isClosed.not) {
+            previous.background = Color.clear;
+        }
+    };
+    ctrl.background = QtGUI.palette.highlight;
+    previous = ctrl;
+    currentFileIndex = i;
+    model.changed(\pathselected, path.fullPath)
+};
+
 var filesEnv = Environment.make({|self|
 
     var drawFiles, browse;
-    var previous;
-    var width = 600;
-    var height = 600;
-    var textHeight = 12;
     var filesTitle;
-    var model;
 
     self.know = true;
 
@@ -29,6 +47,9 @@ var filesEnv = Environment.make({|self|
         var folders = info[0];
         var files = info[1];
         var textwidth = width;//QtGUI.stringBounds(path).width;
+
+        filesList.clear;
+        pathsList.clear;
 
         view.removeAll;
         view.decorator.reset;
@@ -56,26 +77,23 @@ var filesEnv = Environment.make({|self|
             view.decorator.nextLine;
         });
 
-        files.do({arg path;
+        files.do({arg path, i;
 
             //var bounds = QtGUI.stringBounds(path.fileName);
             //var textwidth = bounds.width + 20;
             var val = "+ " ++ path.fileName;
+            var st;
 
-            StaticText(view, textwidth@textHeight)
+            st = StaticText(view, textwidth@textHeight)
             .string_(val)
             .stringColor_(Color.white)
             .canFocus_(true)
             .mouseDownAction_({|ctrl|
-                if (previous.notNil) {
-                    if (previous.isClosed.not) {
-                        previous.background = Color.clear;
-                    }
-                };
-                ctrl.background = QtGUI.palette.highlight;
-                previous = ctrl;
-                model.changed(\pathselected, path.fullPath)
+                fileSelectedFunc.(ctrl, path, i);
             });
+
+            pathsList.add(path);
+            filesList.add(st);
             view.decorator.nextLine;
         });
 
@@ -94,7 +112,11 @@ var filesEnv = Environment.make({|self|
         .background_(Color.black)
         .hasBorder_(false)
         .autohidesScrollers_(true)
-        .minHeight_(height/2);
+        .minHeight_(height/2)
+        .action_({|ctrl|
+            //ctrl.visibleOrigin.debug("visibleOrigin");    
+        })
+        ;
 
         filesView.decorator_(FlowLayout(filesView.bounds));
         filesTitle = StaticText();
@@ -103,11 +125,39 @@ var filesEnv = Environment.make({|self|
             //[char, mod, unicode, keycode, key].postln;  
             // down arrow
             if (key == 16777237) {
-                \down.postln;
+                //[currentFileIndex].debug("down");
+                //currentFileIndex = currentFileIndex + 1;
+                var myindex = currentFileIndex + 1;
+                if (myindex < filesList.size ) {
+
+                    var scrollHeight, stPosition;
+                    var st = filesList[myindex];
+                    var mypath = pathsList[myindex];
+                    fileSelectedFunc.(st, mypath, myindex);
+
+                    scrollHeight = ctrl.sizeHint.height + ctrl.bounds.top;
+                    if (st.bounds.top > scrollHeight) {
+                        var vo = ctrl.visibleOrigin;//.debug("vo");
+                        var h = 20;//st.sizeHint.height;
+                        var scrollTo = 0@(vo.y + h);
+                        ctrl.visibleOrigin = scrollTo;//.debug("scrollTo")
+                    };
+                };
             };
             // up arrow
             if (key == 16777235) {
-                \up.postln;
+                var myindex = currentFileIndex - 1;
+                if (myindex >= 0 ) {
+                    var vo;
+                    var st = filesList[myindex];
+                    var mypath = pathsList[myindex];
+                    fileSelectedFunc.(st, mypath, myindex);
+
+                    vo = ctrl.visibleOrigin;//.debug("vo");
+                    if ( st.bounds.top < vo.y ) {
+                        ctrl.visibleOrigin = 0@(vo.y - 20)    
+                    };
+                };
             };
             
             true;
@@ -124,12 +174,7 @@ var filesEnv = Environment.make({|self|
 var tagsEnv = Environment.make({|self|
 
     var drawTags;
-    var previous;
-    var width = 600;
-    var height = 600;
-    var textHeight = 12;
     var tagsTitle;
-    var model;
 
     self.know = true;
 
@@ -140,6 +185,9 @@ var tagsEnv = Environment.make({|self|
 
         var titleText = if (tag.isNil) {""} {tag};
         var textwidth = width;//QtGUI.stringBounds(titleText).width;
+
+        filesList.clear;
+        pathsList.clear;
 
         view.removeAll;
         view.decorator.reset;
@@ -162,28 +210,24 @@ var tagsEnv = Environment.make({|self|
             .stringColor_(Color.white)
             .mouseDownAction_({
                 drawTags.(val, view);
-            });
+            });            
             view.decorator.nextLine;
         });
 
-        files.do({arg val;
+        files.do({arg path, i;
 
-            var pn = PathName(val);
-            //var bounds = QtGUI.stringBounds(pn.fileName);//.debug(\bounds);
-            StaticText(view, bounds:textwidth@textHeight)
+            var st;
+            var pn = PathName(path);
+            st = StaticText(view, bounds:textwidth@textHeight)
             .string_("+ " ++ pn.fileName)
             .stringColor_(Color.white)
             .canFocus_(true)
             .mouseDownAction_({|ctrl|
-                if (previous.notNil) {
-                    if (previous.isClosed.not) {
-                        previous.background = Color.clear;
-                    }
-                };
-                ctrl.background = QtGUI.palette.highlight;
-                previous = ctrl;
-                model.changed(\pathselected, val)
+                fileSelectedFunc.(ctrl, pn, i);
             });
+
+            pathsList.add(pn);
+            filesList.add(st);
             view.decorator.nextLine;
         });
 
@@ -205,6 +249,48 @@ var tagsEnv = Environment.make({|self|
         .autohidesScrollers_(true)
         .minHeight_(height/2);
 
+        tagsView.keyDownAction_({|ctrl, char, mod, unicode, keycode, key|
+            //[char, mod, unicode, keycode, key].postln;  
+            // down arrow
+            if (key == 16777237) {
+                //[currentFileIndex].debug("down");
+                //currentFileIndex = currentFileIndex + 1;
+                var myindex = currentFileIndex + 1;
+                if (myindex < filesList.size ) {
+
+                    var scrollHeight, stPosition;
+                    var st = filesList[myindex];
+                    var mypath = pathsList[myindex];
+                    fileSelectedFunc.(st, mypath, myindex);
+
+                    scrollHeight = ctrl.sizeHint.height + ctrl.bounds.top;
+                    if (st.bounds.top > scrollHeight) {
+                        var vo = ctrl.visibleOrigin;//.debug("vo");
+                        var h = 20;//st.sizeHint.height;
+                        var scrollTo = 0@(vo.y + h);
+                        ctrl.visibleOrigin = scrollTo;//.debug("scrollTo")
+                    };
+                };
+            };
+            // up arrow
+            if (key == 16777235) {
+                var myindex = currentFileIndex - 1;
+                if (myindex >= 0 ) {
+                    var vo;
+                    var st = filesList[myindex];
+                    var mypath = pathsList[myindex];
+                    fileSelectedFunc.(st, mypath, myindex);
+
+                    vo = ctrl.visibleOrigin;//.debug("vo");
+                    if ( st.bounds.top < vo.y ) {
+                        ctrl.visibleOrigin = 0@(vo.y - 20)    
+                    };
+                };
+            };
+            
+            true;
+        });
+
         tagsView.decorator_(FlowLayout(tagsView.bounds));
         tagsTitle = StaticText();
 
@@ -219,19 +305,26 @@ var tagsEnv = Environment.make({|self|
 
 var show = {arg path;
     
-    var currentFile;
-    var height = 600;
-    var width = 600;
-    var textHeight = 12;
     var view, detailsView, filesView, tagsView, winView, tracksView;
     var sendid = UniqueID.next.abs;
     var sfv, updatePlayer, synth, playFile;
-    var time, pathTitle, playerView, playBtn, stopBtn, volSlider, infoBtn, clipBoardBtn, revealBtn, tagsEdit;
-    var model = Ref();
+    var time, pathTitle, playerView, playBtn, stopBtn, volSlider, infoBtn, clipBoardBtn, revealBtn, tagsEdit, bounceBtn;
     var autoplay = true;
     var simpleController = SimpleController(model);
     var filesTab, tagsTab, tabBar, stack;
-    //var playEvents = List();
+
+    var palette = QPalette()
+    .window_(Color.magenta)
+    .windowText_(Color.green)
+    .button_(Color.black)
+    .buttonText_(Color.white )
+    .base_(Color.blue)
+    .baseText_(Color.yellow)
+    .highlight_(Color.cyan)
+    .highlightText_(Color.magenta);
+    palette.setColor(Color.black, \shadow);
+    palette.setColor(Color.black, \dark);
+    palette.setColor(Color.black, \middark);
 
     (1..2).do({|v|
         var synthdef = "diskIn%_media".format(v).asSymbol;
@@ -282,8 +375,6 @@ var show = {arg path;
     .name_("media")
     .background_(Color.black);
     
-    //winView.layout.add(view);
-    //winView.layout.add(tracksView);
     detailsView = View().layout_(VLayout().margins_(0).spacing_(0)).background_(Color(0.2, 0.2, 0.2)); 
     filesView = filesEnv.initialize(path, model);
     tagsView = tagsEnv.initialize(model);
@@ -293,8 +384,16 @@ var show = {arg path;
         View().layout_(VLayout(tagsView))
     ).mode_(0);
 
-    filesTab = Button().states_([ ["files", nil, nil] ] ).action_({ stack.index = 0 });
-    tagsTab = Button().states_([ ["tags", nil, nil] ]  ).action_({ stack.index = 1 });
+    filesTab = Button()
+    .states_([ ["files", nil, nil] ] )
+    .action_({ stack.index = 0 })
+    .palette_(palette);
+
+    tagsTab = Button()
+    .states_([ ["tags", nil, nil] ]  )
+    .action_({ stack.index = 1 })
+    .palette_(palette);
+
     tabBar = HLayout(filesTab, tagsTab);
 
     tagsEdit = TextField()
@@ -322,7 +421,14 @@ var show = {arg path;
     .rmsColor_(Color.white)
     .peakColor_(Color.white)
     .gridResolution_(0.0) 
-    .timeCursorOn_(false);
+    .timeCursorOn_(false)
+    .mouseDownAction_({|ctrl, x, y, mod, btn, count|
+        //[ctrl, x, y, mod, btn, count].debug("mousedown");
+        // 262144 control
+        // 1048576 cmd
+        // 131072 shift
+        ctrl.selectionStart(0).debug("media onset start")
+    });
 
     time = StaticText()
     .string_("00:00:00.00/00:00:00.00")
@@ -352,12 +458,11 @@ var show = {arg path;
     
         sustainTime = (numFrames - 0) / sampleRate;
         Buffer.read( path:soundFile.path, action:{|buf|
-            //synth.isPlaying.debug("isPlaying");
             if (synth.isNil) {
                 synth = Synth(synthdef, [\bufnum, buf.bufnum, \sustainTime, sustainTime, \gate, 1, \out, 4])
                 .onFree({
 
-                    synth.debug("synth free");
+                    //synth.debug("synth free");
                     buf.free;
                     synth = nil;
 
@@ -367,10 +472,8 @@ var show = {arg path;
                 });
                 synth.register;
             } {
-                //synth.isRunning.debug("isRunning");
                 synth.set(\bufnum, buf.bufnum, \trig, 1, \sustainTime, sustainTime)    
             }
-            //playEvents.addFirst(synth);
         });
     };
 
@@ -421,6 +524,13 @@ var show = {arg path;
         model.changed(\revealinfinder);
     });
 
+    bounceBtn = Button()
+    .states_([ ["b", nil, nil] ])
+    .fixedSize_(20)
+    .action_({
+        model.changed(\bounceSel);
+    });
+
     playerView.layout.add(pathTitle);
     playerView.layout.add (tagsEdit );
     playerView.layout.add(sfv);
@@ -438,7 +548,8 @@ var show = {arg path;
 
     // ************************************************
     // Event handlers
-    simpleController.put(\pathselected, {|obj, what, path|
+    simpleController
+    .put(\pathselected, {|obj, what, path|
         updatePlayer.(path);
         if (autoplay) {
             playFile.(currentFile);
@@ -501,16 +612,19 @@ var show = {arg path;
 
 // expose the module
 (
-func: {
-    // TODO: this needs to be configurable
-    var path = "/Users/david/Documents/supercollider/media/";
-    var view = show.(path);
+func: {|path|
+
+    var view;
+    if (path.isNil) {
+        path = "/Users/david/Documents/supercollider/media/";
+    };
+    view = show.(path);
     (
         view: view,
         ui: { view.front }
     )
 }
-)
+)//['func'].().ui
 )
 
 

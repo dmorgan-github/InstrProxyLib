@@ -3,19 +3,28 @@ var cols = 16;
 var rows = 8;
 
 var connect = {
-    var grid;
+    var grid, active = true;
     var result = Deferred();
     grid = MonomeGrid(); // if we don't want to change rotation, we can leave the argument out
 
     s.waitForBoot({
         MonomeGrid.setAddCallback({arg serial, port, prefix;
-            ("grid added: " ++ serial ++ " " ++ port ++ " " ++ prefix).debug("monome grid");
-            if( serial == MonomeGrid.getRegisteredDevices[0], {
-                cols = grid.cols;
-                rows = grid.rows;
-            });
-            result.value = grid;
+            if (active) {
+                ("grid added: " ++ serial ++ " " ++ port ++ " " ++ prefix).debug("monome grid");
+                if( serial == MonomeGrid.getRegisteredDevices[0], {
+                    cols = grid.cols;
+                    rows = grid.rows;
+                });
+                result.value = grid;
+            };
         });
+
+        MonomeGrid.setRemoveCallback({
+            "grid removed".debug("monome grid");
+            grid.cleanup();
+            active = false;
+        });
+
         grid.connect(0);
     });
 
@@ -298,7 +307,7 @@ var func = {|self|
     // start up
     fork({
         var def;
-        "connecting...".inform;
+        "connecting to grid...".inform;
         def = connect.();
         def.wait();
         grid = def.value;

@@ -56,7 +56,8 @@ func: {|node, index|
             node.get(key).isNumber
         })
         .reject({|key|
-            [\gate,
+            [
+                \gate,
                 \trig,
                 \out,
                 \in,
@@ -64,12 +65,10 @@ func: {|node, index|
                 \levelreplyid,
                 \fadeTime,
                 \envbuf,
-                //\buf,
-                //\amp,
                 \spread,
-                //\vol,
                 \bend,
-                \vel
+                \vel,
+                \buf
             ].includes(key)
             or: {
                 key.asString.beginsWith("wet")
@@ -211,6 +210,10 @@ func: {|node, index|
             });
         });
 
+        view.layout.add( StaticText().string_("---") );
+        view.layout.add(nil);
+        view.layout.add(nil);
+        view.layout.add(nil);
         view.layout.add(nil);
         view
     };
@@ -240,7 +243,7 @@ func: {|node, index|
     scroll
     .background_(Color.black)
     .minHeight_(150)
-    .minWidth_(100)
+    //.minWidth_(100)
     .resize_(1)
     .onClose_({
         node.removeDependant(nodewatcher);

@@ -18,7 +18,7 @@ synth: {
 
     var freq1 = \freq1.kr(40, spec:ControlSpec( 20.0, 14000.0, \exp, 0, 70, "benjolis"));
     var freq2 = \freq2.kr(4, spec: ControlSpec( 0.1, 14000.0, \exp, 0, 4, "benjolis"));
-    var scale = \scale.kr(1, spec: ControlSpec( 0.0, 1.0, \lin, 0, 1, "benjolis"));
+    var scale = \scaling.kr(1, spec: ControlSpec( 0.0, 1.0, \lin, 0, 1, "benjolis"));
     var rungler1 = \rungler1.kr(0.16, spec: ControlSpec( 0.0, 1.0, \lin, 0, 0.16, "benjolis"));
     var rungler2 = \rungler2.kr(0.0, spec: ControlSpec( 0.0, 1.0, \lin, 0, 0, "benjolis"));
     var runglerFilt = \runglerFilt.kr(9, spec: ControlSpec( 0.01, 10, \lin, 0, 9, "benjolis"));

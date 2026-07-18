@@ -20,10 +20,10 @@ func: {|node|
     scopeview = View().layout_(VLayout().margins_(0).spacing_(0))
     //.maxHeight_(150)
     ;
-    scope = Stethoscope.new(s, view:scopeview).style_(cnt)
+    scope = Stethoscope.new(Server.default, view:scopeview).style_(cnt)
     .index_(node.bus.index)
     .numChannels_(numchannels)
-    .cycle_(s.sampleRate / 300)
+    .cycle_(Server.default.sampleRate / 300)
     .yZoom_(10)
     .xZoom_(5);
 
@@ -109,10 +109,7 @@ func: {|node|
                //.palette_(sliderpalette)
     ).margins_(0).spacing_(0));
     scopeview.onClose = {   
-        scope.free 
-    };
-    view.onClose = { 
-        //scope.free.debug("scope free");
+        scope.free.debug("free stethoscope")
     };
     view
 }

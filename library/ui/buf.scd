@@ -1,4 +1,99 @@
 /*
+render live buffer
+https://scsynth.org/t/live-waveform-view-anyone/12017
+(
+s.waitForBoot{
+
+    var color = Color.magenta;
+
+	s.newBufferAllocators;
+	~bufLength = 10; // in seconds
+	~buf = Buffer.alloc(s, ~bufLength * s.sampleRate);
+	~fps = 30; 
+	~framesPerTrig = 1/~fps * s.sampleRate;
+	
+	~sfv = SoundFileView(nil, Rect(5, 100, 1363, 70))
+	.alloc(~bufLength * s.sampleRate, 1, s.sampleRate)
+	.gridOn_(false)
+	.drawsBoundingLines_(false)
+    .waveColors_([color.alpha_(0.7), color.alpha_(0.7)])
+    .rmsColor_(color)
+    .peakColor_(color)
+	.timeCursorOn_(true)
+	.front
+	.alwaysOnTop_(true);
+	
+	~updateWaveform = {|buf, view, framesPerTrig|
+		var lastPhase;
+		OSCdef(\phase, { |msg|
+			{
+				var data1, data2;
+				var phase = msg[3];
+				var cond = Condition.new;
+				lastPhase = (phase - framesPerTrig).wrap(0, buf.numFrames);
+				if (lastPhase > phase)
+				{
+					if (phase > 0)
+					{
+						buf.getn(0, phase, { |d|
+							data2 = d;
+							cond.unhang;
+						});
+						cond.hang;
+					};
+					if (lastPhase < buf.numFrames)
+					{
+						lastPhase = lastPhase.max(buf.numFrames - framesPerTrig);
+						buf.getn(lastPhase, buf.numFrames - lastPhase, { |d|
+							data1 = d;
+							cond.unhang;
+						});
+						cond.hang
+					}
+				}
+				{
+					lastPhase = lastPhase.max(phase - framesPerTrig);
+					buf.getn(lastPhase, phase - lastPhase, { |d|
+						data1 = d;
+						cond.unhang;
+					});
+					cond.hang;
+				};
+				
+				if (lastPhase > phase)
+				{
+					if (data2.notNil) { view.set(0, data2) };
+					if (data1.notNil) { view.set(lastPhase, data1) };
+				}
+				{ view.set(lastPhase, data1) };
+				view.timeCursorPosition_(phase);
+			}.fork(AppClock);
+		}, '/phase');
+	};
+	
+	SynthDef(\time, {
+		var trig = \trig.tr(1);
+		var buf = \buf.kr(0);
+		var phase = Phasor.ar(trig, 1, 0, BufFrames.ir(buf));
+		var sig = LFNoise0.ar(10) * Trig.ar(Dust.ar(5)); // some signal to test.
+        sig = SinOsc.ar( sig.range(220, 880) );
+		// var sig = SoundIn.ar(0); // or use live input
+		BufWr.ar(sig, buf, phase);
+		SendReply.ar(Impulse.ar(\refreshRate.kr(30)), '/phase', phase);
+	}).add;
+	
+	s.sync;
+	
+	x = Synth(\time, [buf: ~buf, refreshRate: ~fps]);
+	~updateWaveform.(~buf, ~sfv, ~framesPerTrig);
+}
+)
+
+x.free
+*/
+
+
+/*
 ~indices = Buffer(s);
 ~feature = Buffer(s);
 FluidBufOnsetSlice.processBlocking(s,~src,indices:~indices,metric:9,threshold:0.2);
@@ -183,28 +278,34 @@ func: {arg node;
     .gridResolution_(0.0)
     .timeCursorOn_(true)
     .timeCursorColor_(cursorcolor)
-    .currentSelection_(0)
+    //.currentSelection_(0)
+    .mouseDownAction_({|ctrl, x, y|
+        //sfv.selections.debug("selections");
+        //true    
+    })
     .mouseUpAction_({|ctrl, x, y|
 
-        var num = sfv.currentSelection;
-        var val = ctrl.selection(num);
+        //var num = sfv.currentSelection;
+        var val = ctrl.selection(0);
         var start = val[0];
         var len = val[1];
 
-        if (num > 0) {
-            var size = 250, onset;
-            onset = start / buf.numFrames;
-            ctrl.setSelection(num, [start, size]);
-            ctrl.setSelectionColor(num, onsetcolors[num] );
-            onsets = onsets[num-1] = onset;
-            node.set(\onsets, onsets);
+        ctrl.selectionStart(0).debug("buf onset start");
+
+        if (false) {
+            // var size = 250, onset;
+            // onset = start / buf.numFrames;
+            // ctrl.setSelection(num, [start, size]);
+            // ctrl.setSelectionColor(num, onsetcolors[num] );
+            // onsets = onsets[num-1] = onset;
+            // node.set(\onsets, onsets);
         } {
             var end = start + len;
             var numframes = buf.numFrames;
             var startPos = start/numframes;
             var endPos = end/numframes;
 
-            //[startPos, endPos].debug(\pos);
+            [startPos, endPos].debug(\pos);
             if (endPos <= startPos) {
                 var start = startPos * numframes;
                 var size = numframes - start;
@@ -212,8 +313,12 @@ func: {arg node;
                 ctrl.setSelection(0, [start, size])
             };
             node.set('endPos', endPos, 'startPos', startPos);
-        }
+        };
+
+        true
     });
+
+    //sfv.setSelection(1);
     sfv.setSelectionColor(0, Color.white.alpha_(0.2));
     sfv.canReceiveDragHandler = {|view|
         //TODO: validate
@@ -265,6 +370,8 @@ func: {arg node;
     });
 
     //view.layout.add(HLayout(*onsetsbtn));
+
+    /*
     view.layout.add( HLayout(
         startCtrl
         .action_({|ctrl|
@@ -272,18 +379,38 @@ func: {arg node;
             var numframes = buf.numFrames;
             var startPos = val * numframes;
             start = startPos.floor.asInteger;
-            sfv.setSelectionStart(0, start)
+            sfv.setSelectionStart(0, start);
+        })
+        .mouseUpAction_({|ctrl, x, y|
+            // TODO: refactor to get just get values as calculated in action
+            var val = ctrl.value;
+            var size = sfv.selection(0)[1];
+            var numframes = buf.numFrames;
+            var startPos = val * numframes;
+            var endPos = (startPos + size)/numframes;
+            node.set(\startPos, val, \endPos, endPos);
         }),
 
         sizeCtrl
         .action_({|ctrl| 
-
+            var start, endPos;
             var val = ctrl.value;
             var numframes = buf.numFrames;
             size = (val * numframes).floor.asInteger;
-            sfv.setSelectionSize(0, size)
+            sfv.setSelectionSize(0, size);
+        })
+        .mouseUpAction_({|ctrl, x, y|
+            // TODO: refactor to get just get values as calculated in action
+            var start, endPos;
+            var val = ctrl.value;
+            var numframes = buf.numFrames;
+            size = (val * numframes).floor.asInteger;
+            start = node.get(\startPos) * numframes;
+            endPos = (start + size)/numframes;
+            node.set(\endPos, endPos);
         })
     ));
+    */
 
     view.layout.add(sfv);
     /*

@@ -1,20 +1,20 @@
 (
 synth: {|gate|
 
-    var atk = \atk.kr(0.01, spec:InstrControlSpec(0, 8, \lin, 0, 0.01, units:"aeg", sort:0));
+    var atk = \atk.kr(0.005, spec:InstrControlSpec(0, 8, \lin, 0, 0.005, units:"aeg", sort:0));
     var sus = \sustain.kr(1, spec: InstrControlSpec(0, 8, \lin, 0, 1, units:"aeg", sort:1));
     var rel = \rel.kr(0.01, spec: InstrControlSpec(0, 8, \lin, 0, 0.01, units:"aeg", sort:3));
+    var ts = \ts.kr(1);
 
-    //var ts = \ts.kr(1);
     var curve = [
         \atkcurve.kr(0, spec: InstrControlSpec(-8, 8, \lin, 0, 0, units:"aeg", sort:4)),
         \relcurve.kr(0, spec: InstrControlSpec(-8, 8, \lin, 0, 0, units:"aeg", sort:6))
     ];
     
     var env = Env.linen(
-        attackTime:atk,
+        attackTime:atk * ts,
         sustainTime:sus,
-        releaseTime:rel,
+        releaseTime:rel * ts,
         curve:curve
     );
 

@@ -6,7 +6,7 @@ synth: {|freq, gate, aeg|
     var timbre = \timbre.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, "braids"));
     var color = \color.kr(0.5, spec:ControlSpec(0, 1, \lin, 0, 0.5, "braids"));
     var model = \model.kr(0, spec:ControlSpec(0, 47, \lin, 1, 0, "braids"));
-    var resamp = ~resamp ?? 1;
+    var resamp = ~resamp ?? 0;
     var decim = \decim.kr(0, spec:ControlSpec(0, 32, \lin, 0, 0, "braids"));
     var bits = \bits.kr(0, spec:ControlSpec(0, 6, \lin, 1, 0, "braids"));
     var ws = \ws.kr(0, spec:ControlSpec(0, 1, \lin, 0, 0, "braids"));

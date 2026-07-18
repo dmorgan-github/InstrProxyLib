@@ -34,7 +34,7 @@ synth: {|freq, gate|
         
         sig = SinOscFB.ar(freq * ratio, fb);
         sig = sig * (indexmod * index);
-        sig;
+        sig
     };
 
     carratio = \cratio.kr(1, spec:InstrControlSpec(0.5, 20, \lin, 0, 1, units:"pm", sort:11));

@@ -26,7 +26,7 @@ synth: {arg in;
         -1
     );
 
-    sig = in.blend(sig, \grainin_mix.kr(0.5, spec: ControlSpec(0, 1, \lin, 0, 0.4, "grainin")));
+    //sig = in.blend(sig, \grainin_mix.kr(0.5, spec: ControlSpec(0, 1, \lin, 0, 0.4, "grainin")));
     sig;
 }
 )

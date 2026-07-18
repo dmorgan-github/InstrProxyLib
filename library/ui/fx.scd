@@ -16,8 +16,8 @@ func: {|node|
 
     swap = {|node, index2, index1|
 
-        var fx1 = node.inserts[index1];
-        var fx2 = node.inserts[index2];
+        var fx1 = node.fx[index1];
+        var fx2 = node.fx[index2];
 
         var obj1 = node.objects[index1];
         var obj2 = node.objects[index2];
@@ -30,8 +30,8 @@ func: {|node|
         node.objects[index1] = obj2;
         node.objects[index2] = obj1;
 
-        node.inserts[index1] = fx2;
-        node.inserts[index2] = fx1;
+        node.fx[index1] = fx2;
+        node.fx[index2] = fx1;
 
         node.changed(\reorder)
     };
@@ -62,7 +62,7 @@ func: {|node|
 
     updateButtons = {
 
-        var ctrls = fxnode.inserts;
+        var ctrls = fxnode.fx;
 
         fxbuttonsview.children.do({|child|
             child.remove

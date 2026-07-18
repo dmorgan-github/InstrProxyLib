@@ -22,7 +22,7 @@ var ctrl = Environment.make({|self|
         .onAction('noteOn', {|note, vel, chan| 
             node.on(note, vel) 
         })
-        .onAction('noteOff', {|note, vel, chan| 
+        .onAction('noteOff', {|note, chan| 
             node.off(note) 
         })
         .onAction('bend', {|val, chan|
@@ -41,7 +41,7 @@ var ctrl = Environment.make({|self|
         self;
     };
 
-    // ~mu.cc( t(5), [atk:34, dec:35] )
+    // ~mu.cc( t(5), [atk -> 34, dec -> 35] )
     self.cc = {|self, obj, kv, chan=0|
         var props, ccNums, order;
         node = obj;

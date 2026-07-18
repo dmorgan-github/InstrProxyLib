@@ -8,7 +8,7 @@ synth: {|in|
     gain = \softclip_drive.kr(1, spec: ControlSpec(1, 100, \lin, 0, 1, units:"softclip"))
     sig = SoftClipAmp8.ar(sig, gain);// * (gain.reciprocal.sqrt);
     sig = LeakDC.ar(sig) * gain.reciprocal.sqrt;
-    sig = in.blend(sig, \softclip_mix.kr(1, spec: ControlSpec(0, 1, \lin, 0, 1, "softclip")));
+    //sig = in.blend(sig, \softclip_mix.kr(1, spec: ControlSpec(0, 1, \lin, 0, 1, "softclip")));
     sig
 }
 )

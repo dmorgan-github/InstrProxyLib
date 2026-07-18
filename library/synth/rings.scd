@@ -9,7 +9,9 @@ synth: {|freq, gate, aeg|
     var model = \model.kr(0, spec:ControlSpec(0, 5, \lin, 1, 0, "rings"));
     var poly = \poly.kr(1, spec:ControlSpec(1, 4, \lin, 1, 1, "rings"));
     var exciter = ~exciter ?? {DC.ar(0)};
-    var slice = ~slice ?? [0, 1];
+    var slice = [0, 1];
+    var out0 = \out0.kr(1, spec:ControlSpec(0, 1, \lin, 1, 1, "rings") );
+    var out1 = \out1.kr(1, spec:ControlSpec(0, 1, \lin, 1, 1, "rings"));
 
     var sig = MiRings.ar(
         in: exciter.value.debug("exciter"),
@@ -28,7 +30,9 @@ synth: {|freq, gate, aeg|
     //var odd = sig[1];
     //var evenodd = \evenodd.kr(0, spec:ControlSpec(0, 1, \lin, 0, 0, "rings"));
     //sig = even.blend(odd, evenodd).asArray.sum;
-    sig = sig.slice(slice.debug("slice"));
+    //slice.debug("slice");
+    sig = sig.collect({|v| ( v.slice( slice ).asArray * [ out0, out1] ).sum });
+   //sig = Sanitize.ar(sig);
     sig
 },
 doc: "

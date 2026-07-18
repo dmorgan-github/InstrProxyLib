@@ -10,7 +10,8 @@ var func = {|in|
 
     sig = (1 + shape) * sig / (1 + (shape * abs(sig)));
     sig = LeakDC.ar(sig);
-    sig = in.blend(sig, \shape_mix.kr(0.5, spec: ControlSpec(0, 1, \lin, 0, 0.5, "shape")));
+    //sig = in.blend(sig, \shape_mix.kr(0.5, spec: ControlSpec(0, 1, \lin, 0, 0.5, "shape")));
+    sig;
 };
 
 (func: func)

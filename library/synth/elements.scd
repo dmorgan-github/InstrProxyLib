@@ -26,7 +26,7 @@ synth: {|freq, gate|
     };
 
     MiElements.ar(
-        Hasher.ar(Sweep.ar(0)),//PinkNoise.ar(0.5),
+        Hasher.ar(Sweep.ar(1)),//PinkNoise.ar(0.5),
         0,
         gate, //A2K.kr(gate),
         pit,
