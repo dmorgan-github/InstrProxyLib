@@ -10,10 +10,12 @@ func: {|node, index|
     var getSpec, getKeys, getGroups, getView;
     var nodewatcher;
 
-    scroll = ScrollView().hasBorder_(false)
+    scroll = ScrollView()
+    .hasBorder_(true)
     .autohidesScrollers_(false)
     .hasVerticalScroller_(true)
-    .hasHorizontalScroller_(false);
+    .hasHorizontalScroller_(false)
+    ;
 
     getSpec = {|key|
         var specs = node.getSpec;
@@ -220,6 +222,7 @@ func: {|node, index|
 
     try({
         scroll.canvas = getView.();
+        //scroll = getView.();
     }, {|err|
         "% getView".format(err).error;
     });
@@ -240,11 +243,12 @@ func: {|node, index|
     };
 
     node.addDependant(nodewatcher);
+
     scroll
     .background_(Color.black)
-    .minHeight_(150)
+    //.minHeight_(150)
     //.minWidth_(100)
-    .resize_(1)
+    //.resize_(1)
     .onClose_({
         node.removeDependant(nodewatcher);
     })

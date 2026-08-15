@@ -1,0 +1,38 @@
+// Plaits 808 hi-hat - DynGen/EEL2 port
+// params: _f0 (cycles/sample), _tone, _decay, _noisiness, _accent, _trig
+(_trig>0.0)&&(tprev<=0.0) ? ( env=(1.5+0.5*(1.0-_decay))*(0.3+0.7*_accent); );
+tprev=_trig;
+
+// metallic noise: 6 squares at 2*f0*ratio
+mf=2.0*_f0;
+ph0+=min(mf*1.0,0.499);   ph0-=(ph0>=1.0);
+ph1+=min(mf*1.304,0.499); ph1-=(ph1>=1.0);
+ph2+=min(mf*1.466,0.499); ph2-=(ph2>=1.0);
+ph3+=min(mf*1.787,0.499); ph3-=(ph3>=1.0);
+ph4+=min(mf*1.932,0.499); ph4-=(ph4>=1.0);
+ph5+=min(mf*2.536,0.499); ph5-=(ph5>=1.0);
+cnt=(ph0>=0.5)+(ph1>=0.5)+(ph2>=0.5)+(ph3>=0.5)+(ph4>=0.5)+(ph5>=0.5);
+sig=0.33*cnt-1.0;
+
+// clocked-noise blend (HARMONICS = noisiness)
+nz=_noisiness*_noisiness;
+nfr=min(_f0*(16.0+16.0*(1.0-nz)),0.5);
+nclk+=nfr;
+nclk>=1.0 ? ( nclk-=1.0; nsmp=rand(1.0)-0.5; );
+sig=sig+nz*(nsmp-sig);
+
+// SVF band-pass coloration (TIMBRE), resonance 3+3*tone
+cut=min((150.0/srate)*pow(2.0,_tone*72.0/12.0), 16000.0/srate);
+g=tan($pi*cut); rr=1.0/(3.0+3.0*_tone); h=1.0/(1.0+rr*g+g*g);
+hp=(sig-rr*s1c-g*s1c-s2c)*h; bp=g*hp+s1c; s1c=g*hp+bp; lp=g*bp+s2c; s2c=g*bp+lp;
+sig=bp;
+
+// envelope + SwingVCA
+env*=1.0-0.003*pow(2.0,-_decay*84.0/12.0);
+sv=sig; sv*= sv>0.0 ? 4.0 : 0.1; sv=sv/(1.0+abs(sv));
+sig=(sv+0.1)*env;
+
+// output high-pass (same cutoff, q=0.5 -> rr=2)
+hh=1.0/(1.0+2.0*g+g*g);
+hp2=(sig-2.0*s1h-g*s1h-s2h)*hh; bp2=g*hp2+s1h; s1h=g*hp2+bp2; lp2=g*bp2+s2h; s2h=g*bp2+lp2;
+out0=hp2;

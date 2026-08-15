@@ -3,10 +3,10 @@ synth: {|in, gate, freq, aeg|
 
     var lpg, coffset, coffsetlfodepth, coffsetlforate;
     var cscale, cscalelfodepth, cscalelforate;
-    var fatk = \fatk.kr(0, spec: InstrControlSpec(0, 1, \lin, 0, 0.0, units:"lpg", sort:0));
-    var frel = \frel.kr(0.05, spec: InstrControlSpec(0, 1, \lin, 0, 0.05, units:"lpg", sort:1));
-    var fatkcurve = \fatkcurve.kr(-4, spec: InstrControlSpec(-8, 8, \lin, 0, -4, units:"lpg", sort:2));
-    var frelcurve = \frelcurve.kr(-4, spec: InstrControlSpec(-8, 8, \lin, 0, -4, units:"lpg", sort:3));
+    var fatk = \fatk.kr(0.01, spec: InstrControlSpec(0, 1, \lin, 0, 0.01, units:"lpg", sort:0));
+    var frel = \frel.kr(1, spec: InstrControlSpec(0, 1, \lin, 0, 1, units:"lpg", sort:1));
+    var fatkcurve = \fatkcurve.kr(0, spec: InstrControlSpec(-8, 8, \lin, 0, 0, units:"lpg", sort:2));
+    var frelcurve = \frelcurve.kr(0, spec: InstrControlSpec(-8, 8, \lin, 0, 0, units:"lpg", sort:3));
     var feg;
 
     feg = Env(
@@ -21,7 +21,8 @@ synth: {|in, gate, freq, aeg|
     coffset = \controloffset.kr(0.1, spec: InstrControlSpec(0, 1, \lin, 0, 0.1, units:"lpg", sort:4));
     cscale = \controlscale.kr(0.1, spec: InstrControlSpec(0, 1, \lin, 0, 0.1, units:"lpg", sort:7));
 
-    lpg = LPG.ar(in,
+    lpg = LPG.ar(
+        input: in,
         controlinput: feg,
         controloffset: coffset.clip(0, 1), //coffset.clip(0, 1),
         controlscale: cscale.clip(0, 1), //cscale.clip(0, 1),

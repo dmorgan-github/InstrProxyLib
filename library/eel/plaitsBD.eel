@@ -1,0 +1,40 @@
+// Plaits analog (808) bass drum - DynGen/EEL2 port
+// params: _f0 (cycles/sample), _tone, _decay, _accent, _attackFM, _selfFM, _trig
+kTrig=0.001*srate; kFm=0.006*srate; kPd=0.0002*srate; kPf=0.0001*srate; kRt=0.05*srate;
+f0=_f0;
+scale=0.001/f0;
+q=1500.0*pow(2.0,_decay*80.0/12.0);
+tone_f=min(4.0*f0*pow(2.0,_tone*108.0/12.0),1.0);
+leak=0.08*(_tone+0.25);
+
+(_trig>0.0)&&(tprev<=0.0) ? ( prem=kTrig; fmrem=kFm; ph=3.0+7.0*_accent; lp_out=0.0; );
+tprev=_trig;
+
+// excitation pulse
+prem>=1.0 ? ( prem-=1.0; pulse = prem>=1.0 ? ph : (ph-1.0); pz=pulse; )
+         : ( pz*=1.0-1.0/kPd; pulse=pz; );
+plp += (1.0/kPf)*(pulse-plp);
+d=(pulse-plp)+pulse*0.044;
+pulse = d>=0.0 ? d : (0.7*(2.0*d)/(1.0+abs(2.0*d)));
+
+// FM pulse (attack click)
+fmrem>=1.0 ? ( fmrem-=1.0; fmpulse=1.0; retrig = fmrem>=1.0 ? 0.0 : -0.8; )
+          : ( fmpulse=0.0; retrig*=1.0-1.0/kRt; );
+fmlp += (1.0/kPf)*(fmpulse-fmlp);
+
+// self-FM punch (feedback from resonator lowpass)
+pd=10.0*lp_out-1.0;
+punch=0.7 + (pd>=0.0 ? pd : (0.7*(2.0*pd)/(1.0+abs(2.0*pd))));
+f = f0*(1.0 + fmlp*1.7*_attackFM + punch*0.08*_selfFM);
+f = max(0.0, min(f,0.4));
+
+// SVF resonator: bp -> body, lp -> feedback
+g=tan($pi*f); rr=1.0/(1.0+q*f); h=1.0/(1.0+rr*g+g*g);
+in_s=(pulse-retrig*0.2)*scale;
+hp=(in_s - rr*s1 - g*s1 - s2)*h;
+bp=g*hp+s1; s1=g*hp+bp;
+lp=g*bp+s2; s2=g*bp+lp;
+lp_out=lp;
+
+tlp += tone_f*((pulse*leak + bp) - tlp);
+out0 = tlp;

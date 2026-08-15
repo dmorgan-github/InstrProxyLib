@@ -1,0 +1,12 @@
+// DX7-style self-feedback operator (DynGen/EEL2)
+// Feedback uses the AVERAGE of the last two output samples (Yamaha's
+// anti-hunting low-pass), unlike FM7 which feeds back a single sample.
+// params: _freq (Hz), _fb (feedback index, ~0..7), _amp (operator level / EG)
+inc = _freq/srate;
+avg = 0.5*(y1 + y2);                        // 2-sample average = the DX7 detail
+//avg = y1;
+phase += inc;
+phase -= (phase>=1.0);
+out0 = _amp * sin(2.0*$pi*phase + _fb*avg);
+y2 = y1;
+y1 = out0;

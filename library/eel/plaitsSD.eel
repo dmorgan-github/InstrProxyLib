@@ -1,0 +1,54 @@
+// Plaits analog (808) snare drum - DynGen/EEL2 port
+// params: _f0 (cycles/sample), _tone, _decay, _snappy, _accent, _trig
+tone=_tone; decay=_decay; snappy=_snappy;
+dxt=decay*(1.0+decay*(decay-1.0));
+kTrig=0.001*srate; kPd=0.0001*srate;
+q=2000.0*pow(2.0,dxt*84.0/12.0);
+ne_dec=1.0-0.0017*pow(2.0,(-decay*(50.0+snappy*10.0))/12.0);
+leak=snappy*(2.0-snappy)*0.1;
+snp=min(1.0,max(0.0,snappy*1.1-0.05));
+
+f_0=min(_f0*1.0,0.499);  f_1=min(_f0*2.0,0.499); f_2=min(_f0*3.18,0.499);
+f_3=min(_f0*4.16,0.499); f_4=min(_f0*5.62,0.499);
+r_0=1.0+f_0*q; r_1=1.0+f_1*q*0.25; r_2=1.0+f_2*q*0.25; r_3=1.0+f_3*q*0.25; r_4=1.0+f_4*q*0.25;
+
+tone<0.666667 ? (
+  t=tone*1.5; g0=1.5+(1.0-t)*(1.0-t)*4.5; g1=2.0*t+0.15; g2=0.0; g3=0.0; g4=0.0;
+) : (
+  t=(tone-0.666667)*3.0; g0=1.5-t*0.5; g1=2.15-t*0.7; g2=t; t=t*t; g3=t; t=t*t; g4=t;
+);
+fn=min(max(_f0*16.0,0.0),0.499); rnz=1.0+fn*1.5;
+
+(_trig>0.0)&&(tprev<=0.0) ? ( prem=kTrig; ph=3.0+7.0*_accent; nenv=2.0; );
+tprev=_trig;
+
+prem>=1.0 ? ( prem-=1.0; pulse = prem>=1.0 ? ph : (ph-1.0); pz=pulse; )
+         : ( pz*=1.0-1.0/kPd; pulse=pz; );
+plp += 0.75*(pulse-plp);
+
+exc0=(pulse-plp)+0.006*pulse; exc=0.026*pulse;
+
+g=tan($pi*f_0); rr=1.0/r_0; h=1.0/(1.0+rr*g+g*g);
+hp=(exc0-rr*s1a-g*s1a-s2a)*h; bp=g*hp+s1a; s1a=g*hp+bp; lp=g*bp+s2a; s2a=g*bp+lp;
+shell=g0*(bp+exc0*leak);
+g=tan($pi*f_1); rr=1.0/r_1; h=1.0/(1.0+rr*g+g*g);
+hp=(exc-rr*s1b-g*s1b-s2b)*h; bp=g*hp+s1b; s1b=g*hp+bp; lp=g*bp+s2b; s2b=g*bp+lp;
+shell+=g1*(bp+exc*leak);
+g=tan($pi*f_2); rr=1.0/r_2; h=1.0/(1.0+rr*g+g*g);
+hp=(exc-rr*s1c-g*s1c-s2c)*h; bp=g*hp+s1c; s1c=g*hp+bp; lp=g*bp+s2c; s2c=g*bp+lp;
+shell+=g2*(bp+exc*leak);
+g=tan($pi*f_3); rr=1.0/r_3; h=1.0/(1.0+rr*g+g*g);
+hp=(exc-rr*s1d-g*s1d-s2d)*h; bp=g*hp+s1d; s1d=g*hp+bp; lp=g*bp+s2d; s2d=g*bp+lp;
+shell+=g3*(bp+exc*leak);
+g=tan($pi*f_4); rr=1.0/r_4; h=1.0/(1.0+rr*g+g*g);
+hp=(exc-rr*s1e-g*s1e-s2e)*h; bp=g*hp+s1e; s1e=g*hp+bp; lp=g*bp+s2e; s2e=g*bp+lp;
+shell+=g4*(bp+exc*leak);
+
+shell=max(-3.0,min(3.0,shell)); shell=shell*(27.0+shell*shell)/(27.0+9.0*shell*shell);
+
+noise=2.0*rand(1.0)-1.0; noise = noise<0.0 ? 0.0 : noise;
+nenv*=ne_dec; noise*=nenv*snp*2.0;
+g=tan($pi*fn); rr=1.0/rnz; h=1.0/(1.0+rr*g+g*g);
+hp=(noise-rr*s1n-g*s1n-s2n)*h; bp=g*hp+s1n; s1n=g*hp+bp; lp=g*bp+s2n; s2n=g*bp+lp;
+
+out0 = bp + shell*(1.0-snp);

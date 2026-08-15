@@ -1,0 +1,32 @@
+// Plaits synthetic (909) bass drum - DynGen/EEL2 port
+// params: _f0, _tone, _decay, _dirt, _fmAmt, _fmDec, _accent, _trig
+f0=_f0; dec=_decay*_decay; dirt=_dirt*max(1.0-8.0*f0,0.0); fmdec2=_fmDec*_fmDec;
+fm_decay=1.0-1.0/(0.008*(1.0+fmdec2*4.0)*srate);
+body_decay=1.0-1.0/(0.02*srate)*pow(2.0,(-dec*60.0)/12.0);
+trans_decay=1.0-1.0/(0.005*srate);
+tone_f=min(4.0*f0*pow(2.0,_tone*108.0/12.0),1.0); trans_level=_tone;
+
+(_trig>0.0)&&(tprev<=0.0) ? ( fm=1.0; body=0.3+0.7*_accent; trans=body; bpw=srate*0.001; fmpw=srate*0.0013; );
+tprev=_trig;
+
+pn += 0.002*((rand(1.0)-0.5)-pn);
+fmpw>=1.0 ? ( fmpw-=1.0; phase=0.25; )
+         : ( fm*=fm_decay; fmul=1.0+_fmAmt*3.5*fmlp; phase+=min(f0*fmul,0.5); phase = phase>=1.0 ? phase-1.0 : phase; );
+bpw>=1.0 ? ( bpw-=1.0; ) : ( body*=body_decay; trans*=trans_decay; );
+bodylp+=0.1*(body-bodylp); translp+=0.1*(trans-translp); fmlp+=0.1*(fm-fmlp);
+
+p=phase+pn*dirt; p-=floor(p);
+tri=(p<0.5 ? p : 1.0-p)*4.0-1.0; sn=2.0*tri/(1.0+abs(tri));
+cl=sin(2.0*$pi*(p+0.75)); bsig=sn+(1.0-dirt)*(cl-sn);
+
+cin = bpw>=1.0 ? 0.0 : 1.0;
+e=cin-clp; clp += (e>0.0 ? 0.5 : 0.1)*e; chp += 0.04*(clp-chp); cx=clp-chp;
+g=tan($pi*(5000.0/srate)); rr=0.5; h=1.0/(1.0+rr*g+g*g);
+hp=(cx-rr*cs1-g*cs1-cs2)*h; bp=g*hp+cs1; cs1=g*hp+bp; lp=g*bp+cs2; cs2=g*bp+lp;
+ns=rand(1.0); nlp+=0.05*(ns-nlp); nhp+=0.005*(nlp-nhp);
+transient=lp+(nlp-nhp);
+
+sv=(bsig-0.6)*bodylp; vca=3.0*sv/(2.0+abs(sv))+bodylp*0.3;
+mix=-vca-transient*translp*trans_level;
+tlp+=tone_f*(mix-tlp);
+out0=tlp;

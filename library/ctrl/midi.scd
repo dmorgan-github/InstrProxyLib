@@ -69,7 +69,14 @@ var ctrl = Environment.make({|self|
                 };
             };
 
-            out = MIDIOut.newByName(dest.device, dest.name).connect;
+            //out = MIDIOut.newByName(dest.device.debug("midi:device"), dest.name.debug("midi:name")).connect;
+            // the index doesn't matter if the uid is provided
+            // this also avoids an error (bug) since the destinations array is not updated everywhere internally
+            // until MIDIClient.init is called - even though the controller is in the desinations array
+            // the index range is validated during out.control(...) by checking a different size value
+            // which is seems like a bug in the supercollider source code
+            // so this is a workaround
+            out = MIDIOut(0, dest.uid).connect;
             MIDIIn.connect(device: src);
 
             self.src = src.debug("src");

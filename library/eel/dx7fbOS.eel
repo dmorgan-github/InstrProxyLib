@@ -1,0 +1,34 @@
+// DX7-style feedback operator, 4x OVERSAMPLED (DynGen/EEL2 proof of concept).
+// Runs the operator at 4x rate, then decimates through a 4th-order Butterworth
+// low-pass -> much less aliasing at high feedback than the base-rate version.
+// params: _freq (Hz), _fb (feedback index), _amp
+
+@init
+OS = 4;                          // fixed oversampling ratio
+osrate = srate * OS;
+// AA low-pass: cutoff ~= base Nyquist, as a fraction of the OVERSAMPLED rate
+f0 = 0.49 / OS;
+w0 = 2.0*$pi*f0; cw = cos(w0); sw = sin(w0);
+b0 = (1.0-cw)*0.5; b1 = 1.0-cw; b2 = (1.0-cw)*0.5;   // shared LP numerator
+// stage A (Butterworth 4th-order, Q = 0.54120)
+al = sw/(2.0*0.54119610); a0 = 1.0+al;
+b0A=b0/a0; b1A=b1/a0; b2A=b2/a0; a1A=(-2.0*cw)/a0; a2A=(1.0-al)/a0;
+// stage B (Q = 1.30656)
+al = sw/(2.0*1.30656296); a0 = 1.0+al;
+b0B=b0/a0; b1B=b1/a0; b2B=b2/a0; a1B=(-2.0*cw)/a0; a2B=(1.0-al)/a0;
+
+@sample
+inc = _freq/osrate;              // phase increment at the oversampled rate
+y = 0;
+loop(OS,
+    avg = 0.5*(m1 + m2);         // DX7 2-sample average feedback (now at OS rate)
+    phase += inc; phase -= (phase>=1.0);
+    s = _amp * sin(2.0*$pi*phase + _fb*avg);
+    m2 = m1; m1 = s;
+
+    // anti-aliasing decimation filter, run on every sub-sample (Direct Form I)
+    oA = b0A*s  + b1A*xa1 + b2A*xa2 - a1A*ya1 - a2A*ya2; xa2=xa1; xa1=s;  ya2=ya1; ya1=oA;
+    oB = b0B*oA + b1B*xb1 + b2B*xb2 - a1B*yb1 - a2B*yb2; xb2=xb1; xb1=oA; yb2=yb1; yb1=oB;
+    y = oB;                      // last filtered sub-sample = decimated output
+);
+out0 = y;

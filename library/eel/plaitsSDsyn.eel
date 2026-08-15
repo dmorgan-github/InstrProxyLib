@@ -1,0 +1,35 @@
+// Plaits synthetic (909) snare drum - DynGen/EEL2 port
+// params: _f0, _fmAmount, _decay, _snappy, _accent, _trig
+f0=_f0; fm_amount=_fmAmount*_fmAmount; decay=_decay; snappy=_snappy;
+dxt=decay*(1.0+decay*(decay-1.0));
+drum_decay=1.0-1.0/(0.015*srate)*pow(2.0,(-dxt*72.0-fm_amount*12.0+snappy*7.0)/12.0);
+snare_decay=1.0-1.0/(0.01*srate)*pow(2.0,(-decay*60.0-snappy*7.0)/12.0);
+fm_decay=1.0-1.0/(0.007*srate);
+snp=min(1.0,max(0.0,snappy*1.1-0.05));
+drum_level=sqrt(1.0-snp); snare_level=sqrt(snp);
+sfmin=min(10.0*f0,0.5); sfmax=min(35.0*f0,0.5);
+
+(_trig>0.0)&&(tprev<=0.0) ? ( samp=0.3+0.7*_accent; damp=samp; fm=1.0; ph0=0.0; ph1=0.0; hold=(0.04+decay*0.03)*srate; );
+tprev=_trig;
+
+damp*=drum_decay;
+hold>=1.0 ? ( hold-=1.0; ) : ( samp*=snare_decay; );
+fm*=fm_decay;
+
+rna=min(1.0,max(0.0,(0.125-f0)*8.0)); rna*=rna; rna*=fm_amount;
+rn=(ph0>0.5 ? -1.0:1.0)+(ph1>0.5 ? -1.0:1.0); rn*=rna*0.025;
+f=f0*(1.0+fm_amount*4.0*fm); ph0+=f; ph1+=f*1.47;
+rna>0.1 ? ( ph0 = ph0>=1.0+rn ? 1.0-ph0 : ph0; ph1 = ph1>=1.0+rn ? 1.0-ph1 : ph1; )
+        : ( ph0 = ph0>=1.0 ? ph0-1.0 : ph0; ph1 = ph1>=1.0 ? ph1-1.0 : ph1; );
+
+tri0=(ph0<0.5?ph0:1.0-ph0)*4.0-1.3; d0=2.0*tri0/(1.0+abs(tri0));
+tri1=(ph1<0.5?ph1:1.0-ph1)*4.0-1.3; d1=2.0*tri1/(1.0+abs(tri1));
+drum=-0.1+d0*0.60+d1*0.25; drum*=damp*drum_level;
+g=tan($pi*min(3.0*f0,0.49)); v=(drum-dz)*g/(1.0+g); ylp=v+dz; dz=ylp+v; drum=ylp;
+
+noise=rand(1.0);
+g=tan($pi*sfmax); rr=1.0/(0.5+2.0*snp); h=1.0/(1.0+rr*g+g*g);
+hp=(noise-rr*ss1-g*ss1-ss2)*h; bp=g*hp+ss1; ss1=g*hp+bp; lp=g*bp+ss2; ss2=g*bp+lp; snare=lp;
+g=tan($pi*sfmin); v=(snare-shpz)*g/(1.0+g); ylp=v+shpz; shpz=ylp+v; snare=snare-ylp;
+snare=(snare+0.1)*(samp+fm)*snare_level;
+out0=snare+drum;

@@ -5,9 +5,11 @@ convenience object for wiring midi to a single node
 var ctrl = Environment.make({|self|
 
     var midi = Module('ctrl/midi').();
-    var node;
+    var nodes = Order();
 
     self.know = true;
+
+    self.midi = midi;
 
     self.addAction = {|self, action, func|
         midi.onAction(action, func);
@@ -20,13 +22,16 @@ var ctrl = Environment.make({|self|
         // before calling .note
         midi
         .onAction('noteOn', {|note, vel, chan| 
+            var node = nodes[chan];
             node.on(note, vel) 
         })
-        .onAction('noteOff', {|note, chan| 
+        .onAction('noteOff', {|note, chan|
+            var node = nodes[chan];
             node.off(note) 
         })
         .onAction('bend', {|val, chan|
             //[\bend, val].debug("nodemidi.scd");
+            var node = nodes[chan];
             node.bend(val)
         })
         .connect(device, name);
@@ -35,7 +40,8 @@ var ctrl = Environment.make({|self|
     };
 
     self.note = {|self, obj, chan=0|
-        node = obj;
+        //node = obj;
+        nodes.put(chan, obj);
         midi.note(chan);
         midi.bend(chan);
         self;
@@ -44,14 +50,18 @@ var ctrl = Environment.make({|self|
     // ~mu.cc( t(5), [atk -> 34, dec -> 35] )
     self.cc = {|self, obj, kv, chan=0|
         var props, ccNums, order;
-        node = obj;
+        var node = obj;
+        nodes.put(chan, node);
+        kv = kv.sort({|a, b| b.value > a.value });
         props = kv.collect({|a| a.key }).as(Array);
         ccNums = kv.collect({|a| a.value }).as(Array);
         order = Order.newFromIndices(props, ccNums);
 
         midi.onAction('cc', {|num, val, chan|
             var mapped, ctrl, spec, filter;
+            var node = nodes[chan];
             ctrl = order[num];
+
             if (ctrl.isFunction) {
                 ctrl.(val)
             } {
@@ -65,6 +75,7 @@ var ctrl = Environment.make({|self|
         });
 
         // try to initialze device with current values
+        //MIDIClient.init;
         order.indices.do({|num|
             var spec, min, max, current, ccval;
             var ctrl = order[num];
@@ -86,7 +97,9 @@ var ctrl = Environment.make({|self|
                     }{
                         ccval = current.linlin(min, max, 0, 127);
                     };
+                    ccval = ccval.asInteger;
                     try {
+                        //[chan, num, ccval].debug("nodemidi");
                         midi.out.control(chan, num, ccval);
                     } {|err|
                         "midi out: %".format(err).warn;

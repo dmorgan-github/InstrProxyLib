@@ -1,0 +1,41 @@
+// FM7 clone (6-op phase-modulation matrix) with DX7-style feedback.
+// Identical to sc3-plugins FM7 EXCEPT the diagonal self-feedback term uses the
+// average of the last TWO output samples (Yamaha anti-hunting), not one.
+//
+// params (all default 0 if unset):
+//   _f1.._f6  operator freq (Hz)
+//   _a1.._a6  operator amplitude / EG level
+//   _o1.._o6  operator phase offset (radians)  [FM7's "phase" control]
+//   _mIJ      modulation matrix: amount operator J modulates operator I
+//             (I=row=modulated, J=col=modulator; _mII = self-feedback)
+// outputs: out0..out5 = the six operator signals (slice carriers in SC, like FM7)
+//
+// state: ph* phase, m* = last output (y[n-1]), n* = previous output (y[n-2])
+
+inc1=_f1/srate; inc2=_f2/srate; inc3=_f3/srate; inc4=_f4/srate; inc5=_f5/srate; inc6=_f6/srate;
+
+// self-feedback source = 2-sample average (the ONLY change vs FM7)
+fb1=0.5*(m1+n1); fb2=0.5*(m2+n2); fb3=0.5*(m3+n3);
+fb4=0.5*(m4+n4); fb5=0.5*(m5+n5); fb6=0.5*(m6+n6);
+
+// phase modulation: sum over modulators (previous-sample outputs), diagonal averaged
+pm1=_o1 + _m11*fb1 + _m12*m2 + _m13*m3 + _m14*m4 + _m15*m5 + _m16*m6;
+pm2=_o2 + _m21*m1 + _m22*fb2 + _m23*m3 + _m24*m4 + _m25*m5 + _m26*m6;
+pm3=_o3 + _m31*m1 + _m32*m2 + _m33*fb3 + _m34*m4 + _m35*m5 + _m36*m6;
+pm4=_o4 + _m41*m1 + _m42*m2 + _m43*m3 + _m44*fb4 + _m45*m5 + _m46*m6;
+pm5=_o5 + _m51*m1 + _m52*m2 + _m53*m3 + _m54*m4 + _m55*fb5 + _m56*m6;
+pm6=_o6 + _m61*m1 + _m62*m2 + _m63*m3 + _m64*m4 + _m65*m5 + _m66*fb6;
+
+// oscillators (phase-modulation, sine)
+ph1+=inc1; ph1-=(ph1>=1.0); s1=_a1*sin(2.0*$pi*ph1+pm1);
+ph2+=inc2; ph2-=(ph2>=1.0); s2=_a2*sin(2.0*$pi*ph2+pm2);
+ph3+=inc3; ph3-=(ph3>=1.0); s3=_a3*sin(2.0*$pi*ph3+pm3);
+ph4+=inc4; ph4-=(ph4>=1.0); s4=_a4*sin(2.0*$pi*ph4+pm4);
+ph5+=inc5; ph5-=(ph5>=1.0); s5=_a5*sin(2.0*$pi*ph5+pm5);
+ph6+=inc6; ph6-=(ph6>=1.0); s6=_a6*sin(2.0*$pi*ph6+pm6);
+
+// shift 2-sample history, then store this sample
+n1=m1; m1=s1; n2=m2; m2=s2; n3=m3; m3=s3;
+n4=m4; m4=s4; n5=m5; m5=s5; n6=m6; m6=s6;
+
+out0=s1; out1=s2; out2=s3; out3=s4; out4=s5; out5=s6;

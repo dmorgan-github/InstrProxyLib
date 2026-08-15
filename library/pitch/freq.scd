@@ -11,14 +11,16 @@ synth: {
     detune = detune * in_freq.linlin(130, 261, 0, 1);
     bend = \bend.ar(0, spec: ControlSpec(-12, 12, \lin, 0, 0, units:"pitch")).midiratio;
     freqbend = in_freq * bend;
-    freq = [freqbend + detune.neg, freqbend + detune];
-    /*
+    freq = [freqbend + detune, freqbend + detune.neg];
+    
     freq = Vibrato.ar([freqbend + detune.neg, freqbend + detune],
         \vrate.ar(6, spec: ControlSpec(0, 440, \lin, 0, 6, units:"pitch")),
         \vdepth.kr(0.0, spec: ControlSpec(0, 1, \lin, 0, 0, units:"pitch")),
-        delay: \vdelay.kr(0, spec: ControlSpec(0, 2, \lin, 0, 0, units:"pitch"))
+        delay: \vdelay.kr(0, spec: ControlSpec(0, 2, \lin, 0, 0, units:"pitch")),
+        onset: \vonset.kr(0, spec: ControlSpec(0, 2, \lin, 0, 0, units:"pitch" ) ),
+        rateVariation: \vratevar.kr(0, spec: ControlSpec(0, 1, \lin, 0, 0, units:"pitch") ),
+        depthVariation: \vdepthvar.kr(0, spec: ControlSpec(0, 1, \lin, 0, 0, units:"pitch") )
     );
-    */
 
     freq
 }
